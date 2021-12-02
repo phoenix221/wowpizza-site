@@ -1,0 +1,142 @@
+<div class="container page-container">
+    {{nav_tpl}}
+    <div class="page-wrap">
+        <div class="row">
+            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12 {noimg} saleimgsblock">
+                @if(d()->this->image):
+                <img src="{.image}" alt="{.image_alt}" title="{.image_title}" class="sd-img">
+                @endif;
+                @if(d()->this->image2):
+                <img src="{.image2}" alt="{.image2_alt}" title="{.image2_title}" class="sd-img">
+                @endif;
+                @if(d()->this->image3):
+                <img src="{.image3}" alt="{.image3_alt}" title="{.image3_title}" class="sd-img">
+                @endif;
+                @if(d()->this->image4):
+                <img src="{.image4}" alt="{.image4_alt}" title="{.image4_title}" class="sd-img">
+                @endif;
+                @if(d()->this->used_template==4):
+                <div class="market mt-20">
+                    <a href="https://play.google.com/store/apps/details?id=appetit.app" target="_blank"><img src="/images/google_play-logo.png" alt="google play" title="google play" class="market-mobile"></a>
+                    <a href="https://apps.apple.com/ru/app/аппетит-доставка-роллов-пиццы/id1558072639" target="_blank"><img src="/images/app-store-apple-logo.png" alt="app store" title="app store" class="market-mobile"></a>
+                </div>
+                @endif;
+            </div>
+            <div class="{sale_info_class}">
+                <h1>{.title} {{edit}}{{delete}}</h1>
+                <div class="text">{.text}</div>
+                <h3 class="mt-30">Условия</h3>
+                <div style="font-weight: normal;">
+                  <p>
+                  @if(d()->this->products_count):
+                    В одном заказе может быть {.products_count}.
+                  @endif;
+                  @if(d()->this->min_sum!=''):
+                      @if(d()->this->min_sum>0):
+                      Минимальная сумма заказа {.min_sum} руб.
+                      @else:
+                      Без минимальной суммы заказа.
+                      @endif;
+                  @endif;
+                  @if(d()->this->is_not_points || d()->this->is_not_dr || d()->this->is_not_delivery):
+                    Не суммируется с акцией
+                    @if(d()->this->is_not_points):
+                    "Бонусные баллы",
+                    @endif;
+                    @if(d()->this->is_not_dr):
+                    "День рождения",
+                    @endif;
+                    @if(d()->this->is_not_delivery):
+                    "Подарки за самовывоз",
+                    @endif;
+                    @if(d()->this->is_not_double_promo):
+                    другими промокодами.
+                    @endif;
+                  @else:
+                    Не суммируется с другими акциями
+                    @if(d()->this->is_not_double_promo):
+                    и промокодами.
+                    @endif;
+                  @endif;
+                  </p>
+                  <p>С условиями доставки можно ознакомиться после ввода адреса в корзине, либо уточнив у операторов. Акция может быть отменена в любой момент без предупреждения. Не является публичной офертой.</p>
+                </div>
+
+                @if(d()->this->period):
+                <div class="sale-det">Период действия: <strong>{.period}</strong></div>
+                @endif;
+                @if(d()->this->promocode):
+                <div class="sale-det sale-promo-m">Промокод:
+                @d()->pc = explode(',', d()->this->promocode);
+                @foreach (d()->pc as d()->key=>d()->val):
+                    @d()->text = trim(d()->val, ' ');
+                    <span  onclick="copytext_autin(this)" class="btn-promo btn-promo-m" data-msg="Скопировано в буфер обмена" data-copyid="copy-promo-{key}" id="copy-promo-{key}">{text}</span>
+                @endforeach;
+                </div>
+                @endif;
+
+              @if(d()->this->used_template):
+              <h3 class="mt-30">Как использовать промокод?</h3>
+              <div style="font-weight: normal;">
+                @if(d()->this->used_template==1):
+                <p>
+                  Для этого необходимо:<br>
+                <ul>
+                  <li>- добавить блюда по акции в корзину;</li>
+                  <li>- ввести в корзине промокод{.promocode_fu};</li>
+                  <li>- цена изменится после ввода промокода автоматически;</li>
+                  <li>- оформить заказ.</li>
+                </ul>
+                Или просто сообщи промокод{.promocode_fu} оператору при заказе по телефону <a href="tel:{city.phone}">{city.phone}</a>.
+                </p>
+                @endif;
+                @if(d()->this->used_template==2):
+                <p>
+                  Для этого необходимо:<br>
+                <ul>
+                  <li>- добавить блюда по акции в корзину;</li>
+                  <li>- ввести в корзине промокод{.promocode_fu};</li>
+                  <li>- подарок добавится после ввода промокода автоматически;</li>
+                  <li>- оформить заказ.</li>
+                </ul>
+                Или просто сообщи промокод{.promocode_fu} оператору при заказе по телефону <a href="tel:{city.phone}">{city.phone}</a>.
+                </p>
+                @endif;
+                  @if(d()->this->used_template==3):
+                  <p>
+                      Для этого необходимо:<br>
+                  <ul>
+                      <li>- добавить блюда по акции в корзину;</li>
+                      <li>- ввести в корзине промокод{.promocode_fu};</li>
+                      <li>- скидка / подарочные блюда активируется автоматически, после ввода промокода;</li>
+                      <li>- оформить заказ.</li>
+                  </ul>
+                  Или просто сообщи промокод{.promocode_fu} оператору при заказе по телефону <a href="tel:{city.phone}">{city.phone}</a>.
+                  </p>
+                  @endif;
+                @if(d()->this->used_template==4):
+                <p>
+                    Для этого необходимо:<br>
+                    <ul>
+                  <li>скачать мобильное приложение в <a href="https://play.google.com/store/apps/details?id=appetit.app">Play Market</a> или в <a href="https://apps.apple.com/ru/app/аппетит-доставка-роллов-пиццы/id1558072639">AppStore</a>;</li>
+                        <li>авторизоваться в личном кабинете;</li>
+                        <li>ввести в корзине промокод {.promocode_fu};</li>
+                        <li>скидка / подарочные блюда активируется автоматически, после ввода промокода;</li>
+                        <li>оформить заказ.</li>
+                    </ul>
+                </p>
+                @endif;
+              </div>
+              @endif;
+            </div>
+        </div>
+        @if(d()->this->products && d()->this->products_title):
+        <div class="sale-h2"><h2>Список акционных блюд:</h2></div>
+        {{product_list_tpl}}
+        @endif;
+        @if(d()->this->products2 && d()->this->recommend_order):
+        <div class="sale-h2 mar-top"><h2>Рекомендуем к Вашему заказу:</h2></div>
+        {{product_list_two_tpl}}
+        @endif;
+    </div>
+</div>

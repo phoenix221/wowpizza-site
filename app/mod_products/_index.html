@@ -1,0 +1,123 @@
+@if(url(1)=='ajax'):
+
+<!-- AJAX WORK -->
+
+@if($_GET['like'] || $_GET['not']):
+{{product_list_tpl}}
+@else:
+<foreach subcategories_list as sub>
+    @d()->products_list = d()->Product->where('subcategory_id LIKE ? AND is_active = 1 AND is_stop=0', '%|'.d()->sub->id.'|%')->order_by(d()->sort_rule.' asc');
+    @if(d()->products_list->count):
+    @d()->subcat_flag = 1;
+    <div class="subcategory-wrap" id="subcategory{.id}">
+        @if(d()->mutli_subcat==0):
+        <h2>{.title}</h2>
+        @endif;
+        {{product_list_tpl}}
+    </div>
+    @endif;
+</foreach>
+@if(d()->subcategories_list->count):
+@d()->products_list = d()->Product->where('category_id LIKE ? AND is_active=1 AND is_stop=0 AND city_id=? AND id NOT IN (?) OR category_id=? AND is_active=1 AND is_stop=0 AND city_id=? AND id NOT IN (?)', '%|'.d()->category->id.'|%', d()->city->id, d()->subcat_pids, d()->category->id, d()->city->id, d()->subcat_pids)->order_by(d()->sort_rule.' asc');
+@else:
+@d()->products_list = d()->Product->where('category_id LIKE ? AND is_active=1 AND is_stop=0 AND city_id=? OR category_id=? AND is_active=1 AND is_stop=0 AND city_id=?', '%|'.d()->category->id.'|%', d()->city->id,  d()->category->id, d()->city->id)->order_by(d()->sort_rule.' asc');
+@endif;
+{{product_list_tpl}}
+@endif;
+@else:
+
+<!-- CLASSIC WORK -->
+
+<div class="container page-container relative">
+    @if(d()->show_slider == 1):
+    <!--noindex-->
+    <div class="main-slider-wrap">
+        <div class="main-slider">
+            <foreach slides_list>
+                <a href="{.url}" rel="nofollow"><img src="{.image|preview 'auto', 'auto'}" alt="{.title}" title="{.number}"></a>
+            </foreach>
+        </div>
+    </div>
+    <!--/noindex-->
+    @endif;
+    <div class="for-filter">
+        {{nav_tpl}}
+    </div>
+    <div class="page-wrap">
+        <div class="h-line hl-relative">
+            @if(d()->mutli_subcat==1):
+            <h1><span>{subcategory_title} {{edit 'subcategories/'.d()->subcategory_id}}{{add 'products', 'category_id'=>d()->category->id, 'city_id'=>d()->city->id}}</span></h1>
+            @else:
+            <h1><span>{category.title} {{edit 'categories/'.d()->category->id}}{{add 'products', 'category_id'=>d()->category->id, 'city_id'=>d()->city->id}}</span></h1>
+            @endif;
+            <div class="filtr">
+                <img src="/images/loading.gif" class="filter-load" id="filter-load" alt="">
+                <span class="ttl {factive}"><i class="mdi mdi-heart"></i><em>Фильтр по ингредиентам</em></span>
+                <div class="filtr-block">
+                    <ul>
+                        <foreach f_list>
+                            <li data-id="{.id}" class="{.f_class}"><i class="mdi mdi-close" data-type="not"></i><span data-type="like"><i class="mdi mdi-heart"></i>{.title}</span></li>
+                        </foreach>
+                    </ul>
+                    <div class="filtr-footer">
+                        <a href="#" onclick="clear_filtr(this);">сбросить фильтр</a>
+                        <button onclick="run_filtr(this);" class="btn btn-red">Применить</button>
+                    </div>
+                </div>
+            </div>
+            {{delivery_btn_tpl}}
+        </div>
+        @if(d()->subflag != 1 && d()->category->text):
+        <div class="mt-20 mb-50 fw-400">{category.text}</div>
+        @endif;
+        @if(d()->subflag == 1 && d()->subtext):
+        <div class="mt-20 mb-50 fw-400">{subtext}</div>
+        @endif;
+        @if(d()->subcategories_list->count && d()->mutli_subcat==0):
+        <div id="sticky-subcategories">
+            <div class="subcategories {none_subcategories}">
+                <foreach subcategories_list>
+                    <!--<a href="/menu/{category.url}/{.url}/" class="subcat-lnk">{.title}</a>-->
+                    <a href="#subcategory{.id}" class="subcat-lnk">{.title}</a>
+                </foreach>
+            </div>
+        </div>
+        @endif;
+        <div class="page-content" id="products-wrap" data-url="{url}" data-loadmore="{loadmore}" data-start="{selected}">
+            @if($_GET['like'] || $_GET['not']):
+            {{product_list_tpl}}
+            @else:
+            <foreach subcategories_list as sub>
+                @d()->products_list = d()->Product->where('subcategory_id LIKE ? AND is_active = 1 AND is_stop=0', '%|'.d()->sub->id.'|%')->order_by(d()->sort_rule.' asc');
+                @if(d()->products_list->count):
+                @d()->subcat_flag = 1;
+                <div class="subcategory-wrap" id="subcategory{.id}">
+                    @if(d()->mutli_subcat==0):
+                    <a class="subcategory-wrap-title" href="/menu/{category.url}/{.url}/" class="subcat-hlnk">{.title}</a>
+                    @endif;
+                    {{product_list_tpl}}
+                </div>
+                @endif;
+            </foreach>
+            @if(d()->subcategories_list->count):
+            @d()->products_list = d()->Product->where('category_id LIKE ? AND is_active=1 AND is_stop=0 AND city_id=? AND id NOT IN (?) OR category_id=? AND is_active=1 AND is_stop=0 AND city_id=? AND id NOT IN (?) OR dop_category LIKE ? AND is_active=1 AND is_stop=0 AND city_id=? AND id NOT IN (?)', '%|'.d()->category->id.'|%', d()->city->id, d()->subcat_pids, d()->category->id, d()->city->id, d()->subcat_pids, '%|'.d()->category->id.'|%', d()->city->id, d()->subcat_pids)->order_by(d()->sort_rule.' asc');
+            @else:
+            @d()->products_list = d()->Product->where('category_id LIKE ? AND is_active=1 AND is_stop=0 AND city_id=? OR category_id=? AND is_active=1 AND is_stop=0 AND city_id=? OR dop_category LIKE ? AND is_active=1 AND is_stop=0 AND city_id=?', '%|'.d()->category->id.'|%', d()->city->id,  d()->category->id, d()->city->id, '%|'.d()->category->id.'|%', d()->city->id)->order_by(d()->sort_rule.' asc');
+            @endif;
+            @if(d()->mutli_subcat==0):
+            {{product_list_tpl}}
+            @endif;
+            @endif;
+        </div>
+        <!--<div class="text-center"><img src="/images/loading.gif" class="loadmore-img" alt=""></div>-->
+        @if(d()->subflag != 1 && d()->category->after_text):
+        <div class="fw-400">{category.after_text}</div>
+        @endif;
+        @if(d()->subflag == 1 && d()->subaftertext):
+        <div class="fw-400">{subaftertext}</div>
+        @endif;
+    </div>
+</div>
+
+
+@endif;

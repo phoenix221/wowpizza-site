@@ -1,0 +1,170 @@
+<input id="products-search" placeholder="Поиск по товарам">
+<style>
+  .table{
+    display:-webkit-box;display:-ms-flexbox;display:flex;
+    -ms-flex-wrap:wrap;flex-wrap:wrap;
+  }
+  .table div.line{
+    width: 100%;
+  }
+  .table div.line{
+    width: 100%;
+    display:-webkit-box;display:-ms-flexbox;display:flex;
+    -webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between;
+    -webkit-box-align:center;-ms-flex-align:center;align-items:center;
+    margin: 5px 0;
+  }
+  .table div.hide{
+    display: none !important;
+  }
+  .table div.line:nth-child(2n){
+    background: #f7f7f7;
+  }
+  .table div.line .ttl{
+    width: 440px;
+    text-align: left;
+  }
+  .pick{
+    display: block;
+  }
+  .del{
+    display: none;
+  }
+  div.order{
+    order:-1;
+  }
+  div.picked .pick{
+    display: none;
+  }
+  div.picked .del{
+    display: block;
+  }
+  .ma-modal input{
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #aaa;
+    font-size: 15px;
+    line-height: 15px;
+    width: 100%;
+    color: #666;
+    box-sizing: border-box;
+    margin: 10px 0 15px 0 !important;
+  }
+  .ma-modal input.small{
+    padding: 4px;
+    border-radius: 2px;
+    border: 1px solid #aaa;
+    font-size: 14px;
+    line-height: 14px;
+    width: 100px;
+    color: #666;
+    box-sizing: border-box;
+    margin: 0 2px !important;
+    text-align: center;
+  }
+  .ma-modal input.none{
+    display: none;
+  }
+  div.picked input.none{
+    display: inline-block !important;
+  }
+  .categories_list{
+    margin-bottom:15px;
+  }
+  .categories_list button{
+    margin: 2px 0;
+  }
+  .categories_list button.active{
+    background-color: #006dcc;
+    background-image: linear-gradient(to bottom,#08c,#04c);
+    color:#fff;
+    text-shadow: 0 -1px 0 rgba(0,0,0,0.25);
+  }
+  .categories_list button.active:hover{
+    background-color: #04c !important;
+    background-image: linear-gradient(to bottom,#04c,#04c) !important;
+  }
+  .none{
+    display: none !important;
+  }
+</style>
+
+<div class="table" id="products-table">
+  <foreach products_list as p>
+    <div data-id="{p.id}" id="products-{p.id}_0" class="line {pick}">
+      <div style="width:105px;"><img src="{p.image|preview 380, 315}" width="80px" alt=""></div>
+      <div class="ttl"><span>{p.title} (<?=d()->cities[d()->p->city_id]?>)</span>, <strong style="white-space: nowrap;">{p.price} руб.</strong></div>
+      <div style="padding: 0 10px;width:200px;text-align: right;">
+          <div class="pick">
+            <button type="button" onclick="pick_product(this, '{p.id}');" class="btn btn-primary btn-small">Выбрать</button>
+          </div>
+          <div class="del">
+              <button type="button" class="btn btn-default btn-small" disabled>Выбрано</button>
+              <button type="button" onclick="del_product(this, '{p.id}');" class="btn btn-danger btn-small">Удалить</button>
+          </div>
+      </div>
+    </div>
+  </foreach>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#products-search").keyup(function(){
+            _this = this;
+
+            $("#products-table div.line").each(function(){
+                if($(this).find('.ttl').text().toLowerCase().indexOf($(_this).val().toLowerCase()) === -1) {
+                    $(this).addClass('none');
+                } else {
+                    $(this).removeClass('none');
+                }
+            });
+        });
+
+
+        $('#get-products-modal').on('hide.bs.modal', function () {
+            run_p_id_list();
+        });
+    });
+
+    function pick_product(elem, id) {
+        var div = $(elem).closest('div');
+        var line = $(elem).closest('div.line');
+        var b_pick = $(elem).closest('.pick');
+        var b_del = line.find('.del');
+
+        line.addClass('picked');
+    }
+
+    function del_product(elem, id) {
+        var line = $(elem).closest('div.line');
+        if(!line.length){
+            var li = $(elem).closest('li');
+            var line = $('#products-'+id);
+            console.log('ID: '+id);
+            li.remove();
+        }
+        line.removeClass('picked');
+        run_p_id_list();
+    }
+
+    function run_p_id_list() {
+
+        var line_picks = $('#products-table .picked');
+        var p_list = '';
+        var id_list = '';
+        var id = '';
+        $(line_picks).each(function(){
+            id = $(this).attr('id').replace('products-', '');
+            p_list += '<li>'+$(this).find('.ttl span').text()+' <i title="Удалить" class="dgi mdi mdi-close-circle" onclick=\'del_product(this, "'+id+'");\'></i></li>';
+            if(id_list){
+                id_list += ',';
+            }
+            id_list += $(this).data('id');
+
+        });
+        $('#products-ul').html(p_list);
+        $('input[name="products[{.id}]"]').val(id_list);
+        console.log(id_list);
+    }
+</script>

@@ -1,0 +1,29 @@
+<?php
+    if(url(4)!='add'){
+        d()->th = d()->Redirect->where('id=?', url(4));
+    }
+?>
+<div class="control-group">
+    <label class="control-label"  ></label>
+    <div class="controls">
+        <label class="radio">
+            <input type="radio"  name="multi" value="1" <?php
+            if(!d()->th->multi_domain){
+                print ' checked ';
+            }
+            ?> onclick="$('#admin_potential_multi_domain').val('')">Параметры для всех поддоменов
+        </label>
+        <label class="radio">
+            <input type="radio"  name="multi" value="0"  <?php
+            if(d()->th->multi_domain){
+                print ' checked ';
+            }
+            ?>  onclick="$('#admin_potential_multi_domain').val('{admin_potential_multi_domain}')">Параметры для текущего поддомена <?php if(d()->th->multi_domain) { ?>(<b>{th.multi_domain}</b>)<?php } ?>
+        </label>
+    </div>
+</div>
+<?if(!d()->th->multi_domain):?>
+    <input type="hidden" id="admin_potential_multi_domain" name="data[multi_domain]" value="">
+<?else:?>
+    <input type="hidden" id="admin_potential_multi_domain" name="data[multi_domain]" value="{th.multi_domain}">
+<?endif;?>

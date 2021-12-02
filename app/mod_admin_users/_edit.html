@@ -1,0 +1,399 @@
+{{form 'admin_users#save', 'user', 'global'=>true, 'ajax'=>true, 'run_before'=>'content', 'class'=>"form-horizontal admin_edit_form"}}
+<fieldset class="input_elements">
+
+    <input type="hidden" name="_enable_multiple" value="0">
+    <input type="hidden" name="element_id" value="<?php print htmlspecialchars(url(4)); ?>">
+
+    <legend>Управление пользователями</legend>
+    <div class="notice_container"></div>
+
+    <div class="control-group">
+        <label class="control-label"  >Логин*</label>
+        <div class="controls">
+            {{input 'login', 'class'=>'input-xlarge'}}
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label class="control-label"  >Имя*</label>
+        <div class="controls">
+            {{input 'name', 'class'=>'input-xlarge'}}
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label class="control-label"  >Телефон*</label>
+        <div class="controls">
+            {{input 'phone', 'class'=>'input-xlarge'}}
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label class="control-label"  >Пароль*</label>
+        <div class="controls">
+            {{input 'password', 'type'=>'password', 'value'=>'', 'class'=>'input-xlarge', 'attr'=>'autocomplete="new-password"'}}
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label class="control-label"  >Подтверждение пароля*</label>
+        <div class="controls">
+            {{input 'password_confirmation', 'type'=>'password', 'value'=>'', 'class'=>'input-xlarge'}}
+        </div>
+    </div>
+
+    <div class="control-group" style="display: none">
+        <label class="control-label"  >Таблицы, к которым разрешён доступ</label>
+        <div class="controls">
+            {{input 'whitelist', 'class'=>'input-xlarge'}}
+        </div>
+    </div>
+    <br><br>
+    <legend>Доступ к городам</legend>
+    @d()->cities_list = d()->City;
+    <foreach cities_list>
+    @d()->ch = '';if(strpos(d()->user->cities, '|'.d()->this->id.'|') !== false)d()->ch = 'checked';
+    <div class="control-group" style="margin-bottom:0;padding:0;">
+        <div class="controls">
+            <label class="checkbox" style="margin-bottom:0; "> <input type="checkbox" value="{.id}" class="automatic_checkbox city_input" {ch}> <strong>{.title}</strong></label>
+        </div>
+    </div>
+    <br>
+    </foreach>
+    <input type="hidden"  name="user[cities]" value="{user.cities}" >
+    <br>
+    <script>
+        $(document).ready(function(){
+            $(".city_input").change(function(){
+                var c_line = '';
+                $(".city_input:checked").each(function(){
+                    c_line += '|'+$(this).val()+'|';
+                });
+                $('input[name="user[cities]"]').val(c_line);
+            });
+        });
+    </script>
+
+    <legend>Доступ к таблицам</legend>
+    <!-- города: просмотр настроек -->
+    @d()->ch = '0';if(strpos(d()->user->d_whitelist, 'cities_view') !== false)d()->ch = '1';
+    <div class="control-group" style="margin-bottom:0;padding:0;">
+        <div class="controls">
+            <label class="checkbox" style="margin-bottom:0; "> <input type="checkbox" class="automatic_checkbox" > <strong>Города:</strong> <span style="color:#777;">просмотр настроек</span></label>
+            <input type="hidden"  name="user[is_cities_view]" value="{ch}" class="input-small automatic_checkbox_input"  >
+        </div>
+    </div>
+    <!-- города: редактирование настроек -->
+    @d()->ch = '0';if(strpos(d()->user->d_whitelist, 'cities_edit') !== false)d()->ch = '1';
+    <div class="control-group" style="margin-bottom:0;padding:0;">
+        <div class="controls">
+            <label class="checkbox" style="margin-bottom:0; "> <input type="checkbox" class="automatic_checkbox" > <strong>Города:</strong> <span style="color:#777;">редактирование (все настройки)</span></label>
+            <input type="hidden"  name="user[is_cities_edit]" value="{ch}" class="input-small automatic_checkbox_input"  >
+        </div>
+    </div>
+    <!-- города: редактирование режима работы -->
+    @d()->ch = '0';if(strpos(d()->user->d_whitelist, 'cities_wt_edit') !== false)d()->ch = '1';
+    <div class="control-group" style="margin-bottom:0;padding:0;">
+        <div class="controls">
+            <label class="checkbox" style="margin-bottom:0; "> <input type="checkbox" class="automatic_checkbox" > <strong>Города:</strong> <span style="color:#777;">редактирование (только режим работы)</span></label>
+            <input type="hidden"  name="user[is_cities_wt_edit]" value="{ch}" class="input-small automatic_checkbox_input"  >
+        </div>
+    </div>
+    <br>
+
+    <!-- меню: просмотр -->
+    @d()->ch = '0';if(strpos(d()->user->d_whitelist, 'products_view') !== false)d()->ch = '1';
+    <div class="control-group" style="margin-bottom:0;padding:0;">
+        <div class="controls">
+            <label class="checkbox" style="margin-bottom:0; "> <input type="checkbox" class="automatic_checkbox" > <strong>Меню:</strong> <span style="color:#777;">просмотр</span></label>
+            <input type="hidden"  name="user[is_products_view]" value="{ch}" class="input-small automatic_checkbox_input"  >
+        </div>
+    </div>
+    <!-- меню: редактирование -->
+    @d()->ch = '0';if(strpos(d()->user->d_whitelist, 'products_edit') !== false)d()->ch = '1';
+    <div class="control-group" style="margin-bottom:0;padding:0;">
+        <div class="controls">
+            <label class="checkbox" style="margin-bottom:0; "> <input type="checkbox" class="automatic_checkbox" > <strong>Меню:</strong> <span style="color:#777;">редактирование</span></label>
+            <input type="hidden"  name="user[is_products_edit]" value="{ch}" class="input-small automatic_checkbox_input"  >
+        </div>
+    </div>
+    <br>
+
+    <!-- промокоды: просмотр -->
+    @d()->ch = '0';if(strpos(d()->user->d_whitelist, 'promocodes_view') !== false)d()->ch = '1';
+    <div class="control-group" style="margin-bottom:0;padding:0;">
+        <div class="controls">
+            <label class="checkbox" style="margin-bottom:0; "> <input type="checkbox" class="automatic_checkbox" > <strong>Промокоды:</strong> <span style="color:#777;">просмотр</span></label>
+            <input type="hidden"  name="user[is_promocodes_view]" value="{ch}" class="input-small automatic_checkbox_input"  >
+        </div>
+    </div>
+    <!-- промокоды: редактирование -->
+    @d()->ch = '0';if(strpos(d()->user->d_whitelist, 'promocodes_edit') !== false)d()->ch = '1';
+    <div class="control-group" style="margin-bottom:0;padding:0;">
+        <div class="controls">
+            <label class="checkbox" style="margin-bottom:0; "> <input type="checkbox" class="automatic_checkbox" > <strong>Промокоды:</strong> <span style="color:#777;">редактирование</span></label>
+            <input type="hidden"  name="user[is_promocodes_edit]" value="{ch}" class="input-small automatic_checkbox_input"  >
+        </div>
+    </div>
+    <br>
+
+    <!-- акции: просмотр -->
+    @d()->ch = '0';if(strpos(d()->user->d_whitelist, 'sales_view') !== false)d()->ch = '1';
+    <div class="control-group" style="margin-bottom:0;padding:0;">
+        <div class="controls">
+            <label class="checkbox" style="margin-bottom:0; "> <input type="checkbox" class="automatic_checkbox" > <strong>Акции:</strong> <span style="color:#777;">просмотр</span></label>
+            <input type="hidden"  name="user[is_sales_view]" value="{ch}" class="input-small automatic_checkbox_input"  >
+        </div>
+    </div>
+    <!-- акции: редактирование -->
+    @d()->ch = '0';if(strpos(d()->user->d_whitelist, 'sales_edit') !== false)d()->ch = '1';
+    <div class="control-group" style="margin-bottom:0;padding:0;">
+        <div class="controls">
+            <label class="checkbox" style="margin-bottom:0; "> <input type="checkbox" class="automatic_checkbox" > <strong>Акции:</strong> <span style="color:#777;">редактирование</span></label>
+            <input type="hidden"  name="user[is_sales_edit]" value="{ch}" class="input-small automatic_checkbox_input"  >
+        </div>
+    </div>
+    <br>
+
+    <!-- слайды: просмотр -->
+    @d()->ch = '0';if(strpos(d()->user->d_whitelist, 'slides_view') !== false)d()->ch = '1';
+    <div class="control-group" style="margin-bottom:0;padding:0;">
+        <div class="controls">
+            <label class="checkbox" style="margin-bottom:0; "> <input type="checkbox" class="automatic_checkbox" > <strong>Слайды:</strong> <span style="color:#777;">просмотр</span></label>
+            <input type="hidden"  name="user[is_slides_view]" value="{ch}" class="input-small automatic_checkbox_input"  >
+        </div>
+    </div>
+    <!-- слайды: редактирование -->
+    @d()->ch = '0';if(strpos(d()->user->d_whitelist, 'slides_edit') !== false)d()->ch = '1';
+    <div class="control-group" style="margin-bottom:0;padding:0;">
+        <div class="controls">
+            <label class="checkbox" style="margin-bottom:0; "> <input type="checkbox" class="automatic_checkbox" > <strong>Слайды:</strong> <span style="color:#777;">редактирование</span></label>
+            <input type="hidden"  name="user[is_slides_edit]" value="{ch}" class="input-small automatic_checkbox_input"  >
+        </div>
+    </div>
+    <br>
+
+    <!-- Новости: просмотр -->
+    @d()->ch = '0';if(strpos(d()->user->d_whitelist, 'news_view') !== false)d()->ch = '1';
+    <div class="control-group" style="margin-bottom:0;padding:0;">
+        <div class="controls">
+            <label class="checkbox" style="margin-bottom:0; "> <input type="checkbox" class="automatic_checkbox" > <strong>Новости:</strong> <span style="color:#777;">просмотр</span></label>
+            <input type="hidden"  name="user[is_news_view]" value="{ch}" class="input-small automatic_checkbox_input"  >
+        </div>
+    </div>
+    <!-- Новости: редактирование -->
+    @d()->ch = '0';if(strpos(d()->user->d_whitelist, 'news_edit') !== false)d()->ch = '1';
+    <div class="control-group" style="margin-bottom:0;padding:0;">
+        <div class="controls">
+            <label class="checkbox" style="margin-bottom:0; "> <input type="checkbox" class="automatic_checkbox" > <strong>Новости:</strong> <span style="color:#777;">редактирование</span></label>
+            <input type="hidden"  name="user[is_news_edit]" value="{ch}" class="input-small automatic_checkbox_input"  >
+        </div>
+    </div>
+    <br>
+
+    <!-- Текстовые страницы: просмотр -->
+    @d()->ch = '0';if(strpos(d()->user->d_whitelist, 'pages_view') !== false)d()->ch = '1';
+    <div class="control-group" style="margin-bottom:0;padding:0;">
+        <div class="controls">
+            <label class="checkbox" style="margin-bottom:0; "> <input type="checkbox" class="automatic_checkbox" > <strong>Текстовые страницы:</strong> <span style="color:#777;">просмотр</span></label>
+            <input type="hidden"  name="user[is_pages_view]" value="{ch}" class="input-small automatic_checkbox_input"  >
+        </div>
+    </div>
+    <!-- Текстовые страницы: редактирование -->
+    @d()->ch = '0';if(strpos(d()->user->d_whitelist, 'pages_edit') !== false)d()->ch = '1';
+    <div class="control-group" style="margin-bottom:0;padding:0;">
+        <div class="controls">
+            <label class="checkbox" style="margin-bottom:0; "> <input type="checkbox" class="automatic_checkbox" > <strong>Текстовые страницы:</strong> <span style="color:#777;">редактирование</span></label>
+            <input type="hidden"  name="user[is_pages_edit]" value="{ch}" class="input-small automatic_checkbox_input"  >
+        </div>
+    </div>
+    <br>
+
+    <!-- Вакансии: просмотр -->
+    @d()->ch = '0';if(strpos(d()->user->d_whitelist, 'vacancies_view') !== false)d()->ch = '1';
+    <div class="control-group" style="margin-bottom:0;padding:0;">
+        <div class="controls">
+            <label class="checkbox" style="margin-bottom:0; "> <input type="checkbox" class="automatic_checkbox" > <strong>Вакансии:</strong> <span style="color:#777;">просмотр</span></label>
+            <input type="hidden"  name="user[is_vacancies_view]" value="{ch}" class="input-small automatic_checkbox_input"  >
+        </div>
+    </div>
+    <!-- Вакансии: редактирование -->
+    @d()->ch = '0';if(strpos(d()->user->d_whitelist, 'vacancies_edit') !== false)d()->ch = '1';
+    <div class="control-group" style="margin-bottom:0;padding:0;">
+        <div class="controls">
+            <label class="checkbox" style="margin-bottom:0; "> <input type="checkbox" class="automatic_checkbox" > <strong>Вакансии:</strong> <span style="color:#777;">редактирование</span></label>
+            <input type="hidden"  name="user[is_vacancies_edit]" value="{ch}" class="input-small automatic_checkbox_input"  >
+        </div>
+    </div>
+    <br>
+
+    <!-- Подарки: просмотр -->
+    @d()->ch = '0';if(strpos(d()->user->d_whitelist, 'gifts_view') !== false)d()->ch = '1';
+    <!--
+    <div class="control-group" style="margin-bottom:0;padding:0;">
+        <div class="controls">
+            <label class="checkbox" style="margin-bottom:0; "> <input type="checkbox" class="automatic_checkbox" > <strong>Подарки:</strong> <span style="color:#777;">просмотр</span></label>
+            <input type="hidden"  name="user[is_gifts_view]" value="{ch}" class="input-small automatic_checkbox_input"  >
+        </div>
+    </div>
+    -->
+    <!-- Подарки: редактирование -->
+    @d()->ch = '0';if(strpos(d()->user->d_whitelist, 'gifts_edit') !== false)d()->ch = '1';
+    <!--
+    <div class="control-group" style="margin-bottom:0;padding:0;">
+        <div class="controls">
+            <label class="checkbox" style="margin-bottom:0; "> <input type="checkbox" class="automatic_checkbox" > <strong>Подарки:</strong> <span style="color:#777;">редактирование</span></label>
+            <input type="hidden"  name="user[is_gifts_edit]" value="{ch}" class="input-small automatic_checkbox_input"  >
+        </div>
+    </div>
+    <br>
+    -->
+    <!-- Пользователи: просмотр -->
+    @d()->ch = '0';if(strpos(d()->user->d_whitelist, 'users_view') !== false)d()->ch = '1';
+    <div class="control-group" style="margin-bottom:0;padding:0;">
+        <div class="controls">
+            <label class="checkbox" style="margin-bottom:0; "> <input type="checkbox" class="automatic_checkbox" > <strong>Пользователи:</strong> <span style="color:#777;">просмотр</span></label>
+            <input type="hidden"  name="user[is_users_view]" value="{ch}" class="input-small automatic_checkbox_input"  >
+        </div>
+    </div>
+    <!-- Пользователи: редактирование -->
+    @d()->ch = '0';if(strpos(d()->user->d_whitelist, 'users_edit') !== false)d()->ch = '1';
+    <div class="control-group" style="margin-bottom:0;padding:0;">
+        <div class="controls">
+            <label class="checkbox" style="margin-bottom:0; "> <input type="checkbox" class="automatic_checkbox" > <strong>Пользователи:</strong> <span style="color:#777;">редактирование</span></label>
+            <input type="hidden"  name="user[is_users_edit]" value="{ch}" class="input-small automatic_checkbox_input"  >
+        </div>
+    </div>
+    <br><br>
+    <legend>Доступ к модулям</legend>
+    <!-- CRM заказы:  просмотр-->
+    @d()->ch = '0';if(strpos(d()->user->d_whitelist, 'crm_orders_view') !== false)d()->ch = '1';
+    <div class="control-group" style="margin-bottom:0;padding:0;">
+        <div class="controls">
+            <label class="checkbox" style="margin-bottom:0; "> <input type="checkbox" class="automatic_checkbox" > <strong>CRM заказы:</strong> <span style="color:#777;">просмотр</span></label>
+            <input type="hidden"  name="user[is_crm_orders_view]" value="{ch}" class="input-small automatic_checkbox_input"  >
+        </div>
+    </div>
+    <!-- CRM заказы:  редактирование-->
+    @d()->ch = '0';if(strpos(d()->user->d_whitelist, 'crm_orders_edit') !== false)d()->ch = '1';
+    <div class="control-group" style="margin-bottom:0;padding:0;">
+        <div class="controls">
+            <label class="checkbox" style="margin-bottom:0; "> <input type="checkbox" class="automatic_checkbox" > <strong>CRM заказы:</strong> <span style="color:#777;">редактирование</span></label>
+            <input type="hidden"  name="user[is_crm_orders_edit]" value="{ch}" class="input-small automatic_checkbox_input"  >
+        </div>
+    </div>
+    <br>
+    <!-- CRM клиенты:  просмотр -->
+    @d()->ch = '0';if(strpos(d()->user->d_whitelist, 'crm_users_view') !== false)d()->ch = '1';
+    <div class="control-group" style="margin-bottom:0;padding:0;">
+        <div class="controls">
+            <label class="checkbox" style="margin-bottom:0; "> <input type="checkbox" class="automatic_checkbox" > <strong>CRM клиенты:</strong> <span style="color:#777;">просмотр</span></label>
+            <input type="hidden"  name="user[is_crm_users_view]" value="{ch}" class="input-small automatic_checkbox_input"  >
+        </div>
+    </div>
+    <!-- CRM клиенты:  редактирование-->
+    @d()->ch = '0';if(strpos(d()->user->d_whitelist, 'crm_users_edit') !== false)d()->ch = '1';
+    <div class="control-group" style="margin-bottom:0;padding:0;">
+        <div class="controls">
+            <label class="checkbox" style="margin-bottom:0; "> <input type="checkbox" class="automatic_checkbox" > <strong>CRM клиенты:</strong> <span style="color:#777;">редактирование</span></label>
+            <input type="hidden"  name="user[is_crm_users_edit]" value="{ch}" class="input-small automatic_checkbox_input"  >
+        </div>
+    </div>
+    <br>
+    <!-- CRM анкеты:  просмотр -->
+    @d()->ch = '0';if(strpos(d()->user->d_whitelist, 'ankets_view') !== false)d()->ch = '1';
+    <div class="control-group" style="margin-bottom:0;padding:0;">
+        <div class="controls">
+            <label class="checkbox" style="margin-bottom:0; "> <input type="checkbox" class="automatic_checkbox" > <strong>CRM анкеты:</strong> <span style="color:#777;">просмотр</span></label>
+            <input type="hidden"  name="user[is_ankets_view]" value="{ch}" class="input-small automatic_checkbox_input"  >
+        </div>
+    </div>
+    <!-- CRM анкеты:  редактирование-->
+    @d()->ch = '0';if(strpos(d()->user->d_whitelist, 'ankets_edit') !== false)d()->ch = '1';
+    <div class="control-group" style="margin-bottom:0;padding:0;">
+        <div class="controls">
+            <label class="checkbox" style="margin-bottom:0; "> <input type="checkbox" class="automatic_checkbox" > <strong>CRM анкеты:</strong> <span style="color:#777;">редактирование</span></label>
+            <input type="hidden"  name="user[is_ankets_edit]" value="{ch}" class="input-small automatic_checkbox_input"  >
+        </div>
+    </div>
+    <br>
+    <!-- CRM отзывы:  просмотр-->
+    @d()->ch = '0';if(strpos(d()->user->d_whitelist, 'reviews_view') !== false)d()->ch = '1';
+    <div class="control-group" style="margin-bottom:0;padding:0;">
+        <div class="controls">
+            <label class="checkbox" style="margin-bottom:0; "> <input type="checkbox" class="automatic_checkbox" > <strong>CRM отзывы:</strong> <span style="color:#777;">просмотр</span></label>
+            <input type="hidden"  name="user[is_crm_reviews_view]" value="{ch}" class="input-small automatic_checkbox_input"  >
+        </div>
+    </div>
+    <!-- CRM отзывы:  редактирование-->
+    @d()->ch = '0';if(strpos(d()->user->d_whitelist, 'reviews_edit') !== false)d()->ch = '1';
+    <div class="control-group" style="margin-bottom:0;padding:0;">
+        <div class="controls">
+            <label class="checkbox" style="margin-bottom:0; "> <input type="checkbox" class="automatic_checkbox" > <strong>CRM отзывы:</strong> <span style="color:#777;">редактирование</span></label>
+            <input type="hidden"  name="user[is_crm_reviews_edit]" value="{ch}" class="input-small automatic_checkbox_input"  >
+        </div>
+    </div>
+    <br>
+    <!-- CRM промокоды:  просмотр-->
+    @d()->ch = '0';if(strpos(d()->user->d_whitelist, 'crm_promocodes_view') !== false)d()->ch = '1';
+    <!--
+    <div class="control-group" style="margin-bottom:0;padding:0;">
+        <div class="controls">
+            <label class="checkbox" style="margin-bottom:0; "> <input type="checkbox" class="automatic_checkbox" > <strong>CRM промокоды:</strong> <span style="color:#777;">просмотр</span></label>
+            <input type="hidden"  name="user[is_crm_promocodes_view]" value="{ch}" class="input-small automatic_checkbox_input"  >
+        </div>
+    </div>
+    <br>
+    -->
+    <!-- CRM акции:  просмотр-->
+    @d()->ch = '0';if(strpos(d()->user->d_whitelist, 'crm_actions_view') !== false)d()->ch = '1';
+    <div class="control-group" style="margin-bottom:0;padding:0;">
+        <div class="controls">
+            <label class="checkbox" style="margin-bottom:0; "> <input type="checkbox" class="automatic_checkbox" > <strong>CRM акции:</strong> <span style="color:#777;">просмотр</span></label>
+            <input type="hidden"  name="user[is_crm_actions_view]" value="{ch}" class="input-small automatic_checkbox_input"  >
+        </div>
+    </div>
+    <!-- CRM акции:  редактирование-->
+    @d()->ch = '0';if(strpos(d()->user->d_whitelist, 'crm_actions_edit') !== false)d()->ch = '1';
+    <div class="control-group" style="margin-bottom:0;padding:0;">
+        <div class="controls">
+            <label class="checkbox" style="margin-bottom:0; "> <input type="checkbox" class="automatic_checkbox" > <strong>CRM акции:</strong> <span style="color:#777;">редактирование</span></label>
+            <input type="hidden"  name="user[is_crm_actions_edit]" value="{ch}" class="input-small automatic_checkbox_input"  >
+        </div>
+    </div>
+    <br>
+    <!-- CRM акции: Заявки на баллы-->
+    @d()->ch = '0';if(strpos(d()->user->d_whitelist, 'crm_reviews_applications_edit') !== false)d()->ch = '1';
+    <div class="control-group" style="margin-bottom:0;padding:0;">
+        <div class="controls">
+            <label class="checkbox" style="margin-bottom:0; "> <input type="checkbox" class="automatic_checkbox" > <strong>CRM заявки на баллы:</strong> <span style="color:#777;">редактирование</span></label>
+            <input type="hidden"  name="user[is_crm_reviews_applications_edit]" value="{ch}" class="input-small automatic_checkbox_input"  >
+        </div>
+    </div>
+    <br>
+    <!-- Модуль SEO: просмотр -->
+    @d()->ch = '0';if(strpos(d()->user->d_whitelist, 'seoparams_view') !== false)d()->ch = '1';
+    <div class="control-group" style="margin-bottom:0;padding:0;">
+        <div class="controls">
+            <label class="checkbox" style="margin-bottom:0; "> <input type="checkbox" class="automatic_checkbox" > <strong>Модуль SEO:</strong> <span style="color:#777;">просмотр</span></label>
+            <input type="hidden"  name="user[is_seoparams_view]" value="{ch}" class="input-small automatic_checkbox_input"  >
+        </div>
+    </div>
+    <!-- Модуль SEO: редактирование -->
+    @d()->ch = '0';if(strpos(d()->user->d_whitelist, 'seoparams_edit') !== false)d()->ch = '1';
+    <div class="control-group" style="margin-bottom:0;padding:0;">
+        <div class="controls">
+            <label class="checkbox" style="margin-bottom:0; "> <input type="checkbox" class="automatic_checkbox" > <strong>Модуль SEO:</strong> <span style="color:#777;">редактирование</span></label>
+            <input type="hidden"  name="user[is_seoparams_edit]" value="{ch}" class="input-small automatic_checkbox_input"  >
+        </div>
+    </div>
+    <br>
+
+    <div class="form-sales">
+        <input type="submit"   value="Сохранить" class="btn btn-primary" >
+        <a href="/admin/list/admin_users"  class="btn">Отмена</a>
+    </div>
+</fieldset>
+{{/form}}
+
+

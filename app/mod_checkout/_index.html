@@ -1,0 +1,153 @@
+@if(url(1)!='ajax'):
+<style>.xs-cart-btn{display: none !important;}</style>
+<div class="container page-container">
+    <div class="all-nav">
+        {{nav_tpl}}
+        <div class="checkout-nav">
+            <ul>
+                <li><a href="/checkout/"><span><i>1</i></span><br>Корзина</a></li>
+                <li><a href="/checkout/order" class="gray"><span><i>2</i></span><br>Оформление заказа</a></li>
+                <li><span><i>3</i></span><br>Заказ принят</li>
+            </ul>
+        </div>
+    </div>
+    <div class="page-wrap {empty_cart}">
+        <h1>Корзина</h1>
+        <div class="page-content">
+            <p class="cart-empty nmh">Корзина пуста</p>
+        </div>
+    </div>
+    <div class="page-wrap checkout-wrap {isset_cart}">
+        <div class="h-line">
+            <h1 class="xs-center"><span>Корзина</span></h1>
+            {{delivery_btn_tpl}}
+        </div>
+@endif;
+      <div id="ch-wrap" class="ch-wrap" data-url="{url}">
+        {error}
+        <!--{order_warning}-->
+        <div class="page-content">
+            <div class="ch-d-wrap">
+                <div class="ch-d {p_promo}">
+                    <span>Промокод: <img src="/images/loading.gif" class="checkout-load" alt=""></span><small class="promo-tooltip">Не забудьте нажать «Активировать»</small>
+                    <div class="{np_promo}">
+                        <input type="text" name="promocode" placeholder="Промокод" value="" class="promo"/>
+                        <button class="btn btn-red" onclick="run_promo();" id="run-promo-button">Активировать</button>
+                        <em class="error">{error_promo}</em>
+                    </div>
+                    <p class="ch-promocode {p_promo}">{promocode}</p>
+                </div>
+                <div class="ch-d {p_payment}" id="ch-d-points">
+                    <span>Оплата баллами: <img src="/images/loading.gif" class="checkout-load" alt=""></span>
+                    <div class="{np_payment}">
+                        <input type="text" name="points" placeholder="Оплата баллами" value="" class="onlynumber" data-quest="{data_guest}" />
+                        <button class="btn btn-red" onclick="run_points(this);">Применить</button>
+                        <em class="error">{error_text}</em>
+                    </div>
+                    <p class="ch-pay-points {p_payment}">{ppay_text}</p>
+                </div>
+
+                <!--<div class="ch-d ch-d-bd">
+                    <span class="forxs">День рождения?</span>
+                    <a href="#" onclick="drbtn();" class="btn btn-red">Выбрать подарок</a>
+                </div>-->
+
+            </div>
+        </div>
+        <div>
+            <div id="gifts-wrap">
+                @if(d()->birthday == 1):
+                <div class="gifts-wrap {dr_show_gifts} type_gift_dr">
+                    <h3>Выбрать подарок<span class="gl-label-h3">: «Подарки на День Рождения»</span></h3>
+                    <span class="gl-label">«Подарки на День Рождения»</span>
+                    <div class="gifts-list">
+                        <div id="gl-dr">
+                            <foreach dr_gifts_list>
+                                <div class="item">
+                                    <div class="gift" id="gift_dr-{.id}">
+                                        <div class="gift-img"><img src="{.image|preview 258, 214}" alt=""></div>
+                                        <div class="gift-info">
+                                            <span class="ttl"><em>{.title}</em></span>
+                                            <button class="add-gift" onclick="add_gift('{.id}', 'gift_dr');" {dr_gdis}><i class="mdi mdi-plus"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </foreach>
+                        </div>
+                    </div>
+                </div>
+                @endif;
+                <div class="gifts-wrap {show_gifts} type_gift_pickup">
+                    <h3>Выбрать подарок<span class="gl-label-h3">: «Подарки за самовывоз»</span></h3>
+                    <span class="gl-label">«Подарки за самовывоз»</span>
+                    <div class="gifts-list">
+                    <div id="gl-samovivoz">
+                        <foreach gifts_list>
+                        <div class="item">
+                            <div class="gift" id="gift_pickup-{.id}">
+                                <div class="gift-img"><img src="{.image|preview 258, 214}" alt=""></div>
+                                <div class="gift-info">
+                                    <span class="ttl"><em>{.title}</em><small>{.property_title}</small></span>
+                                    <button class="add-gift" onclick="add_gift('{.id}', 'gift_pickup');" {gdis}><i class="mdi mdi-plus"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        </foreach>
+                    </div>
+                    </div>
+                </div>
+            </div>
+            <div class="ch-cart-wrap" id="ch-cart-wrap">
+                {{cart_list_ch_tpl}}
+            </div>
+            @if(d()->rec_show):
+            @if(d()->ss_flag):
+            <div class="alert alert-secondary myfs15">Если указанного выше количества соевого соуса для Вас недостаточно, Вы можете заказать дополнительно в блоке "Рекомендуем к Вашему заказу" <i class="mdi mdi-arrow-down-bold"></i></div>
+            @endif;
+            <div class="ch-reccomended">
+                <h2 class="h1 mb-0">Рекомендуем к Вашему заказу:</h2>
+                {{product_slider_list_tpl}}
+            </div>
+            @endif;
+            <div class="ch-next">
+                <small class="points_span {p_payment}">Оплата баллами: <em>{points}</em><i class="rub">q</i></small>
+                <small class="promo_span {d_promocode}">Скидка по промокоду: <em>{discount_promocode}</em><i class="rub">q</i></small>
+
+                <div class="itogoline">Итого: <span><em id="ch-cart-total-price" data-price="{cart_discount_price}">{cart_discount_price}</em><i class="rub">q</i></span></div>
+                @if(d()->next_disabled):
+                <button class="btn btn-red-auth" disabled>Далее</button>
+                @else:
+                <a href="/checkout/order" class="btn btn-red-auth" id="ch-zakazat-btn">Далее</a>
+                @endif;
+            </div>
+        </div>
+      </div>
+@if(url(1)!='ajax'):
+    </div>
+</div>
+@endif;
+
+
+<script>
+    window.dataLayer = window.dataLayer || [];
+    dataLayer.push({
+        'ecommerce': {
+            'currencyCode': 'RUB',
+            'checkout': {
+                'actionField': {'step': 1},
+                'products': [<?=d()->ec_cp;?>]
+            }
+        },
+        'event': 'gtm-ee-event',
+        'gtm-ee-event-category': 'Enhanced Ecommerce',
+        'gtm-ee-event-action': 'Checkout Step 1',
+        'gtm-ee-event-non-interaction': 'False',
+    });
+</script>
+
+@if(url(1)=='ajax'):
+<script>
+    init_gifts_ts();
+    init_gifts_dr();
+</script>
+@endif;

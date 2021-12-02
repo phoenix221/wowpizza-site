@@ -1,0 +1,246 @@
+<?
+if(url(4) && url(4)!='add'){
+    d()->city = d()->City(url(4));
+    d()->dd_type = d()->city->dd_type;
+    if(!d()->city->dd_type){
+        d()->discount_delivery = d()->city->discount_delivery;
+        d()->dd_round = d()->city->dd_round;
+    }
+    if(d()->city->dd_type==1){
+        d()->city = d()->City(url(4));
+        d()->gift_dr = d()->city[d()->field_params[1]];
+        d()->dd_gifts_ms = d()->city->dd_gifts_ms;
+        if(d()->gift_dr){
+            $gift = explode(',', d()->gift_dr);
+            d()->picked_id = Array();
+            d()->picked_pid = Array();
+            d()->picked_products = Array();
+            foreach($gift as $k=>$v){
+                $a = str_replace('|', '', $v);
+                $pid = explode('_', $a);
+                d()->picked_id[] = $pid[0];
+                d()->picked_pid[$pid[0]] = $pid[1];
+                d()->picked_products[$a[0]] = $a;
+            }
+            d()->pl = d()->Product(d()->picked_id);
+            d()->gift_list = '';
+            foreach(d()->pl as $v){
+                $dop_ttl = '';
+                $t_id = d()->pl->id.'_0';
+                if(d()->picked_pid[d()->pl->id]){
+                    $dop_ttl = ', '.d()->Property(d()->picked_pid[d()->pl->id])->title;
+                    $t_id = d()->pl->id.'_'.d()->picked_pid[d()->pl->id];
+                }
+                d()->gift_list .= '<li>'.d()->pl->title.$dop_ttl.' <i title="Удалить" class="dgio mdi mdi-close-circle" onclick=\'del_gift_'.d()->field_params[1].'(this, "'.$t_id.'");\'></i></li>';
+            }
+
+        }else{
+            d()->gift_list = '<li>Пусто</li>';
+        }
+    }
+}
+?>
+<style>
+    .ma-modal{
+        width:800px !important;
+        max-width:100% !important;
+        margin: 0 !important;
+        top: 80px !important;
+        max-height: 85% !important;
+        min-height: 85% !important;
+        left: 50% !important;
+        margin-left: -400px !important;
+        overflow-y: scroll;
+        border-radius: 0 !important;
+    }
+    .ma-modal .modal-body {
+        max-height: none !important;
+        margin-top: 50px;
+    }
+    .fm-header{
+        position: fixed;
+        margin-top:-50px;
+        background: #fff;
+        z-index: 50;
+        width: 784px !important;
+        max-width: 100% !important;
+        box-sizing: border-box;
+        padding-right: 14px !important;
+    }
+    .fm-footer{
+        position: fixed !important;
+        background: #fff !important;
+        z-index: 50 !important;
+        width: 800px !important;
+        max-width: 100% !important;
+        box-sizing: border-box;
+        padding-right: 30px !important;
+        bottom: 0;
+    }
+    .relative{
+        position: relative;
+    }
+    .ddt_block{
+        display: none;
+    }
+    .gl{
+        list-style: disc;
+        margin-top: 10px;
+        margin-bottom: 0;
+    }
+    .dgi{
+        margin-left: 5px;
+        cursor: pointer;
+        color: #bd362f;
+    }
+</style>
+
+<div class="pg-wrap-<?=d()->field_params[1];?>">
+    <div id="dd_fields">
+        <div class="control-group">
+            <label class="control-label">Тип акции</label>
+            <div class="controls">
+                <select name="data[dd_type]" class="input-xlarge" id="dd_type" >
+                    <option value="0">скидка</option>
+                    <option <?if(d()->dd_type==1)print 'selected';?> value="1">подарки</option>
+                </select>
+            </div>
+        </div>
+        <div id="dd_fields_wrap">
+            <div id="ddt_0" class="ddt_block">
+                <div class="control-group">
+                    <label class="control-label">Размер скидки</label>
+                    <div class="controls">
+                        <input type="text" name="data[discount_delivery]" value="{discount_delivery}" class="input-xlarge">
+                        <span class="help-inline">%</span>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div class="controls">
+                        <p style="color:#666;"><em>Установите в поле 0, чтобы отключить акцию </em></p>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label">Округление цен</label>
+                    <div class="controls">
+                        <select name="data[dd_round]" class="input-xlarge">
+                            <option value="0">Округлять до целого</option>
+                            <option <?if(d()->dd_round==1)print 'selected';?> value="1">Округлять до 5</option>
+                            <option <?if(d()->dd_round==2)print 'selected';?> value="2">Округлять до 10</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div class="controls">
+                        <p style="color:#666;"><em>Округление цен происходит в большую сторону </em></p>
+                    </div>
+                </div>
+            </div>
+            <div id="ddt_1" class="ddt_block">
+                <div class="control-group">
+                    <label class="control-label"></label>
+                    <div class="controls">
+                        <em style="color:#777;">Выбрано:</em>
+                        <img src="/images/loading.gif" alt="" style="width:20px;" id="pgul-<?=d()->field_params[1];?>-loading">
+                        <ul class="gl dr-gift-list" style="display:none;" id="pgul-<?=d()->field_params[1];?>">
+                            {gift_list}
+                        </ul>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label"></label>
+                    <div class="controls"><a href="#modal-<?=d()->field_params[1];?>" data-toggle="modal" class="btn btn-default">Список подароков</a></div>
+                </div>
+                <input type="hidden" name="data[<?=d()->field_params[1];?>]" value="{gift_dr}">
+                <div class="control-group">
+                    <label class="control-label">Минимальная сумма заказа</label>
+                    <div class="controls">
+                        <input type="text" name="data[dd_gifts_ms]" value="{dd_gifts_ms}" class="input-xlarge">
+                        <span class="help-inline">руб.</span>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div class="controls">
+                        <p style="color:#666;"><em>Минимальная сумма заказа это конечная сумма с учетом баллов и прочих скидок.</em></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap -->
+    <script type="text/javascript" src="/vendors/bootstrap/js/bootstrap.js"></script>
+    <!-- MDI -->
+    <link rel="stylesheet" href="/vendors/mdi/css/materialdesignicons.min.css">
+    <script>
+        $(document).ready(function () {
+            var dd_type = $('select[name="data[dd_type]"]');
+            run_dd_type_change(dd_type.val());
+
+
+            $(dd_type).on('change', function(e){
+                var vl = $("option:selected", this).val();
+                run_dd_type_change(vl);
+            });
+
+            var products = $('input[name="data[<?=d()->field_params[1];?>]"]').val();
+            console.log(123);
+            $.post('/ajax/ajax_get_gift_products_admin', {products:products, field_name:"<?=d()->field_params[1];?>", city_id:"<?=d()->city->id?>"}, function(data) {
+                console.log(data+11);
+                var load = $('.loading_gifts');
+                load.hide();
+                $('#modal-<?=d()->field_params[1];?> .modal-body .modal-content').html(data);
+            });
+
+            //$('#modal-<?//=d()->field_params[1];?>//').on('show.bs.modal', function () {
+            //    var products = $('input[name="data[<?//=d()->field_params[1];?>//]"]').val();
+            //    var load = $('.loading_gifts');
+            //    $('#modal-<?//=d()->field_params[1];?>// .modal-body .modal-content').html('');
+            //    load.show();
+            //    console.log(products);
+            //    $.post('/ajax/ajax_get_gift_products_admin', {products:products, field_name:"<?//=d()->field_params[1];?>//"}, function(data) {
+            //        load.hide();
+            //        $('#modal-<?//=d()->field_params[1];?>// .modal-body .modal-content').html(data);
+            //    });
+            //});
+
+        });
+
+        function run_dd_type_change(val){
+            var wrap = $('#dd_fields_wrap');
+            var divs = wrap.find('.ddt_block');
+            var block = $('#ddt_'+val);
+            var all_inputs = wrap.find('input');
+            var all_selects = wrap.find('select');
+            var block_inputs = block.find('input');
+            var block_selects = block.find('select');
+
+            all_inputs.prop('disabled', true);
+            all_selects.prop('disabled', true);
+            block_inputs.prop('disabled', false);
+            block_selects.prop('disabled', false);
+            divs.hide();
+            block.show();
+        }
+
+
+
+    </script>
+
+    <div id="modal-<?=d()->field_params[1];?>" class="modal ma-modal" tabindex="-1" role="dialog" style="display: none;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header fm-header">
+                    <img src="/images/close-modal.png" class="close" style="width: 15px;opacity: 1;" data-dismiss="modal" aria-hidden="true" alt="">
+                    <h4 class="modal-title">Список подарков</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="modal-content">
+
+                    </div>
+                    <img src="/images/loading.gif" alt="" style="width:35px;" class="loading_gifts">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

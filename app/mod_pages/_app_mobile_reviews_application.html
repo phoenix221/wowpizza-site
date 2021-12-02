@@ -1,0 +1,42 @@
+<div class="container page-container">
+    {{nav_tpl}}
+    <div class="page-wrap">
+        <h1>Заявка на начисление баллов за использование мобильного приложения</h1>
+        <div class="page-content">
+            @if($_GET['action']=='send'):
+            <div class="alert alert-success">Заявка успешно отправлена. В ближайшее время она будет обработана, пожалуйста ожидайте.</div>
+            @else:
+            <form method="post" class="ra-form" id="app-mobile-reviews-application-form">
+                {error}
+                <hr>
+                <label>Выберите платформу на которой Вы оставили отзыв*</label><br>
+                <div class="radio_style mt-10">
+                    <p><input class="app_mobile" type="radio" name="app_mobile" value="1" />App Store</p>
+                    <p><input class="app_mobile" type="radio" name="app_mobile" value="2" />Play Market</p>
+                </div>
+                <hr>
+                <div class="frm">
+                    <label>От какого имени или псевдонима оставлен отзыв</label>
+                    <input name="name" id="name" class="mb-0" value="<?=$_POST['name']?>" autocomplete="off">
+                </div>
+                <hr>
+                <div class="frm">
+                    <label>Укажите дату когда оставили отзыв*</label>
+                    <div class="ra-zebra-wrap"><input name="order_date" id="ra_order_date" class="mb-0" value="<?=$_POST['order_date']?>" autocomplete="off"></div>
+                </div>
+                <hr>
+                <div class="frm">
+                    <label>Ваш номер телефона. На него мы и начислим баллы*</label>
+                    <input name="phone" id="order-phone" class="mb-0" value="{ph}" autocomplete="off">
+                </div>
+                <hr>
+                <small class="hint">нажимая кнопку "Отправить" я даю <a href="/personal/">согласие на обработку моих персональных данных</a></small>
+                <div class="frm">
+                    <br>
+                    <button class="btn btn-red-auth btn-order" onclick="$(this).prop('disabled', true);$('#app-mobile-reviews-application-form').submit();">Отправить</button>
+                </div>
+            </form>
+            @endif;
+        </div>
+    </div>
+</div>

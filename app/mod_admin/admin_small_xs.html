@@ -1,0 +1,11 @@
+<div class="control-group" style="float:left;">
+    <?if(d()->title):?>
+    <label class="control-label"  >{title}</label>
+    <div class="controls" style="width:250px;">
+    <?else:?>
+    <div class="controls" style="margin-left:0;width:250px;">
+    <?endif;?>
+	<input type="text" name="{name}" value="{value|h}" >
+	<span class="help-inline" style="float:right;margin-top:6px;"><?php print d()->field_params[3]; ?></span>
+  </div>
+</div>

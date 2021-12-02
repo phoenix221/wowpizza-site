@@ -1,0 +1,47 @@
+<?
+    d()->mark=0;
+    d()->property_link=0;
+    if(url(4)!='add'){
+        $property = d()->Property->where('product_id=?', url(4));
+        d()->property_link=1;
+        if(count($property)){
+            d()->mark=1;
+            d()->def = $property->where('is_default = 1');
+            if(!count(d()->def)){
+                d()->def = d()->Property->where('product_id=?', url(4))->limit(0,1);
+            }
+        }
+    }
+?>
+
+@if(!d()->mark):
+<div class="control-group">
+  <label class="control-label"  >{title}</label>
+  <div class="controls">
+	<input type="text"  name="{name}" value="{value|h}" class="input-xlarge" >
+	<span class="help-inline"><?php print d()->field_params[3]; ?></span>
+  </div>
+</div>
+
+@if(d()->property_link):
+<div class="control-group">
+    <div class="controls">
+        <p style="color:#666;"><em>Радактировать <a href="/admin/list/properties/product_id/<?=url(4)?>" target="_blank">список Свойст блюда</a></em></p>
+    </div>
+</div>
+@endif;
+
+@else:
+<div class="control-group">
+    <label class="control-label"  >{title}</label>
+    <div class="controls">
+        <input type="text"  name="" value="{def.price}" class="input-xlarge" readonly >
+        <span class="help-inline"><?php print d()->field_params[3]; ?></span>
+    </div>
+</div>
+<div class="control-group">
+    <div class="controls">
+        <p style="color:#666;"><em>Цена сформирована из <a href="/admin/list/properties/product_id/<?=url(4)?>" target="_blank">Свойст блюда</a>. Редактирование цены происходит в <a href="/admin/list/properties/product_id/{def.product_id}" target="_blank">этом разделе</a>.</em></p>
+    </div>
+</div>
+@endif;

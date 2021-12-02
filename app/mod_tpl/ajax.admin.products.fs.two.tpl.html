@@ -1,0 +1,225 @@
+@if(!d()->c_check):
+<input id="products-search-2" placeholder="Поиск по товарам">
+<style>
+    .table{
+        display:-webkit-box;display:-ms-flexbox;display:flex;
+        -ms-flex-wrap:wrap;flex-wrap:wrap;
+    }
+    .table div.line{
+        width: 100%;
+    }
+    .table div.line{
+        width: 100%;
+        display:-webkit-box;display:-ms-flexbox;display:flex;
+        -webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between;
+        -webkit-box-align:center;-ms-flex-align:center;align-items:center;
+        margin: 5px 0;
+    }
+    .table div.hide{
+        display: none !important;
+    }
+    .table div.line:nth-child(2n){
+        background: #f7f7f7;
+    }
+    .table div.line .ttl{
+        width: 440px;
+        text-align: left;
+    }
+    .pick{
+        display: block;
+    }
+    .del{
+        display: none;
+    }
+    div.order{
+        order:-1;
+    }
+    div.picked .pick{
+        display: none;
+    }
+    div.picked .del{
+        display: block;
+    }
+    .ma-modal input{
+        padding: 8px;
+        border-radius: 5px;
+        border: 1px solid #aaa;
+        font-size: 15px;
+        line-height: 15px;
+        width: 100%;
+        color: #666;
+        box-sizing: border-box;
+        margin: 10px 0 15px 0 !important;
+    }
+    .ma-modal input.small{
+        padding: 4px;
+        border-radius: 2px;
+        border: 1px solid #aaa;
+        font-size: 14px;
+        line-height: 14px;
+        width: 60px;
+        color: #666;
+        box-sizing: border-box;
+        margin: 0 2px !important;
+        text-align: center;
+    }
+    .ma-modal input.none{
+        display: none;
+    }
+    div.picked input.none{
+        display: inline-block !important;
+    }
+    .categories_list{
+        margin-bottom:15px;
+    }
+    .categories_list button{
+        margin: 2px 0;
+    }
+    .categories_list button.active{
+        background-color: #006dcc;
+        background-image: linear-gradient(to bottom,#08c,#04c);
+        color:#fff;
+        text-shadow: 0 -1px 0 rgba(0,0,0,0.25);
+    }
+    .categories_list button.active:hover{
+        background-color: #04c !important;
+        background-image: linear-gradient(to bottom,#04c,#04c) !important;
+    }
+    .none{
+        display: none !important;
+    }
+</style>
+
+<div class="categories_list">
+    <foreach categories_list>
+        <button type="button" class="btn btn-default btn-small" data-id="{.id}">{.title}</button>
+    </foreach>
+</div>
+<div id="products-table-wrap-2">
+    @endif;
+    <div class="table" id="products-table-2">
+        <foreach products_list_2 as p>
+            @if(is_array(d()->this->p_list) && d()->this->p_list):
+            <foreach p_list as pl>
+                @d()->pick = '';
+                @if(d()->products[d()->p->id.'_'.d()->pl['id']][0])d()->pick = 'picked order';
+                <div data-id="{p.id}_{pl.id}" id="products2-{p.id}_{pl.id}" data-category="{p.category_id}" class="line {pick}">
+                    <div style="width:105px;"><img src="{p.image|preview 380, 315}" width="80px" alt=""></div>
+                    <div class="ttl"><span>{p.title}, {pl.title}</span>, <strong style="white-space: nowrap;">{pl.price} руб.</strong></div>
+                    <div style="padding: 0 10px;width:200px;text-align: right;">
+                        <div class="pick">
+                            <button type="button" onclick="pick_product_2(this, '{p.id}_{pl.id}');" class="btn btn-primary btn-small">Выбрать</button>
+                        </div>
+                        <div class="del">
+                            <button type="button" class="btn btn-default btn-small" disabled>Выбрано</button>
+                            <button type="button" onclick="del_product_2(this, '{p.id}_{pl.id}');" class="btn btn-danger btn-small">Удалить</button>
+                        </div>
+                    </div>
+                </div>
+            </foreach>
+            @else:
+            @d()->pick = '';
+            @if(d()->products[d()->p->id.'_0'][0])d()->pick = 'picked order';
+            <div data-id="{p.id}_0" id="products2-{p.id}_0" data-category="{p.category_id}" class="line {pick}">
+                <div style="width:105px;"><img src="{p.image|preview 380, 315}" width="80px" alt=""></div>
+                <div class="ttl"><span>{p.title}</span>, <strong style="white-space: nowrap;">{p.price} руб.</strong></div>
+                <div style="padding: 0 10px;width:200px;text-align: right;">
+                    <div class="pick">
+                        <button type="button" onclick="pick_product_2(this, '{p.id}_0');" class="btn btn-primary btn-small">Выбрать</button>
+                    </div>
+                    <div class="del">
+                        <button type="button" class="btn btn-default btn-small" disabled>Выбрано</button>
+                        <button type="button" onclick="del_product_2(this, '{p.id}_0');" class="btn btn-danger btn-small">Удалить</button>
+                    </div>
+                </div>
+            </div>
+            @endif;
+        </foreach>
+    </div>
+
+    @if(!d()->c_check):
+</div>
+<script>
+    $(document).ready(function () {
+        $("#products-search-2").keyup(function(){
+            _this = this;
+
+            $("#products-table-2 div.line").each(function(){
+                if($(this).find('.ttl').text().toLowerCase().indexOf($(_this).val().toLowerCase()) === -1) {
+                    $(this).addClass('none');
+                } else {
+                    $(this).removeClass('none');
+                }
+            });
+        });
+
+        $(".categories_list button").click(function(){
+            //$('#products-search').val('');
+            if(!$(this).hasClass('active')) {
+                $(".categories_list button").removeClass('active');
+                $(this).addClass('active');
+                var category = '|'+$(this).data('id')+'|';
+
+            }else{
+                $(".categories_list button").removeClass('active');
+                var category = 0;
+            }
+            var line = $('#products-table-2 .line')
+            //var tc_line = $('#products-table .line[data-category="'+category+'"]')
+            if(!category){
+                line.removeClass('hide');
+            }else{
+                line.addClass('hide');
+                line.each(function(){
+                    if($(this).data('category').indexOf(category)>=0){
+                        $(this).removeClass('hide');
+                    }
+                })
+                //tc_line.removeClass('hide');
+            }
+        });
+
+        $('#get-products-modal-2').on('hide.bs.modal', function () {
+            run_p_id_list_2();
+        });
+    });
+
+    function pick_product_2(elem, id) {
+        var div = $(elem).closest('div');
+        var line = $(elem).closest('div.line');
+        var b_pick = $(elem).closest('.pick');
+        var b_del = line.find('.del');
+
+        line.addClass('picked');
+    }
+
+    function del_product_2(elem, id) {
+        var line = $(elem).closest('div.line');
+        if(!line.length){
+            var li = $(elem).closest('li');
+            var line = $('#products2-'+id);
+            console.log(id);
+            li.remove();
+        }
+        line.removeClass('picked');
+        run_p_id_list_2();
+    }
+
+    function run_p_id_list_2() {
+        var line_picks = $('#products-table-2 .picked');
+        var p_list = '';
+        var id_list = '';
+        $(line_picks).each(function(){
+            p_list += '<li>'+$(this).find('.ttl span').text()+' <i title="Удалить" class="dgi mdi mdi-close-circle" onclick=\'del_product_2(this, "'+$(this).data('id')+'");\'></i></li>';
+            if(id_list){
+                id_list += ',';
+            }
+            id_list += $(this).data('id');
+
+        });
+        $('#products-ul-2').html(p_list);
+        $('input[name="data[products2]"]').val(id_list);
+        console.log(id_list);
+    }
+</script>
+@endif;

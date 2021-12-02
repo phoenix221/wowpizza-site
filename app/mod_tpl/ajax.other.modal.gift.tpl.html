@@ -1,0 +1,110 @@
+@d()->mk = 0;
+@foreach(d()->lists as $k => d()->th):
+@d()->product = d()->th['product'][0];
+@d()->property = d()->th['property'][0];
+@d()->others = d()->th['others'];
+<div class="row other-row js-product" data-product="{product.id}_{property.id}">
+    <div class="col-md-6 col-sm-6">
+        <img src="{product.image|preview 500, 385}" alt="{.image_alt}" class="other-img" />
+        @if(d()->property):
+        <span class="other-ttl">{product.title} ({property.title}) в подарок!</span>
+        @else:
+        <span class="other-ttl">{product.title} в подарок!</span>
+        @endif;
+
+        @if(d()->product['text']):
+        <p class="other-text">{product.text}</p>
+        @endif;
+    </div>
+    <div class="col-md-6 col-sm-6 fnmt">
+        <foreach others as other>
+            <?
+            $a = explode(',', d()->other['text']);
+            $arr = Array();
+            d()->items_array = Array();
+            $flg_arr = Array();
+            foreach($a as $k=>$v){
+                $t = explode('_', $v);
+                $arr[] = $t[0];
+                if(!d()->items_array[$t[0]]){
+                    d()->items_array[$t[0]] = $t[1];
+                }else{
+                    d()->items_array[$t[0]] .= ','.$t[1];
+                    if(!in_array($t[0], $flg_arr))$flg_arr[] = $t[0];
+                }
+            }
+            foreach($flg_arr as $k=>$v){
+                $r = d()->items_array[$v];
+                d()->items_array[$v] = explode(',', $r);
+            }
+            d()->items_list = d()->Product($arr)->where('is_stop=0');
+            ?>
+            <div class="other-cw" data-max="{other.max}" data-remove="{other.is_remove}">
+                <span class="other-prop-ttl">{other.title}</span>
+                <foreach items_list as item>
+                    @if(!is_array(d()->items_array[d()->item->id])):
+                    @d()->pid = d()->item->id.'_'.d()->items_array[d()->item->id];
+                    @if(strpos(d()->other['text'], d()->pid) === false)continue;
+
+                    @d()->tp = 'checkbox';
+                    @if(d()->other['max']==1)d()->tp = 'radio';
+
+                    <div class="other_radio_style">
+                        <div>
+                            <input id="item_{pid}_{mk}" type="{tp}" name="other_{other.id}_{mk}" value="{pid}" />
+                            <label for="item_{pid}_{mk}">{item.title}</label>
+                        </div>
+                        <div class="other-price-wrap">
+                            @if(d()->other['max'] > 1 || !d()->other['max']):
+                            <div class="other-ccl">
+                                <i class="mdi mdi-minus" onclick="minusother(this);"></i>
+                                <span>1</span>
+                                <i class="mdi mdi-plus" onclick="plusother(this);"></i>
+                            </div>
+                            @endif;
+                            <span class="other-price" data-price="{item.price}">+ {item.price}<i class="rub">q</i></span>
+                        </div>
+                    </div>
+                    @else:
+                    @foreach(d()->items_array[d()->item->id] as d()->item_prop):
+                    @d()->prop = d()->Property(d()->item_prop);
+                    @d()->pid = d()->item->id.'_'.d()->item_prop;
+                    @if(strpos(d()->other['text'], d()->pid) === false)continue;
+                    @d()->tp = 'checkbox';
+                    @if(d()->other['max']==1)d()->tp = 'radio';
+                    <div class="other_radio_style">
+                        <div>
+                            <input id="item_{pid}_{mk}" type="{tp}" name="other_{other.id}_{mk}" value="{pid}" />
+                            <label for="item_{pid}_{mk}">{item.title}, {prop.title}</label>
+                        </div>
+                        <div class="other-price-wrap">
+                            @if(d()->other['max'] > 1 || !d()->other['max']):
+                            <div class="other-ccl">
+                                <i class="mdi mdi-minus" onclick="minusother(this);"></i>
+                                <span>1</span>
+                                <i class="mdi mdi-plus" onclick="plusother(this);"></i>
+                            </div>
+                            @endif;
+                            <span class="other-price" data-price="{prop.price}">+ {prop.price}<i class="rub">q</i></span>
+                        </div>
+                    </div>
+                    @endforeach;
+                    @endif;
+                </foreach>
+            </div>
+        </foreach>
+
+        <div class="other-acl">
+            <div></div>
+            <div class="other-tp mr-0"><span>0</span><i class="rub">q</i></div>
+            <input type="hidden" name="def_price" value="0" />
+            <input type="hidden" name="items" value="" />
+            <input type="hidden" name="id" value="{.id}">
+            <input type="hidden" name="price" value="0">
+            <input type="hidden" name="type" value="{prtype}">
+        </div>
+    </div>
+</div>
+@d()->mk++;
+@endforeach;
+<div class="text-center other-cancel"><button class="btn btn-red-auth" onclick="gift_others(this);">Сохранить</button></div>

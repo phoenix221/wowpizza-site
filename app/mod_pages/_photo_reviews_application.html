@@ -1,0 +1,40 @@
+<div class="container page-container">
+    {{nav_tpl}}
+    <div class="page-wrap">
+        <h1>Заявка на участие в фотоконкурсе</h1>
+        <div class="page-content">
+            @if($_GET['action']=='send'):
+            <div class="alert alert-success">Заявка успешно отправлена. В ближайшее время она будет обработана, пожалуйста ожидайте.</div>
+            @else:
+            <form method="post" class="ra-form" id="reviews-application-form">
+                {error}
+                <div class="frm">
+                    <label>Укажите ссылку на Вашу публикацию поста с фото*</label>
+                    <input name="check_link" id="check_link" class="mb-0" value="<?=$_POST['check_link']?>" autocomplete="off">
+                </div>
+                <hr>
+                <div class="frm">
+                    <label>Укажите номер чека</label>
+                    <input name="check_number" id="check_number" class="mb-0" value="<?=$_POST['check_number']?>" autocomplete="off">
+                </div>
+                <hr>
+                <div class="frm">
+                    <label>Укажите дату Вашего заказа*</label>
+                    <div class="ra-zebra-wrap"><input name="order_date" id="ra_order_date" class="mb-0" value="<?=$_POST['order_date']?>" autocomplete="off"></div>
+                </div>
+                <hr>
+                <div class="frm">
+                    <label>Ваш номер телефона с которого вы делали заказ. На него же мы и начислим баллы*</label>
+                    <input name="phone" id="order-phone" class="mb-0" value="{ph}" autocomplete="off">
+                </div>
+                <hr>
+                <small class="hint">нажимая кнопку "Отправить" я даю <a href="/personal/">согласие на обработку моих персональных данных</a></small>
+                <div class="frm">
+                    <br>
+                    <button class="btn btn-red-auth btn-order" onclick="$(this).prop('disabled', true);$('#reviews-application-form').submit();">Отправить</button>
+                </div>
+            </form>
+            @endif;
+        </div>
+    </div>
+</div>

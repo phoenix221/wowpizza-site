@@ -1,0 +1,235 @@
+{
+    "exportFormatVersion": 2,
+    "exportTime": "2020-01-25 09:25:17",
+    "containerVersion": {
+        "path": "accounts/4701203425/containers/11044184/versions/0",
+        "accountId": "4701203425",
+        "containerId": "11044184",
+        "containerVersionId": "0",
+        "container": {
+            "path": "accounts/4701203425/containers/11044184",
+            "accountId": "4701203425",
+            "containerId": "11044184",
+            "name": "appetit-kzn.ru",
+            "publicId": "GTM-M6LS74T",
+            "usageContext": [
+                "WEB"
+            ],
+            "fingerprint": "1550041940687",
+            "tagManagerUrl": "https://tagmanager.google.com/#/container/accounts/4701203425/containers/11044184/workspaces?apiLink=container"
+        },
+        "tag": [
+            {
+                "accountId": "4701203425",
+                "containerId": "11044184",
+                "tagId": "1",
+                "name": "Enhanced Ecommerce",
+                "type": "ua",
+                "parameter": [
+                    {
+                        "type": "TEMPLATE",
+                        "key": "nonInteraction",
+                        "value": "{{GTM EE Event Non-Interaction}}"
+                    },
+                    {
+                        "type": "BOOLEAN",
+                        "key": "overrideGaSettings",
+                        "value": "true"
+                    },
+                    {
+                        "type": "BOOLEAN",
+                        "key": "useEcommerceDataLayer",
+                        "value": "true"
+                    },
+                    {
+                        "type": "TEMPLATE",
+                        "key": "eventCategory",
+                        "value": "{{GTM EE Event Category}}"
+                    },
+                    {
+                        "type": "TEMPLATE",
+                        "key": "trackType",
+                        "value": "TRACK_EVENT"
+                    },
+                    {
+                        "type": "TEMPLATE",
+                        "key": "eventAction",
+                        "value": "{{GTM EE Event Action}}"
+                    },
+                    {
+                        "type": "BOOLEAN",
+                        "key": "enableEcommerce",
+                        "value": "true"
+                    },
+                    {
+                        "type": "TEMPLATE",
+                        "key": "trackingId",
+                        "value": "{{UA-ID-Appetit}}"
+                    }
+                ],
+                "fingerprint": "1549874609466",
+                "firingTriggerId": [
+                    "6"
+                ],
+                "tagFiringOption": "ONCE_PER_EVENT"
+            }
+        ],
+        "trigger": [
+            {
+                "accountId": "4701203425",
+                "containerId": "11044184",
+                "triggerId": "6",
+                "name": "GTM EE Event",
+                "type": "CUSTOM_EVENT",
+                "customEventFilter": [
+                    {
+                        "type": "EQUALS",
+                        "parameter": [
+                            {
+                                "type": "TEMPLATE",
+                                "key": "arg0",
+                                "value": "{{_event}}"
+                            },
+                            {
+                                "type": "TEMPLATE",
+                                "key": "arg1",
+                                "value": "gtm-ee-event"
+                            }
+                        ]
+                    }
+                ],
+                "fingerprint": "1549796107228"
+            }
+        ],
+        "variable": [
+            {
+                "accountId": "4701203425",
+                "containerId": "11044184",
+                "variableId": "2",
+                "name": "GTM EE Event Action",
+                "type": "v",
+                "parameter": [
+                    {
+                        "type": "INTEGER",
+                        "key": "dataLayerVersion",
+                        "value": "2"
+                    },
+                    {
+                        "type": "BOOLEAN",
+                        "key": "setDefaultValue",
+                        "value": "false"
+                    },
+                    {
+                        "type": "TEMPLATE",
+                        "key": "name",
+                        "value": "gtm-ee-event-action"
+                    }
+                ],
+                "fingerprint": "1549796002181",
+                "formatValue": {}
+            },
+            {
+                "accountId": "4701203425",
+                "containerId": "11044184",
+                "variableId": "1",
+                "name": "GTM EE Event Category",
+                "type": "v",
+                "parameter": [
+                    {
+                        "type": "INTEGER",
+                        "key": "dataLayerVersion",
+                        "value": "2"
+                    },
+                    {
+                        "type": "BOOLEAN",
+                        "key": "setDefaultValue",
+                        "value": "false"
+                    },
+                    {
+                        "type": "TEMPLATE",
+                        "key": "name",
+                        "value": "gtm-ee-event-category"
+                    }
+                ],
+                "fingerprint": "1549795942209",
+                "formatValue": {}
+            },
+            {
+                "accountId": "4701203425",
+                "containerId": "11044184",
+                "variableId": "3",
+                "name": "GTM EE Event Non-Interaction",
+                "type": "v",
+                "parameter": [
+                    {
+                        "type": "INTEGER",
+                        "key": "dataLayerVersion",
+                        "value": "2"
+                    },
+                    {
+                        "type": "BOOLEAN",
+                        "key": "setDefaultValue",
+                        "value": "false"
+                    },
+                    {
+                        "type": "TEMPLATE",
+                        "key": "name",
+                        "value": "gtm-ee-event-non-interaction"
+                    }
+                ],
+                "fingerprint": "1549796036791",
+                "formatValue": {}
+            },
+            {
+                "accountId": "4701203425",
+                "containerId": "11044184",
+                "variableId": "4",
+                "name": "UA-ID-Appetit",
+                "type": "c",
+                "parameter": [
+                    {
+                        "type": "TEMPLATE",
+                        "key": "value",
+                        "value": "UA-128597358-1"
+                    }
+                ],
+                "fingerprint": "1549874375327",
+                "formatValue": {}
+            }
+        ],
+        "builtInVariable": [
+            {
+                "accountId": "4701203425",
+                "containerId": "11044184",
+                "type": "PAGE_URL",
+                "name": "Page URL"
+            },
+            {
+                "accountId": "4701203425",
+                "containerId": "11044184",
+                "type": "PAGE_HOSTNAME",
+                "name": "Page Hostname"
+            },
+            {
+                "accountId": "4701203425",
+                "containerId": "11044184",
+                "type": "PAGE_PATH",
+                "name": "Page Path"
+            },
+            {
+                "accountId": "4701203425",
+                "containerId": "11044184",
+                "type": "REFERRER",
+                "name": "Referrer"
+            },
+            {
+                "accountId": "4701203425",
+                "containerId": "11044184",
+                "type": "EVENT",
+                "name": "Event"
+            }
+        ],
+        "fingerprint": "0",
+        "tagManagerUrl": "https://tagmanager.google.com/#/versions/accounts/4701203425/containers/11044184/versions/0?apiLink=version"
+    }
+}

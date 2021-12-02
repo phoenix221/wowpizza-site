@@ -1,0 +1,162 @@
+<div class="container page-container">
+    {{nav_tpl}}
+    <div class="main-vac">
+        <div class="disc-main-vac">
+            <span class="ttl">ТРЕБУЕТСЯ {{edit}}</span>
+            <p>
+                <a class="vac-maint autoscroll" href="#vac{.id}">{.title}</a><br>
+                @if(d()->this->salary):
+                с зарплатой в {.salary} рублей<br>
+                @endif;
+                в федеральную сеть<br>
+                доставки еды «Аппетит».<br>
+            </p>
+            @if(!d()->vacancies_list->is_empty):
+            <p class="list-vac">
+                <span class="vac-list-main">А также требуется:<br></span>
+                <span class="vac-list-other uppercase">
+                    <foreach vacancies_list>
+                    <a href="#vac{.id}" class="autoscroll">{.title}</a><br>
+                    </foreach>
+                </span>
+            </p>
+            @endif;
+        </div>
+        <div class="main-vac-btns">
+            @if(d()->this->application):
+            <a href="{.application}" target="_blank" class="btn btn-big-red vac-btn">ОСТАВИТЬ ЗАЯВКУ</a>
+            @endif;
+            @if(d()->this->phone):
+            <a href="tel:{.phone}" class="btn btn-big-red vac-btn">ПОЗВОНИТЬ</a>
+            @endif;
+        </div>
+        <img src="/images/vacancy/girl-and-mn2.png" alt="" class="main-vac-img" />
+    </div>
+    <div class="disc-vac-text">
+        <i class="figure-vac">
+            <img src="/images/vacancy/fon-vacansii-3.png" alt="">
+        </i>
+        {.text}
+    </div>
+    <div class="desc-vac">
+        <div class="desc-vac-img">
+            <img src="/images/vacancy/girl-2-2.png" alt="">
+        </div>
+        <div class="desc-vac-advant-wrap">
+            <div class="desc-vac-advant">
+                <p>Преимущества работы в команде «Аппетит»</p>
+                {.text2}
+            </div>
+            @if(d()->this->application):
+            <a href="{.application}" target="_blank" class="btn btn-big-red vac-btn">ОСТАВИТЬ ЗАЯВКУ</a>
+            @endif;
+        </div>
+    </div>
+    <div class="all-list-vac">
+        <span class="ttl-f">Открытые вакансии:</span>
+        <div class="panel-group" id="accordion">
+            <div class="panel panel-default vac-items" id="vac{.id}">
+                <div class="panel-title collapsed">
+                    <i class="vac-li"></i>
+                    <div class="vac-left-part">
+                        <img class="vac-img" src="{.image|preview}" alt="">
+                        <div class="vac-description-preview">
+                            <span class="vac-title">{.title} {{edit}}</span>
+                            <span class="vac-text">{.line}</span>
+                            @if(d()->this->salary):
+                            <div class="vac-summa-dbl">{.salary} руб.</div>
+                            @endif;
+                            @if(d()->this->application):
+                            <a href="{.application}" class="btn btn-big-red vac-btn">Оставить заявку</a>
+                            @endif;
+                            @if(d()->this->phone):
+                            <a href="tel:{.phone}" class="btn btn-big-red vac-btn">Позвонить</a>
+                            @endif;
+                            <span class="vac-more-xs" data-toggle="collapse" data-parent="#accordion" href="#collapse{.id}">Подробнее<i class="mdi mdi-chevron-down"></i></span>
+                        </div>
+                    </div>
+                    <div class="vac-right-part">
+                        @if(d()->this->salary):
+                        <div class="vac-summa">{.salary} руб.</div>
+                        @endif;
+                        <i class="mdi mdi-chevron-down" data-toggle="collapse" data-parent="#accordion" href="#collapse{.id}"></i>
+                    </div>
+                </div>
+                <div id="collapse{.id}" class="panel-collapse collapse">
+                    <div class="vac-description">
+                        @if(d()->this->text3):
+                        <div class="vac-block">
+                            <span class="vac-description-title">Условия:</span>
+                            {.text3}
+                        </div>
+                        @endif;
+                        @if(d()->this->text4):
+                        <div class="vac-block">
+                            <span class="vac-description-title">Требования:</span>
+                            {.text4}
+                        </div>
+                        @endif;
+                        @if(d()->this->text5):
+                        <div class="vac-block">
+                            <span class="vac-description-title">Обязанности:</span>
+                            {.text5}
+                        </div>
+                        @endif;
+                    </div>
+                </div>
+            </div>
+            <foreach vacancies_list>
+            <div class="panel panel-default vac-items" id="vac{.id}">
+                <div class="panel-title collapsed">
+                    <i class="vac-li"></i>
+                    <div class="vac-left-part">
+                        <img class="vac-img" src="{.image|preview}" alt="">
+                        <div class="vac-description-preview">
+                            <span class="vac-title">{.title} {{edit}}</span>
+                            <span class="vac-text">{.line}</span>
+                            @if(d()->this->salary):
+                            <div class="vac-summa-dbl">{.salary} руб.</div>
+                            @endif;
+                            @if(d()->this->application):
+                            <a href="{.application}" class="btn btn-big-red vac-btn">Оставить заявку</a>
+                            @endif;
+                            @if(d()->this->phone):
+                            <a href="tel:{.phone}" class="btn btn-big-red vac-btn">Позвонить</a>
+                            @endif;
+                            <span class="vac-more-xs" data-toggle="collapse" data-parent="#accordion" href="#collapse{.id}">Подробнее<i class="mdi mdi-chevron-down"></i></span>
+                        </div>
+                    </div>
+                    <div class="vac-right-part">
+                        @if(d()->this->salary):
+                        <div class="vac-summa">{.salary} руб.</div>
+                        @endif;
+                        <i class="mdi mdi-chevron-down" data-toggle="collapse" data-parent="#accordion" href="#collapse{.id}"></i>
+                    </div>
+                </div>
+                <div id="collapse{.id}" class="panel-collapse collapse">
+                    <div class="vac-description">
+                        @if(d()->this->text3):
+                        <div class="vac-block">
+                            <span class="vac-description-title">Условия:</span>
+                            {.text3}
+                        </div>
+                        @endif;
+                        @if(d()->this->text4):
+                        <div class="vac-block">
+                            <span class="vac-description-title">Требования:</span>
+                            {.text4}
+                        </div>
+                        @endif;
+                        @if(d()->this->text5):
+                        <div class="vac-block">
+                            <span class="vac-description-title">Обязанности:</span>
+                            {.text5}
+                        </div>
+                        @endif;
+                    </div>
+                </div>
+            </div>
+            </foreach>
+        </div>
+    </div>
+</div>

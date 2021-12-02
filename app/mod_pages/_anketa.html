@@ -1,0 +1,565 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Анкета оценки качества обслуживания / Аппетит</title>
+    <style>
+        .rating{
+            margin:20px 0;
+            margin-top:10px;
+        }
+        .margin{
+            margin:40px 0;
+        }
+        .margin2{
+            margin:30px 0;
+        }
+        .margin3{
+            margin:20px 0;
+        }
+        .rating span{
+            display:inline-block;
+            background:#e0dfda;
+            color:#666;
+            font-size:15px;
+            padding:7px 12px;
+            border-radius:3px;
+            cursor:pointer;
+            margin:3px 0;
+            margin-right:3px;
+        }
+        .rating span:hover{
+            background:#ccc;
+            color:#333;
+        }
+        .rating span.active{
+            background: #31b52a;
+            color: #fff;
+        }
+        .selectans span{
+            display:inline-block;
+            background:#e0dfda;
+            color:#666;
+            font-size:15px;
+            padding:7px 12px;
+            border-radius:3px;
+            cursor:pointer;
+            margin:3px 0;
+            margin-right:3px;
+        }
+        .selectans span:hover{
+            background:#ccc;
+            color:#333;
+        }
+        .selectans span.active{
+            background: #31b52a;
+            color: #fff;
+        }
+        form.anketaf{
+            width:95%;
+            margin:0 auto;
+        }
+        .anketaf input[type=text]{
+            margin:20px 0;
+            width: 100%;
+            border: 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom:5px;
+            font-size: 16px;
+            color: #ab4715;
+            outline:none;
+        }
+        button{
+            background: #31b52a;
+            border: none;
+            color: #fff;
+            padding: 10px 30px;
+            border-radius: 3px;
+            font-size: 18px;
+            margin-top: 20px;
+            cursor:pointer;
+        }
+        button:hover{
+            background: #179011;
+        }
+        button:disabled{
+            opacity:.5;
+            background: #31b52a !important;
+            cursor:default;
+        }
+        .clinp{
+            margin:10px 0;
+            width: 100%;
+            background:white;
+            border: 1px solid #bbb;
+            padding:5px 10px;
+            font-size: 15px;
+            color: #444;
+            outline:none;
+        }
+        .clt{
+            margin:10px 0;
+            width: 100%;
+            background:white;
+            border: 1px solid #bbb;
+            padding:5px 10px;
+            font-size: 15px;
+            color: #444;
+            outline:none;
+            height:100px;
+            resize:none;
+        }
+        .selectans{
+            position: relative;
+            float: left;
+            clear: both;
+            padding-bottom: 15px;
+        }
+        .selectans-labels{
+            position: absolute;
+            left:0;
+            right:0;
+            bottom: 0;
+            font-size: 12px;
+            opacity: .5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px dotted #aaa;
+        }
+        .selectans-labels i{
+            font-style: normal;
+            position: relative;
+            display: inline-block;
+            background: #fff;
+            bottom: -3px;
+            padding-left: 5px;
+        }
+        .selectans-labels i:first-child{
+            padding: 0;
+            padding-right: 5px;
+        }
+        .clear{
+            clear:both;
+        }
+        .l-checkbox{
+            display: inline-block;
+            font-size: 14px;
+            color:#666;
+            cursor: pointer ;
+        }
+        .l-checkbox input{
+            position: relative;
+            bottom:-1px;
+        }
+        .mtlc{
+            margin-top: 15px;
+        }
+        .margin strong{
+            font-size: 16px;
+        }
+        .mysel{
+            width: 280px;
+            max-width: 100%;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-top: 16px;
+        }
+        .twoblock{
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+        .twoblock .margin{
+            width: 45%;
+            margin-top:15px;
+            margin-bottom: 30px;
+        }
+        @media (max-width: 767px) {
+            .twoblock{
+                display: block;
+            }
+            .twoblock .margin{
+                width: 100%;
+                margin: 45px 0;
+            }
+        }
+        .none{
+            display: none;
+        }
+        .sendblock{
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .sendblock button{
+            margin-top: 0;
+        }
+        .sendblock p{
+            margin: 0;
+            margin-left: 15px;
+            font-size: 13px;
+            opacity: .7;
+        }
+        @media (max-width: 767px) {
+            .sendblock{
+                display: block;
+            }
+            .sendblock p{
+                margin-top:15px;
+                margin-left: 0;
+            }
+        }
+    </style>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+</head>
+<body style="font-family: Arial;">
+<div style="margin: 0 auto; float: none; padding: 0px; border: 1px solid #e1e1e1; width:100%; max-width:800px;">
+    <div style="background: #b3de92; padding: 10px;">
+        <center><img src="/images/anketa-logo.png" ></center>
+    </div>
+    <div style="background: #fff; padding: 30px 10px; text-align: left;">
+
+        <h2 style="margin-top: 0; font-weight: normal; font-size: 26px; text-align: center;">Анкета оценки качества обслуживания</h2><br>
+
+        <form method="post" action="/anketa/finish/" class="anketaf" id="anketform">
+            <strong style="font-size: 16px;">Насколько вероятно, что вы порекомендуете нашу доставку своим друзьям и знакомым?<br>Где 0 - самая низкая вероятность, 10 - самая высокая:*</strong>
+            <br>
+            <div class="rating">
+                <span>0</span>
+                <span>1</span>
+                <span>2</span>
+                <span>3</span>
+                <span>4</span>
+                <span>5</span>
+                <span>6</span>
+                <span>7</span>
+                <span>8</span>
+                <span>9</span>
+                <span>10</span>
+            </div>
+            <input type="hidden" id="rating" name="rating" value="">
+
+
+            <div id="dop" style="display: none;" class="margin">
+                <strong style="font-size: 16px;">Опишите, пожалуйста, что именно Вам не понравилось?*</strong><br>
+                <input type="text" name="prichina" placeholder="Мой ответ" required disabled id="prichina" />
+            </div>
+
+            <div class="margin">
+                <strong style="font-size: 16px;">Пожалуйста, оцените работу нашего оператора:*</strong><br>
+                <br>
+                <div class="selectans" data-id="operator">
+                    <div class="selectans-labels">
+                        <i>очень плохо</i>
+                        <i>отлично</i>
+                    </div>
+                    <span>0</span>
+                    <span>1</span>
+                    <span>2</span>
+                    <span>3</span>
+                    <span>4</span>
+                    <span>5</span>
+                    <input type="hidden" id="operator" name="operator" value="">
+                </div>
+                <div class="clear"></div>
+                <label class="l-checkbox mtlc"><input type="checkbox" name="online-order" value="1" onchange="kdj(this);"> Я делал заказ онлайн</label>
+            </div>
+            <div class="margin">
+                <strong class="kdj-text">Оператор ответил достаточно быстро?*</strong><br>
+                <label class="l-checkbox mtlc"><input type="radio" name="operator-time" value="1" required> Да</label>
+                <label class="l-checkbox mtlc" style="margin-left: 25px;"><input type="radio" name="operator-time" value="2" required> Нет</label>
+            </div>
+            <div class="margin">
+                <strong>Какой тип доставки Вы выбрали?*</strong><br>
+                <label class="l-checkbox mtlc"><input type="radio" name="delivery" value="1" onchange="dlvr(this);" required> Самовывоз</label>
+                <label class="l-checkbox mtlc" style="margin-left: 25px;"><input type="radio" name="delivery" value="2" onchange="dlvr(this);" required> Доставка</label>
+                <input id="dlv" type="hidden" value="{dlv}">
+            </div>
+            <div class="kassir">
+                <div class="twoblock">
+                    <div class="margin">
+                        <strong>Был ли кассир достаточно вежлив?*</strong><br>
+                        <label class="l-checkbox mtlc"><input type="radio" name="kassir-polite" value="1" required disabled> Да</label>
+                        <label class="l-checkbox mtlc" style="margin-left: 25px;"><input type="radio" name="kassir-polite" value="2" required disabled> Нет</label>
+                    </div>
+                    <div class="margin">
+                        <strong>Был ли опрятен кассир?*</strong><br>
+                        <label class="l-checkbox mtlc"><input type="radio" name="kassir-view" value="1" required disabled> Да</label>
+                        <label class="l-checkbox mtlc" style="margin-left: 25px;"><input type="radio" name="kassir-view" value="2" required disabled> Нет</label>
+                    </div>
+                </div>
+                <div class="margin">
+                    <strong>Ваш заказ выдали в заявленное время ?*</strong><br>
+                    <label class="l-checkbox mtlc"><input type="radio" name="kassir-time" value="1" required disabled> Да</label>
+                    <label class="l-checkbox mtlc" style="margin-left: 25px;"><input type="radio" name="kassir-time" value="2" required disabled> Нет</label>
+                </div>
+            </div>
+
+            <div class="courier">
+                <div class="twoblock">
+                    <div class="margin">
+                        <strong>Был ли курьер достаточно вежлив?*</strong><br>
+                        <label class="l-checkbox mtlc"><input type="radio" name="courier-polite" value="1" required disabled> Да</label>
+                        <label class="l-checkbox mtlc" style="margin-left: 25px;"><input type="radio" name="courier-polite" value="2" required disabled> Нет</label>
+                    </div>
+                    <div class="margin">
+                        <strong>Был ли опрятен курьер?*</strong><br>
+                        <label class="l-checkbox mtlc"><input type="radio" name="courier-view" value="1" required disabled> Да</label>
+                        <label class="l-checkbox mtlc" style="margin-left: 25px;"><input type="radio" name="courier-view" value="2" required disabled> Нет</label>
+                    </div>
+                </div>
+                <div class="twoblock">
+                    <div class="margin">
+                        <strong>Ваш заказ доставили достаточно быстро?*</strong><br>
+                        <label class="l-checkbox mtlc"><input type="radio" name="courier-time" value="1" required disabled> Да</label>
+                        <label class="l-checkbox mtlc" style="margin-left: 25px;"><input type="radio" name="courier-time" value="2" required disabled> Нет</label>
+                    </div>
+                    <div class="margin">
+                        <strong>Заказ был доставлен в термосумке?*</strong><br>
+                        <label class="l-checkbox mtlc"><input type="radio" name="courier-bag" value="1" required disabled> Да</label>
+                        <label class="l-checkbox mtlc" style="margin-left: 25px;"><input type="radio" name="courier-bag" value="2" required disabled> Нет</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="margin">
+                <strong>Насколько Вам понравился внешний вид заказа, по шкале от 1 до 5?*</strong><br>
+                <br>
+                <div class="selectans" data-id="order-view">
+                    <div class="selectans-labels">
+                        <i>очень плохо</i>
+                        <i>отлично</i>
+                    </div>
+                    <span>0</span>
+                    <span>1</span>
+                    <span>2</span>
+                    <span>3</span>
+                    <span>4</span>
+                    <span>5</span>
+                    <input type="hidden" id="order-view" name="order-view" value="">
+                </div>
+            </div>
+            <div class="clear"></div>
+            <div class="margin none" data-quest="order-view">
+                <strong>Уточните, пожалуйста, что Вам не понравилось - почему оценка не 5?</strong><br>
+                <input type="text" name="order-view-desc" placeholder="Мой ответ" />
+            </div>
+            <div class="margin">
+                <strong>Как бы Вы оценили вкус Вашего заказа по шкале от 1 до 5?*</strong><br>
+                <br>
+                <div class="selectans" data-id="order-taste">
+                    <div class="selectans-labels">
+                        <i>не вкусно</i>
+                        <i>очень вкусно</i>
+                    </div>
+                    <span>0</span>
+                    <span>1</span>
+                    <span>2</span>
+                    <span>3</span>
+                    <span>4</span>
+                    <span>5</span>
+                    <input type="hidden" id="order-taste" name="order-taste" value="">
+                </div>
+            </div>
+            <div class="clear"></div>
+            <div class="margin none" data-quest="order-taste">
+                <strong>Уточните, пожалуйста, что Вам не понравилось - почему оценка не 5?</strong><br>
+                <input type="text" name="order-taste-desc" placeholder="Мой ответ" />
+            </div>
+            <div class="margin" style="margin-bottom: 20px">
+                <strong>Что бы Вы хотели порекомендовать, чтобы «Аппетит» стала для Вас идеальной компанией?</strong><br>
+                <input type="text" name="ideal" placeholder="Мой ответ" />
+            </div>
+            <div class="margin" style="margin-bottom: 20px">
+                <strong>Почему выбрали нашу компанию?</strong><br>
+                <input type="text" name="company" placeholder="Мой ответ" />
+            </div>
+
+            @if(d()->phone):
+            <input type="hidden" name="phone" value="{phone}" />
+            @endif;
+            @if(d()->office):
+            <input type="hidden" name="office" value="{office}" />
+            @endif;
+            
+            @if(!d()->order_id && !d()->phone):
+            <div class="margin" style="margin-bottom: 20px">
+                <strong>Номер телефона, который указан в вашем заказе:*</strong><br>
+                <input type="text" name="phone" placeholder="+7 (___) ___-__-__" required />
+            </div>
+            @endif;
+            
+            <div class="clear"></div>
+            <input type="hidden" name="email" value="<?print $_GET['email'];?>" />
+            <input type="hidden" name="order" value="{order_id}" />
+            <div class="sendblock">
+                <button id="send" disabled>Отправить</button>
+                <p>для отправки анкеты заполните все поля отмеченные звездочкой (*)</p>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function(){
+
+        $('#anketform').submit(function(){
+           $('#send').prop('disabled', true);
+        });
+
+        $('.rating span').on('click', function() {
+            var s = $(this);
+            $('.rating span').removeClass('active');
+            $('#rating').val(s.html());
+            s.addClass('active');
+            if(Number(s.html())<8){
+                $('#dop').show();
+                $('#prichina').prop('disabled', false);
+            }else{
+                $('#dop').hide();
+                $('#prichina').prop('disabled', true);
+            }
+            checkreq();
+        });
+
+        $('.selectans span').on('click', function() {
+            var s = $(this);
+            var wrap = s.closest('.selectans');
+
+            wrap.find('span').removeClass('active');
+            $('#'+wrap.data('id')).val(s.html());
+            s.addClass('active');
+
+            if(wrap.data('id')=='order-view' || wrap.data('id')=='order-taste'){
+                if(s.html()!='5'){
+                    $('div[data-quest="'+wrap.data('id')+'"]').removeClass('none');
+                }else{
+                    $('div[data-quest="'+wrap.data('id')+'"]').addClass('none');
+                }
+            }
+
+            checkreq();
+        });
+
+        var dlv = $('#dlv').val();
+        //console.log(dlv);
+        if(dlv == 1 || dlv == 0){
+            $('.kassir').show();
+            $('.courier').hide();
+            $('input[name="delivery"][value="1"]').prop('checked', true);
+
+            $('input[name="kassir-polite"][value="1"]').prop('disabled', false);
+            $('input[name="kassir-polite"][value="2"]').prop('disabled', false);
+            $('input[name="kassir-view"][value="1"]').prop('disabled', false);
+            $('input[name="kassir-view"][value="2"]').prop('disabled', false);
+            $('input[name="kassir-time"][value="1"]').prop('disabled', false);
+            $('input[name="kassir-time"][value="2"]').prop('disabled', false);
+
+            $('input[name="courier-polite"][value="1"]').prop('disabled', true);
+            $('input[name="courier-polite"][value="2"]').prop('disabled', true);
+            $('input[name="courier-view"][value="1"]').prop('disabled', true);
+            $('input[name="courier-view"][value="2"]').prop('disabled', true);
+            $('input[name="courier-time"][value="1"]').prop('disabled', true);
+            $('input[name="courier-time"][value="2"]').prop('disabled', true);
+            $('input[name="courier-bag"][value="1"]').prop('disabled', true);
+            $('input[name="courier-bag"][value="2"]').prop('disabled', true);
+        }
+        if(dlv == 2){
+            $('.courier').show();
+            $('.kassir').hide();
+            $('input[name="delivery"][value="2"]').prop('checked', true);
+
+            $('input[name="courier-polite"][value="1"]').prop('disabled', false);
+            $('input[name="courier-polite"][value="2"]').prop('disabled', false);
+            $('input[name="courier-view"][value="1"]').prop('disabled', false);
+            $('input[name="courier-view"][value="2"]').prop('disabled', false);
+            $('input[name="courier-time"][value="1"]').prop('disabled', false);
+            $('input[name="courier-time"][value="2"]').prop('disabled', false);
+            $('input[name="courier-bag"][value="1"]').prop('disabled', false);
+            $('input[name="courier-bag"][value="2"]').prop('disabled', false);
+
+            $('input[name="kassir-polite"][value="1"]').prop('disabled', true);
+            $('input[name="kassir-polite"][value="2"]').prop('disabled', true);
+            $('input[name="kassir-view"][value="1"]').prop('disabled', true);
+            $('input[name="kassir-view"][value="2"]').prop('disabled', true);
+            $('input[name="kassir-time"][value="1"]').prop('disabled', true);
+            $('input[name="kassir-time"][value="2"]').prop('disabled', true);
+        }
+    });
+
+    function kdj(e) {
+        var n = $('.kdj-text');
+        if($(e).is(':checked')){
+            n.html('Ваш онлайн-заказ подтвердили достаточно быстро?*');
+        }else{
+            n.html('Оператор ответил достаточно быстро?*');
+        }
+        checkreq();
+    }
+
+    function checkreq() {
+        var blocks = $('.selectans');
+        if($('input[name="online-order"]').is(':checked'))blocks = $('.selectans').not('div[data-id="operator"]');
+        var inputs = blocks.find('input[type="hidden"]');
+        var input2 = $('#rating');
+        var check = 1;
+
+        inputs.each(function(){
+            if(!$(this).val())check=0;
+        });
+        if(!input2.val())check=0;
+
+        if(check){
+            $('#send').prop('disabled', false);
+        }else{
+            $('#send').prop('disabled', true);
+        }
+    }
+
+    function dlvr(e){
+        //console.log(e.value);
+        if(e.value == 1){
+            $('.kassir').show();
+            $('.courier').hide();
+
+            $('input[name="kassir-polite"][value="1"]').prop('disabled', false);
+            $('input[name="kassir-polite"][value="2"]').prop('disabled', false);
+            $('input[name="kassir-view"][value="1"]').prop('disabled', false);
+            $('input[name="kassir-view"][value="2"]').prop('disabled', false);
+            $('input[name="kassir-time"][value="1"]').prop('disabled', false);
+            $('input[name="kassir-time"][value="2"]').prop('disabled', false);
+
+            $('input[name="courier-polite"][value="1"]').prop('disabled', true);
+            $('input[name="courier-polite"][value="2"]').prop('disabled', true);
+            $('input[name="courier-view"][value="1"]').prop('disabled', true);
+            $('input[name="courier-view"][value="2"]').prop('disabled', true);
+            $('input[name="courier-time"][value="1"]').prop('disabled', true);
+            $('input[name="courier-time"][value="2"]').prop('disabled', true);
+            $('input[name="courier-bag"][value="1"]').prop('disabled', true);
+            $('input[name="courier-bag"][value="2"]').prop('disabled', true);
+        }
+        if(e.value == 2){
+            $('.courier').show();
+            $('.kassir').hide();
+
+            $('input[name="courier-polite"][value="1"]').prop('disabled', false);
+            $('input[name="courier-polite"][value="2"]').prop('disabled', false);
+            $('input[name="courier-view"][value="1"]').prop('disabled', false);
+            $('input[name="courier-view"][value="2"]').prop('disabled', false);
+            $('input[name="courier-time"][value="1"]').prop('disabled', false);
+            $('input[name="courier-time"][value="2"]').prop('disabled', false);
+            $('input[name="courier-bag"][value="1"]').prop('disabled', false);
+            $('input[name="courier-bag"][value="2"]').prop('disabled', false);
+
+            $('input[name="kassir-polite"][value="1"]').prop('disabled', true);
+            $('input[name="kassir-polite"][value="2"]').prop('disabled', true);
+            $('input[name="kassir-view"][value="1"]').prop('disabled', true);
+            $('input[name="kassir-view"][value="2"]').prop('disabled', true);
+            $('input[name="kassir-time"][value="1"]').prop('disabled', true);
+            $('input[name="kassir-time"][value="2"]').prop('disabled', true);
+        }
+    }
+</script>
+</body>
+</html>

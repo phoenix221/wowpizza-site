@@ -1,0 +1,3860 @@
+<?php
+
+function main()
+{
+
+	if(substr($_SERVER['REQUEST_URI'],-5)=='index' && !$_GET){
+		header("HTTP/1.1 301 Moved Permanently");
+		header('Location: '.substr($_SERVER['REQUEST_URI'],0,-5));
+		exit;
+	}
+
+	//if(!$_COOKIE['check_utm']){
+    //    $utm = '';
+        //if($_GET){
+        if($_GET['utm_source']){
+            $utm = $_GET['utm_source'];
+            if(count($_GET)>1)$utm .= '|';
+            foreach($_GET as $k=>$v){
+                if($k=='utm_source')continue;
+                $utm .= $v.'|';
+            }
+            $utm = substr($utm,0,-1);
+            setcookie("utm", $utm, time()+60*60*24*365*10, '/');
+        }
+	    // 10 лет
+        //setcookie("utm", $utm, time()+60*60*24*365*10, '/');
+        //setcookie("check_utm", 1, time()+60*60*24*365*10, '/');
+    //}
+
+    if($_GET['action']=='logout'){
+        d()->Auth->logout();
+        if($_SESSION['promocode']['is_auth']){
+            clear_promo();
+        }
+        header('Location: /');
+        exit;
+    }
+
+    // получаем инфо о городе
+    get_city();
+
+    // проверяем, нужно ли редиректнуть
+    seo_redirect_module();
+
+
+    // получаем остальные города
+    d()->city_list = d()->City->where('id != ?', d()->city->id);
+    //if(d()->city_list->is_empty)d()->onecity = 'onecity';
+
+    foreach(d()->city_list as $v){
+        if(d()->city_list->code=='okt')continue;
+        $c_check = 1;
+    }
+    //if(!$c_check)d()->onecity = 'onecity';
+
+    // получаем нужные даты c учетом часового пояса города
+    // d()->unix_time = UNIX время;
+    // выбираем день, для отображения режима работы (с 00.00 до 04.00 утра показываем вчерашний день)
+    // d()->n_week = Порядковый номер дня недели
+    // d()->week_day = Названия дня недели
+    // d()->worktime = Режим работы на сегодня
+    get_dates(d()->city);
+
+    // меню
+    d()->categories_list = d()->Category->where('city_id=? AND is_active=1', d()->city->id);
+
+
+    // корзина
+    get_cart();
+    if(d()->cart_count>0)d()->show_cart_btn = 'show_cart_btn';
+
+    // определяем способ доставки
+    // самовывоз 1
+    // доставка 2
+    if(!$_SESSION['delivery']){
+        $_SESSION['delivery'] = d()->city->delivery;
+    }
+    if($_SESSION['delivery']==1){
+        d()->active_pickup = 'active';
+    }else{
+        d()->active_delivery = 'active';
+    }
+
+    // текст в модалку, об удалении промокода
+    if($_SESSION['promocode']['delivery'] && $_SESSION['promocode']['delivery'] == $_SESSION['delivery']){
+        $prtg = 'самовывоз';
+        if($_SESSION['promocode']['delivery']==2)$prtg = 'доставку';
+        d()->clear_promo_text = '<p class="clear_promo_text"><u>Промокод <strong class="text-uppercase">'.$_SESSION['promocode']['title'].'</strong> будет удален</u>. Этот промокод доступен только на '.$prtg.'</p>';
+    }
+
+    // метка, что информационная модалка по умолчанию скрыта
+    d()->info_modal = '0';
+
+	d()->o = d()->Option;
+
+	//d()->nocache = rand(10000,9999999);
+	d()->nocache = 3;
+	d()->promo_min_sum = $_SESSION['promocode']['min_sum'];
+	d()->promo_delivery = $_SESSION['promocode']['delivery'];
+
+    // показать текстбэк
+    d()->show_textback = 1;
+    if($_SESSION['hide_textback'])d()->show_textback = 0;
+
+    // модалка что мы закрыты
+	if(d()->city->is_modal_wt && !$_SESSION['wt_modal'] && !check_wt()){
+        d()->wt_modal = 1;
+        $_SESSION['wt_modal'] = 1;
+        d()->show_textback = 0;
+    }
+    // переменные для модалки Мы закрыты
+    //if(d()->domain == 'radugavkusaufa.ru'){
+    //    d()->close_img = 'logo_rv_close.png';
+    //    d()->close_were = 'а';
+    //    d()->close_style = 'background: #f2780b;';
+    //}else{
+        d()->close_img = 'logo_red.svg';
+        d()->close_were = '';
+        d()->close_style = '';
+    //}
+
+	if($_SESSION['admin']=='developer'){
+        //d()->wt_modal = 1;
+    }
+
+    d()->picked_deliv_gifts = 0;
+
+	// если пользователь подтвердил E-mail в JustClick, показываем модалку
+    if($_GET['succesjustclick']){
+        $u = d()->User->where('id=? AND city=?', $_GET['succesjustclick'], d()->city->code)->limit(0,1);
+        if($u->count){
+            // проверяем hash
+            $hash = g_user_hash($u);
+            if($hash == $_GET['hash']){
+                // ставим метку что E-mail подтвержден
+                $u->conf_email = 1;
+                $u->save;
+                // показываем модалку, что E-mail подтвержден
+                d()->info_modal = '1';
+                d()->im_title = 'Подтверждение E-mail';
+                d()->im_text = '<div class=" alert alert-success text-center">Спасибо, Ваш E-mail успешно подтвержден</div>';
+                // запускаем функцию начисления бонусных баллов, если это необходимо
+                run_bonus_personal($_GET['succesjustclick']);
+            }
+        }
+    }
+
+    // добавляем класс к меню на всех страницах кроме главной
+    if(url()!='index'){
+       d()->shadow_menu = 'head-menu-shadow';
+    }
+
+    d()->g_points = 0;
+    if($_SESSION['points'])d()->g_points = $_SESSION['points'];
+    if($_SESSION['promocode'])d()->promo = $_SESSION['promocode'];
+
+    if(!d()->Auth->is_guest())d()->user = d()->Auth->user();
+
+    if(!d()->Seo->title)d()->Seo->title = d()->this->title;
+
+	d()->content = d()->content();
+	print d()->render('main_tpl');
+}
+
+// загрузка картинок для CK Editor
+function ajax_ckupload()
+{
+    if($_FILES['upload'])
+    {
+        if (($_FILES['upload'] == "none") OR (empty($_FILES['upload']['name'])) ){
+            $message = "Вы не выбрали файл";
+        }else if ($_FILES['upload']["size"] == 0 OR $_FILES['upload']["size"] > 2050000) {
+            $message = "Размер файла не соответствует нормам";
+        }else if (($_FILES['upload']["type"] != "image/jpeg") AND ($_FILES['upload']["type"] != "image/jpeg") AND ($_FILES['upload']["type"] != "image/png")) {
+            $message = "Допускается загрузка только картинок JPG и PNG.";
+        }else if (!is_uploaded_file($_FILES['upload']["tmp_name"])) {
+            $message = "Что-то пошло не так. Попытайтесь загрузить файл ещё раз.";
+        }else{
+            $name =rand(1, 1000).'-'.md5($_FILES['upload']['name']).'.'.getex($_FILES['upload']['name']);
+            move_uploaded_file($_FILES['upload']['tmp_name'], $_SERVER['DOCUMENT_ROOT']."/storage/ckeditor/".$name);
+            $full_path = $_SERVER['DOCUMENT_ROOT'].'/storage/ckeditor/'.$name;
+            $message = "Файл ".$_FILES['upload']['name']." загружен";
+            $size = getimagesize($_SERVER['DOCUMENT_ROOT'].'/storage/ckeditor/'.$name);
+            if($size[0]<50 OR $size[1]<50){
+                unlink($_SERVER['DOCUMENT_ROOT'].'/storage/ckeditor/'.$name);
+                $message = "Файл не является допустимым изображением";
+                $full_path = "";
+            }
+        }
+        $callback = $_REQUEST['CKEditorFuncNum'];
+        //echo '<script type="text/javascript">window.parent.CKEDITOR.tools.callFunction("'.$callback.'", "'.$full_path.'", "'.$message.'" );</script>';
+
+        $data = ['uploaded' => 1, 'fileName' => $name, 'url' => '/storage/ckeditor/'.$name];
+        echo json_encode($data);
+    }
+}
+function getex($filename) {
+    return array_pop(explode(".", $filename));
+}
+// загрузка картинок для CK Editor
+
+function test()
+{
+    if($_SESSION['admin']) {
+        exit();
+        // print '<pre>';
+        // print_r($_SERVER);
+        // print '</pre>';
+        // exit;
+    }
+    d()->page_not_found();
+}
+
+// добавление в корзину
+function ajax_change_cart($type='', $_id='', $_property='', $_items='')
+{
+    $_type = $type;
+    if(!$type){
+        $_id = $_POST['id'];
+        $_property = $_POST['property'];
+        $_type = $_POST['type'];
+    }
+
+    if(!$_items){
+        $_items_original = str_replace(',', '', $_POST['items']);
+        $ti = explode(',', $_POST['items']);
+        $_items = '';
+        foreach($ti as $k=>$v){
+            $tv = explode('|',$v);
+            $_items .= $tv[0];
+        }
+        if(!$_POST['items'])$_items = 0;
+    }
+
+    // добавление в корзину
+    if($_type=='add') {
+        if($_id){
+            $cart = $_SESSION['cart'];
+            $pid = $_id.'_'.$_property.'_'.str_replace('_', '', $_items);
+
+            if(!$cart[$pid]['id']){
+                if($_property!='promo' && $_property!='gift_dr' && $_property!='gift_pickup'){
+                    // существует ли такое блюдо
+                    $p = d()->Product($_id);
+                    if(!$p->count()){
+                        print 'error';
+                        exit();
+                    }
+                    // существует ли такое свойство (если есть)
+                    if($_property){
+                        $property = d()->Property($_property);
+                        if(!$property->count()){
+                            print 'error';
+                            exit();
+                        }
+                        $price = $property->price;
+                        $old_price = $property->old_price;
+                        $property_title = $property->title;
+                    }else{
+                        $price = $p->price;
+                        $old_price = $p->old_price;
+                        $property_title = '';
+                    }
+
+                    if(!$old_price)$old_price = $price;
+
+                    // переменные для seo_variables
+                    if(check_seo_variables($p->title_original)){
+                        d()->this = $p;
+                        d()->category = d()->Category($p->f_category_id);
+                        d()->done_price = $price;
+                        //get_products_options(d()->category->id, $price);
+                    }
+                    // переменные для seo_variables
+
+                    // для допов
+                    $items_price = 0;
+                    $items_title = '';
+                    if($_POST['items']){
+                        $i = explode(',', $_POST['items']);
+                        $itms = Array();
+                        d()->i_arr = Array();
+                        //$_SESSION['dbg']['test'] = 33;
+                        foreach($i as $k=>$vu){
+                            $itmp = explode('|', $vu);
+                            $item_cnt = $itmp[1];
+
+                            $t = explode('_', $itmp[0]);
+                            $itms[] = $t[0];
+                            if(!d()->i_arr[$t[0]]){
+                                d()->i_arr[$t[0]] = $t[1].'|'.$item_cnt;
+                            }elseif(d()->i_arr[$t[0]] && !is_array(d()->i_arr[$t[0]])){
+                                $tm = d()->i_arr[$t[0]];
+                                unset(d()->i_arr[$t[0]]);
+                                d()->i_arr[$t[0]][] = $tm;
+                                d()->i_arr[$t[0]][] = $t[1].'|'.$item_cnt;
+                            }else{
+                                d()->i_arr[$t[0]][] = $t[1].'|'.$item_cnt;
+                            }
+                        }
+                        //$_SESSION['dbg']['i_arr'] = d()->i_arr;
+                        $icnt = array_count_values($itms);
+                        $items = d()->Product($itms);
+                        foreach($items as $vit){
+                            //$items_title .= mb_strtolower($items->title).' ('.$item_cnt.' шт), ';
+                            if(!is_array(d()->i_arr[$items->id])){
+                                $sv = explode('|',d()->i_arr[$items->id]);
+                                $prprt_pttl = '';
+                                if($sv[0]){
+                                    $prprt = d()->Property($sv[0]);
+                                    $svcnt = $sv[1];
+                                    $sht = ' / <i class="io-count" data-count="'.$sv[1].'">'.$sv[1].'</i> шт';
+                                    if($sv[1]=='-'){
+                                        $sht='';
+                                        $svcnt = 1;
+                                    }
+                                    $prprt_pttl = ' ('.$prprt->title.$sht.')';
+                                    $items_price += $prprt->price*$svcnt;
+                                    $items_title .= mb_strtolower(str_replace(',', '.', $items->title.$prprt_pttl)).', ';
+                                }else{
+                                    $svcnt = $sv[1];
+                                    $sht = ' (<i class="io-count" data-count="'.$sv[1].'">'.$sv[1].'</i> шт)';
+                                    if($sv[1]=='-'){
+                                        $sht='';
+                                        $svcnt = 1;
+                                    }
+                                    $items_price += $items->price*$svcnt;
+                                    $items_title .= mb_strtolower(str_replace(',', '.', $items->title)).$sht.', ';
+                                }
+
+                            }else{
+                                foreach(d()->i_arr[$items->id] as $ik=>$iv){
+                                    $prprt_pttl = '';
+                                    $sv = explode('|',$iv);
+                                    if($sv[0]){
+                                        $prprt = d()->Property($sv[0]);
+                                        $svcnt = $sv[1];
+                                        $sht = ' / <i class="io-count" data-count="'.$sv[1].'">'.$sv[1].'</i> шт';
+                                        if($sv[1]=='-'){
+                                            $sht = '';
+                                            $svcnt = 1;
+                                        }
+                                        $prprt_pttl = ' ('.$prprt->title.')';
+                                        $items_price += $prprt->price*$svcnt;
+                                        $items_title .= mb_strtolower(str_replace(',', '.', $items->title.$prprt_pttl)).$sht.', ';
+                                    }else{
+                                        $svcnt = $sv[1];
+                                        $sht = ' (<i class="io-count" data-count="'.$sv[1].'">'.$sv[1].'</i> шт)';
+                                        if($sv[1]=='-'){
+                                            $sht = '';
+                                            $svcnt = 1;
+                                        }
+                                        $items_price += $items->price*$svcnt;
+                                        $items_title .= mb_strtolower(str_replace(',', '.', $items->title)).$sht.', ';
+                                    }
+                                }
+                            }
+
+                        }
+                        $items_title = substr(trim($items_title),0,-1);
+                    }
+
+                    $cart[$pid] = Array(
+                        'id' => $p->id,
+                        'id_1c' => $p->id_1c,
+                        'property' => $_property,
+                        'property_title' => $property_title,
+                        'count' => 1,
+                        'title' => $p->title,
+                        'category_id' => $p->f_category_id,
+                        // цена за 1 товар
+                        'price' => $price,
+                        // цена за все товары
+                        'total_price' => $price,
+                        // цена за 1 товар с учетом скидки за самовывоз (независимо от выбранного способа доставки)
+                        'dd_price' => get_discount_price($old_price, $p->not_dd, 1),
+                        // скидка за самовывоз за 1 товар
+                        'pickup_discount' => $old_price-$price,
+                        // скидка за самовывоз за все товары
+                        'total_pickup_discount' => $old_price-$price,
+                        // товар не собственного производства
+                        'not_dd' => $p->not_dd,
+                        // допы
+                        'items' => $_POST['items'],
+                        'items_price' => $items_price,
+                        'items_title' => $items_title,
+                        // сумма без скидок за самовывоз и пр.
+                        'image' => d()->preview($p->image, '120', '120'),
+                        // автотовары
+                        'autoadd' => $p->autoadd_products
+                    );
+
+
+                    // проверяем, есть ли промокод со скидкой для этого товара
+                    $dop_array = Array();
+                    if($_SESSION['promocode']['type']==1 && $_SESSION['promocode']['discount_type']==1){
+                        $products_temp = explode(',', $_SESSION['promocode']['products']);
+                        foreach($products_temp as $k=>$v){
+                            $a = explode('|', $v);
+
+                            if($a[0] == $pid){
+                                $promo_count = $a[1];
+                                if(!$promo_count)$promo_count=9999;
+                                $promo_discount = $price - $a[2];
+
+                                // считаем скидку
+                                $check = 1;
+                                $total_promo_discount = 0;
+                                $promo_used = 0;
+
+                                // определем лимит для группы
+                                $group = $a[3];
+                                $lim = explode(',', $_SESSION['promocode']['products_limit']);
+                                foreach($lim as $v){
+                                    $limit = explode('_', $v);
+                                    if($limit[1] == $group){
+                                        $l = $limit[0];
+                                    }
+                                }
+                                if(!$l)$l = 9999;
+
+                                // проверка скидку у товаров из другой группы
+                                foreach($cart as $k=>$v){
+                                    if($v['promo_used']){
+                                        if($v['promo_group'] != $group){
+                                            $check = 0;
+                                        }
+                                    }
+                                }
+
+                                // проверка на максимальный лимит для группы
+                                if($l <= $_SESSION['promocode']['products_used']){
+                                    $check = 0;
+                                }
+                                if($check){
+                                    $total_promo_discount = $promo_discount;
+                                    $promo_used = 1;
+                                    $_SESSION['promocode']['products_used']++;
+                                }
+                                $dop_array = Array(
+                                    'promocode_id' => $_SESSION['promocode']['id'],
+                                    'promo_title' => 'Скидка по промокоду '.strtoupper($_SESSION['promocode']['title']),
+                                    'promo_count' => $promo_count,
+                                    'promo_group' => $group,
+                                    'promo_discount' => $promo_discount,
+                                    'total_promo_discount' => $total_promo_discount,
+                                    'promo_used' => $promo_used,
+                                );
+                            }
+                        }
+                    }
+
+                    if($_SESSION['promocode']['type']==2){
+                        if($_SESSION['promocode']['discount_type'] != 2 || !$p->not_dd){
+                            $d = price_round($price, $_SESSION['promocode']['percent'], $_SESSION['promocode']['round']);
+                            $dop_array = Array(
+                                'promocode_id' => $_SESSION['promocode']['id'],
+                                'promo_title' => 'Скидка по промокоду '.strtoupper($_SESSION['promocode']['title']),
+                                'promo_discount' => $d,
+                                'total_promo_discount' => $d,
+                            );
+
+                        }
+                    }
+
+                    $cart[$pid] = array_merge($cart[$pid], $dop_array);
+
+                    // если есть товары, которые нужно добавить автоматически
+                    if($p->autoadd_products){
+                        $cart = autoadd_products($p->autoadd_products, $cart, 'add');
+                    }
+
+                }else{
+                    $gid = explode('_', $_id);
+                    $g = d()->Product($gid[0]);
+                    if(!$g->id){
+                        print 'error';
+                        exit();
+                    }
+
+                    // существует ли такое свойство (если есть)
+                    $property_title = '';
+                    if($gid[1]){
+                        $property = d()->Property($gid[1]);
+                        if(!$property->count()){
+                            print 'error';
+                            exit();
+                        }
+                        $property_title = $property->title;
+                    }
+
+
+                    $promo_name = $_SESSION['promocode']['title'];
+                    $mpt = 'подарок на День Рождения';
+                    if($_property=='promo'){
+                        $mpt = 'подарок по промокоду '.strtoupper($promo_name);
+                    }
+                    if($_property=='gift_pickup'){
+                        $mpt = 'подарок за самовывоз';
+                    }
+                    $cart[$pid] = Array(
+                        'id' => $g->id,
+                        'id_1c' => $g->id_1c,
+                        'count' => 1,
+                        'title' => $g->title,
+                        'property_title' => $property_title,
+                        'promo_title' => $mpt,
+                        'property' => $_property,
+                        'price' => 0,
+                        'total_price' => 0,
+                        'pickup_discount' => 0,
+                        'total_pickup_discount' => 0,
+                        'image' => d()->preview($g->image, '120', '120'),
+                        'promocode' => $promo_name,
+                        'gift_property' => $gid[1],
+                        'autoadd' => $g->autoadd_products
+                    );
+                    // gift_property - дополнительное поле, которое пришлось ввести из за Подарки из меню
+
+                    // если есть товары, которые нужно добавить автоматически
+                    if($g->autoadd_products){
+                        $cart = autoadd_products($g->autoadd_products, $cart, 'add');
+                    }
+                }
+
+            }else{
+                // TODO: костылек с ошибкой при количестве подарков больше 1 (не смог найти причину, поставил эту проверку, пример заказ 353659)
+                if($cart[$pid]['auto'] || $_property=='gift_dr' || $_property=='gift_pickup' || $_property=='promo' && !$cart[$pid]['price']) {
+                    $l = d()->Log->new;
+                    $l->text = $_property.'|'.$pid;
+                    $l->title = 'gift_count|double_add';
+                    $l->save;
+                }else{
+                    // если есть персональная скидка у товара (промокод)
+                    //$_SESSION['debug'] = Array();
+                    if ($cart[$pid]['promocode_id']) {
+                        if ($_SESSION['promocode']['type'] == 2) {
+                            $cart[$pid]['total_promo_discount'] += $cart[$pid]['promo_discount'];
+                        } else {
+                            // считаем скидку
+                            $check = 1;
+
+                            // индивидуальный лимит
+                            if ($cart[$pid]['promo_count'] <= $cart[$pid]['promo_used']) {
+                                $check = 0;
+                            }
+
+                            // определем лимит для группы
+                            $products_temp = explode(',', $_SESSION['promocode']['products']);
+                            foreach ($products_temp as $k => $v) {
+                                $a = explode('|', $v);
+                                if ($a[0] == $pid) {
+                                    $group = $a[3];
+                                }
+                            }
+                            $lim = explode(',', $_SESSION['promocode']['products_limit']);
+                            $l = 0;
+                            foreach ($lim as $v) {
+                                $limit = explode('_', $v);
+                                if ($limit[1] == $group) {
+                                    $l = $limit[0];
+                                }
+                            }
+                            if (!$l) $l = 9999;
+
+                            if ($l <= $_SESSION['promocode']['products_used']) {
+                                $check = 0;
+                            }
+
+                            // проверка скидку у товаров из другой группы
+                            foreach ($cart as $k => $v) {
+                                if ($v['promo_used']) {
+                                    if ($v['promo_group'] != $group) {
+                                        $check = 0;
+                                    }
+                                }
+                            }
+
+                            // проверям максимум для одинаковых блюд с разными допами
+                            $pprdcts = explode(',', $_SESSION['promocode']['products']);
+                            $pprdcts_arr = Array();
+                            foreach ($pprdcts as $k => $v) {
+                                $tmp = explode('|', $v);
+                                if ($tmp[3] == $group) {
+                                    $pprdcts_arr[$tmp[0]] = $tmp[1];
+                                    if (!$tmp[1]) $pprdcts_arr[$tmp[0]] = 9999;
+                                }
+                            }
+                            $fid = explode('_', $pid);
+                            array_pop($fid);
+                            $fid = implode('_', $fid);
+                            $bl = 0;
+                            foreach ($cart as $k) {
+                                if (strpos($k, $fid . '_') !== false) $bl++;
+                            }
+                            if ($bl > 1) {
+                                $brother_cnt = 0;
+                                foreach ($cart as $k => $v) {
+                                    if (strpos($k, $fid . '_') !== false) $brother_cnt += $v['promo_used'];
+                                }
+                                $bcnt_max = $pprdcts_arr[$fid] - $brother_cnt;
+                                if ($bcnt_max == 1) {
+                                    foreach ($cart as $k => $v) {
+                                        if (strpos($k, $fid . '_') !== false) {
+                                            if ($pid != $k) {
+                                                $used = $v['promo_used'];
+                                                $cart[$k]['promo_count'] = $used;
+                                            }
+                                        }
+                                    }
+                                }
+                                if ($bcnt_max > 1) {
+                                    foreach ($cart as $k => $v) {
+                                        if (strpos($k, $fid . '_') !== false) {
+                                            if ($pid != $k) {
+                                                $count = $v['promo_count'] - 1;
+                                                $cart[$k]['promo_count'] = $count;
+                                            }
+                                        }
+                                    }
+                                }
+                                if ($bcnt_max < 1) {
+                                    $check = 0;
+                                    foreach ($cart as $k => $v) {
+                                        if (strpos($k, $fid . '_') !== false) {
+                                            $used = $v['promo_used'];
+                                            $cart[$k]['promo_count'] = $used;
+                                        }
+                                    }
+                                }
+                            }
+
+                            if ($check) {
+                                $_SESSION['promocode']['products_used']++;
+                                $cart[$pid]['promo_used']++;
+                                $cart[$pid]['total_promo_discount'] = $cart[$pid]['promo_used'] * $cart[$pid]['promo_discount'];
+                            }
+                        }
+                    }
+
+                    // для допов
+                    if ($cart[$pid]['items']) {
+                        $pfo = $cart[$pid]['items_price'] / $cart[$pid]['count'];
+                        $cart[$pid]['items_price'] = $pfo * ($cart[$pid]['count'] + 1);
+                    }
+
+                    $cart[$pid]['count'] += 1;
+                    $cart[$pid]['total_price'] = $cart[$pid]['price'] * $cart[$pid]['count'];
+
+                    // если есть товары, которые нужно добавить автоматически
+                    if($cart[$pid]['autoadd']){
+                        $cart = autoadd_products($cart[$pid]['autoadd'], $cart, 'plus');
+                    }
+
+                }
+            }
+
+            $_SESSION['cart'] = $cart;
+
+            // пересчет оплаты баллами
+            points_refresh();
+
+            if(!$type){
+                print 'ok';
+                exit();
+            }
+        }
+    }
+
+    // +1
+    if($_type=='plus') {
+
+        if($_id) {
+            $cart = $_SESSION['cart'];
+            // TODO: костылек с ошибкой при количестве подарков больше 1 (не смог найти причину, поставил эту проверку, пример заказ 353659)
+            if($cart[$_id]['auto'] || $cart[$_id]['property']=='gift_dr' || $cart[$_id]['property']=='gift_pickup' || $cart[$_id]['property']=='promo' && !$cart[$_id]['price']) {
+                $l = d()->Log->new;
+                $l->text = $_property.'|'.$pid;
+                $l->title = 'gift_count|plus';
+                $l->save;
+            }else{
+                // если есть персональная скидка у товара (промокод)
+                if ($cart[$_id]['promocode_id']) {
+                    if ($_SESSION['promocode']['type'] == 2) {
+                        $cart[$_id]['total_promo_discount'] += $cart[$_id]['promo_discount'];
+                    } else {
+                        // считаем скидку
+                        $check = 1;
+                        $group = $cart[$_id]['promo_group'];
+                        // индивидуальное количество
+                        if ($cart[$_id]['promo_count'] <= $cart[$_id]['promo_used']) {
+                            $check = 0;
+                        }
+
+                        // определем лимит для группы
+                        $products_temp = explode(',', $_SESSION['promocode']['products']);
+                        foreach ($products_temp as $k => $v) {
+                            $a = explode('|', $v);
+                            if ($a[0] == $pid) {
+                                $group = $a[3];
+                            }
+                        }
+                        $lim = explode(',', $_SESSION['promocode']['products_limit']);
+                        $l = 0;
+                        foreach ($lim as $v) {
+                            $limit = explode('_', $v);
+                            if ($limit[1] == $group) {
+                                $l = $limit[0];
+                            }
+                        }
+                        if (!$l) $l = 9999;
+                        // определем лимит группы
+                        if ($l <= $_SESSION['promocode']['products_used']) {
+                            $check = 0;
+                        }
+
+                        // проверям максимум для одинаковых блюд с разными допами
+                        $pprdcts = explode(',', $_SESSION['promocode']['products']);
+                        $pprdcts_arr = Array();
+                        foreach ($pprdcts as $k => $v) {
+                            $tmp = explode('|', $v);
+                            if ($tmp[3] == $group) {
+                                $pprdcts_arr[$tmp[0]] = $tmp[1];
+                                if (!$tmp[1]) $pprdcts_arr[$tmp[0]] = 9999;
+                            }
+                        }
+                        $fid = explode('_', $_id);
+                        array_pop($fid);
+                        $fid = implode('_', $fid);
+                        $bl = 0;
+                        foreach ($cart as $k) {
+                            if (strpos($k, $fid . '_') !== false) $bl++;
+                        }
+                        if ($bl > 1) {
+                            $brother_cnt = 0;
+                            foreach ($cart as $k => $v) {
+                                if (strpos($k, $fid . '_') !== false) $brother_cnt += $v['promo_used'];
+                            }
+                            $bcnt_max = $pprdcts_arr[$fid] - $brother_cnt;
+                            if ($bcnt_max == 1) {
+                                foreach ($cart as $k => $v) {
+                                    if (strpos($k, $fid . '_') !== false) {
+                                        if ($_id != $k) {
+                                            $used = $v['promo_used'];
+                                            $cart[$k]['promo_count'] = $used;
+                                        }
+                                    }
+                                }
+                            }
+                            if ($bcnt_max > 1) {
+                                foreach ($cart as $k => $v) {
+                                    if (strpos($k, $fid . '_') !== false) {
+                                        if ($_id != $k) {
+                                            $count = $v['promo_count'] - 1;
+                                            $cart[$k]['promo_count'] = $count;
+                                        }
+                                    }
+                                }
+                            }
+                            if ($bcnt_max < 1) {
+                                $check = 0;
+                                foreach ($cart as $k => $v) {
+                                    if (strpos($k, $fid . '_') !== false) {
+                                        $used = $v['promo_used'];
+                                        $cart[$k]['promo_count'] = $used;
+                                    }
+                                }
+                            }
+                        }
+
+                        if ($check) {
+                            $_SESSION['promocode']['products_used']++;
+                            $cart[$_id]['promo_used']++;
+                            $cart[$_id]['total_promo_discount'] = $cart[$_id]['promo_used'] * $cart[$_id]['promo_discount'];
+                        }
+                    }
+                }
+
+                // для допов
+                if ($cart[$_id]['items']) {
+                    $ncnt = $cart[$_id]['count']+1;
+                    $pfo = $cart[$_id]['items_price'] / $cart[$_id]['count'];
+                    $cart[$_id]['items_price'] = $pfo*$ncnt;
+
+                    $itms = explode(',', $cart[$_id]['items']);
+                    $new_itms = '';
+                    foreach($itms as $k=>$v){
+                        $tv = explode('|', $v);
+                        $nvclv = ($tv[1] / $cart[$_id]['count'])*$ncnt;
+                        $new_itms .= $tv[0].'|'.$nvclv.',';
+                    }
+                    $cart[$_id]['items'] = substr($new_itms,0,-1);
+
+                    $itms_ttl = explode(',', $cart[$_id]['items_title']);
+                    $new_items_title = '';
+                    foreach($itms_ttl as $k=>$v){
+                        if(strpos($v, 'io-count') !== false){
+                            $re = '/(?<=[\'"])\w+(?=[\'"])/u';
+                            preg_match_all($re, $v, $m, PREG_SET_ORDER, 0);
+                            $icnt = $m[0][0]*$ncnt;
+
+                            $re2 = '#<i class="io-count"(.+?)</i>#is';
+                            preg_match_all($re2, $v, $m2);
+                            $p1 = '">'.strip_tags($m2[0][0]).'</i>';
+                            $p2 = '">'.$icnt.'</i>';
+                            $new_v = str_replace($p1, $p2, $v);
+
+                            $new_items_title .= trim($new_v).', ';
+                        }else{
+                            $new_items_title .= trim($v).', ';
+                        }
+                    }
+                    $cart[$_id]['items_title'] = substr(trim($new_items_title),0,-1);
+                }
+
+                $cart[$_id]['count'] += 1;
+                $cart[$_id]['total_price'] = $cart[$_id]['price'] * $cart[$_id]['count'];
+                $cart[$_id]['total_pickup_discount'] = $cart[$_id]['pickup_discount'] * $cart[$_id]['count'];
+
+                // если есть товары, которые нужно добавить автоматически
+                if($cart[$_id]['autoadd']){
+                    $cart = autoadd_products($cart[$_id]['autoadd'], $cart, 'plus');
+                }
+
+                $_SESSION['cart'] = $cart;
+
+                // пересчет оплаты баллами
+                points_refresh();
+
+                if (!$type) {
+                    print 'ok';
+                    exit();
+                }
+            }
+        }
+    }
+
+    // -1
+    if($_type=='minus') {
+        if($_id){
+
+            $cart = $_SESSION['cart'];
+
+            // если есть персональная скидка у товара (промокод)
+            if($cart[$_id]['promocode_id'] && $cart[$_id]['total_promo_discount']){
+                if($_SESSION['promocode']['type']==2){
+                    //$_SESSION['debug']=123;
+                    $cart[$_id]['total_promo_discount'] -= $cart[$_id]['promo_discount'];
+                }else{
+                    // считаем скидку
+                    if($cart[$_id]['promo_used'] == $cart[$_id]['count']){
+
+                        $fid = explode('_',$_id);
+                        array_pop($fid);
+                        $fid = implode('_', $fid);
+                        foreach($cart as $k=>$v){
+                            if(strpos($k, $fid.'_') !== false){
+                                if($_id != $k) {
+                                    $cart[$k]['promo_count']++;
+                                }
+                            }
+                        }
+
+                        $cart[$_id]['promo_used']--;
+                        $_SESSION['promocode']['products_used']--;
+                        $cart[$_id]['total_promo_discount'] = $cart[$_id]['promo_used']*$cart[$_id]['promo_discount'];
+                    }
+                }
+            }
+
+            // для допов
+            if($cart[$_id]['items']){
+                $ncnt = $cart[$_id]['count']-1;
+                $pfo = $cart[$_id]['items_price']/$cart[$_id]['count'];
+                $cart[$_id]['items_price'] = $pfo*$ncnt;
+
+                $itms = explode(',', $cart[$_id]['items']);
+                $new_itms = '';
+                foreach($itms as $k=>$v){
+                    $tv = explode('|', $v);
+                    $nvclv = ($tv[1] / $cart[$_id]['count'])*$ncnt;
+                    // TODO: костыль с количеством допов 0.5
+                    if($nvclv<1)$nvclv=1;
+
+                    $new_itms .= $tv[0].'|'.$nvclv.',';
+                }
+                $cart[$_id]['items'] = substr($new_itms,0,-1);
+
+                $itms_ttl = explode(',', $cart[$_id]['items_title']);
+                $new_items_title = '';
+                foreach($itms_ttl as $k=>$v){
+                    if(strpos($v, 'io-count') !== false){
+                        $re = '/(?<=[\'"])\w+(?=[\'"])/u';
+                        preg_match_all($re, $v, $m, PREG_SET_ORDER, 0);
+                        $icnt = $m[0][0]*$ncnt;
+
+                        $re2 = '#<i class="io-count"(.+?)</i>#is';
+                        preg_match_all($re2, $v, $m2);
+                        $p1 = '">'.strip_tags($m2[0][0]).'</i>';
+                        $p2 = '">'.$icnt.'</i>';
+                        $new_v = str_replace($p1, $p2, $v);
+
+                        $new_items_title .= trim($new_v).', ';
+                    }else{
+                        $new_items_title .= trim($v).', ';
+                    }
+                }
+                $cart[$_id]['items_title'] = substr(trim($new_items_title),0,-1);
+            }
+
+            $cart[$_id]['count'] -= 1;
+            if($cart[$_id]['count']<1){
+                // если есть товары, которые были добавлены автоматически
+                if($cart[$_id]['autoadd']){
+                    $oldcntt = $cart[$_id]['count']+1;
+                    $cart = autoadd_products($cart[$_id]['autoadd'], $cart, 'minus');
+                }
+                unset($cart[$_id]);
+            }else{
+                $cart[$_id]['total_price'] = $cart[$_id]['price']*$cart[$_id]['count'];
+                $cart[$_id]['total_pickup_discount'] = $cart[$_id]['pickup_discount']*$cart[$_id]['count'];
+
+                // если есть товары, которые были добавлены автоматически
+                if($cart[$_id]['autoadd']){
+                    $cart = autoadd_products($cart[$_id]['autoadd'], $cart, 'minus');
+                }
+            }
+
+
+
+            $_SESSION['cart'] = $cart;
+
+            // пересчет оплаты баллами
+            points_refresh();
+
+            if(!$type){
+                print 'ok';
+                exit();
+            }
+        }
+    }
+
+    // удаление из корзины
+    if($_type=='delete') {
+        if($_id){
+
+            // если есть персональная скидка у товара (промокод)
+            if($_SESSION['cart'][$_id]['promocode_id'] && $_SESSION['cart'][$_id]['promo_used']){
+                $_SESSION['promocode']['products_used'] -= $_SESSION['cart'][$_id]['promo_used'];
+
+                $fid = explode('_',$_id);
+                array_pop($fid);
+                $fid = implode('_', $fid);
+                foreach($_SESSION['cart'] as $k=>$v){
+                    if(strpos($k, $fid.'_') !== false){
+                        if($_id != $k) {
+                            $_SESSION['cart'][$k]['promo_count'] += $_SESSION['cart'][$_id]['promo_used'];
+                        }
+                    }
+                }
+
+            }
+
+            // если есть товары, которые были добавлены автоматически
+            if($_SESSION['cart'][$_id]['autoadd']){
+                $oldcntt = $_SESSION['cart'][$_id]['count'];
+                $cart = autoadd_products($_SESSION['cart'][$_id]['autoadd'], $_SESSION['cart'], 'delete', $oldcntt);
+            }
+
+            unset($_SESSION['cart'][$_id]);
+
+            // пересчет оплаты баллами
+            points_refresh();
+
+            if(!$type){
+                print 'ok';
+                exit();
+            }
+        }
+    }
+
+    if(!$type){
+        d()->page_not_found();
+    }
+}
+
+function points_refresh(){
+    if($_SESSION['points']){
+        get_cart();
+
+        if((d()->cart_total_price-d()->discount_promocode)/2 < $_SESSION['points']){
+            $_SESSION['points'] = floor((d()->cart_total_price-d()->discount_promocode)/2);
+            return;
+        }
+
+        if($_SESSION['points'] < $_SESSION['old_points']){
+            $max = floor((d()->cart_total_price-d()->discount_promocode)/2);
+            while($_SESSION['points'] < $max && $_SESSION['points'] < $_SESSION['old_points']){
+                $_SESSION['points']++;
+            }
+        }
+
+    }
+}
+
+// определение города
+function get_city(){
+    $domian = explode('.', $_SERVER['HTTP_HOST']);
+    if(count($domian)==2){
+        if($_SERVER['HTTP_HOST'] == 'radugavkusaufa.ru'){
+            d()->domain = $_SERVER['HTTP_HOST'];
+            d()->maindomain = 'appetitfood.ru';
+            d()->subdomain = '';
+
+            d()->site_url = $_SERVER['HTTP_HOST'];
+            // d()->city = 0;
+            d()->city = d()->City(6)->limit(0,1);
+        }else{
+            d()->domain = $_SERVER['HTTP_HOST'];
+            d()->maindomain = $_SERVER['HTTP_HOST'];
+
+            //if($_GET['admin']==1){
+                d()->city_list = d()->City->order_by('title asc');
+
+                d()->url = '';
+                if(url() && url()!='index'){
+                    d()->url = url();
+                    $check = substr(url(), -6);
+                    if($check == '/index')d()->url = substr(url(),0,-5);
+                }
+                if($_GET)d()->url .= '?'.$_SERVER['QUERY_STRING'];
+
+                d()->Seo->title = '«Аппетит» - служба доставки еды, заказать на дом и в офис';
+                d()->Seo->description = 'Бесплатная доставка от 500руб. Быстрая и не дорогая доставка еды - служба доставки «АППЕТИТ». Пицца, роллы, суши,  бургеры, шаурма и другие блюда с доставкой. ';
+
+                print d()->domain_choose_tpl();
+                exit;
+            //}else{
+            //    d()->city = d()->City->limit(0,1);
+            //    header("HTTP/1.1 301 Moved Permanently");
+            //    header('Location: https://'.d()->city->code.'.'.d()->site_url);
+            //    exit;
+            //}
+        }
+    }else{
+
+        d()->domain = $domian[1].'.'.$domian[2];
+        d()->maindomain = $domian[1].'.'.$domian[2];
+        d()->subdomain = $domian[0];
+        d()->site_url = $_SERVER['HTTP_HOST'];
+        d()->city = d()->City->where('code=?', $domian[0])->limit(0,1);
+
+        if(!count(d()->city)){
+            header('Location: https://'.d()->domain);
+            exit;
+        }
+    }
+}
+// дополнительные массивы перед выборкой товаров
+function get_products_options($category=''){
+    // указываем категорию и город, что бы сократить выборку
+    //if(!$category){
+        //d()->property_list = d()->Property->where('city_id=?', d()->city->id);
+    //}else{
+        //d()->property_list = d()->Property->where('category_id=? AND city_id=?', $category, d()->city->id);
+        //d()->property_list = d()->Property->where('city_id=?', d()->city->id);
+    //}
+    d()->property_list = d()->Property->where('city_id=? AND is_active=1', d()->city->id);
+    d()->other_list = d()->Other->where('city_id=?', d()->city->id);
+
+    // пересобираем свойства, что бы сохранить модель Property
+    d()->pa_list = Array();
+    $i = 0;
+    foreach(d()->property_list as $v){
+        d()->pa_list[$i]['id'] = d()->property_list->id;
+        d()->pa_list[$i]['price'] = d()->property_list->price;
+        d()->pa_list[$i]['title'] = d()->property_list->title;
+        d()->pa_list[$i]['is_default'] = d()->property_list->is_default;
+        d()->pa_list[$i]['product_id'] = d()->property_list->product_id;
+        d()->pa_list[$i]['city_id'] = d()->property_list->city_id;
+        d()->pa_list[$i]['category_id'] = d()->property_list->category_id;
+        d()->pa_list[$i]['weight'] = d()->property_list->weight;
+        d()->pa_list[$i]['weight_type'] = d()->property_list->weight_type;
+        $i++;
+    }
+    //d()->property_list = d()->Property->sql('SELECT `id`, `product_id` FROM properties WHERE `city_id`="'.d()->city->id.'"');
+
+
+    // формируем массив для быстрого поиска по свойствам и допам
+    d()->p_id_arr = array_column(d()->property_list->to_array(),  'product_id');
+    d()->other_id_arr = array_column(d()->other_list->to_array(),  'product_id');
+
+    // формируем массив для быстрого поиска по категориям
+    d()->categories = d()->Category->where('city_id=? AND is_active=1', d()->city->id);
+    //d()->categories = $cat_list;
+    d()->cat_list = Array();
+    foreach(d()->categories as $v){
+        d()->cat_list[d()->categories->id]['url'] = d()->categories->url;
+        d()->cat_list[d()->categories->id]['title'] = d()->categories->title;
+        d()->cat_list[d()->categories->id]['property_title'] = d()->categories->property_title;
+    }
+
+    // стикеры
+    $stickers = d()->Sticker;
+    d()->stickers_list = Array();
+    foreach($stickers as $v){
+        d()->stickers_list[$stickers->id]['image'] = $stickers->image;
+        d()->stickers_list[$stickers->id]['title'] = $stickers->title;
+    }
+}
+
+function recaptcha()
+{
+    if (isset($_POST['token']) && isset($_POST['action'])) {
+        $captcha_token = $_POST['token'];
+        $captcha_action = $_POST['action'];
+    } else {
+        die('Капча работает некорректно. Обратитесь к администратору!');
+    }
+
+    //$o = d()->Option;
+    get_city();
+
+    // если это подтверждение телефона, проверям последнее время отправки кода
+    if($captcha_action=='phone_confirmation' || $captcha_action=='phone_reconfirmation'){
+        $phone = d()->convert_phone($_POST['phone']);
+        // проверяем есть ли лимиты на отправку СМС и не подтверждали ли телефон до этого
+        if(d()->city->send_code_time && $_SESSION['confirmation'][$phone]['code']!='conf'){
+            if($_SESSION['confirmation']){
+                $check_time = date('U') - $_SESSION['confirmation']['time'];
+                if($check_time < d()->city->send_code_time){
+                    $ct = d()->city->send_code_time - $check_time;
+                    $sec  = declOfNum ($ct, array('секунду', 'секунды', 'секунд'));
+                    $txt = 'СМС с кодом подтверждения можно отправить через '.$ct.' '.$sec.'.';
+                    if(d()->city->send_code_type != 1)$txt = 'Авто-звонок с кодом подтверждения можно отправить через '.$ct.' '.$sec.'.';
+                    $array = [
+                        'result' => 2,
+                        'action' => $captcha_action,
+                        'text' => $txt
+                    ];
+                    echo json_encode($array);
+                    exit;
+                }
+            }
+        }else{
+            // телефон уже подтвержден
+            $array = [
+                'result' => 'conf',
+                'action' => $captcha_action,
+            ];
+            // записываем инфо в сессию
+            $_SESSION['reg_phone'] = $phone;
+            echo json_encode($array);
+            exit;
+        }
+    }
+
+    $url = 'https://www.google.com/recaptcha/api/siteverify';
+    $params = [
+        'secret' => d()->city->rc_server_key,
+        'response' => $captcha_token,
+        'remoteip' => $_SERVER['REMOTE_ADDR']
+    ];
+
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+    curl_setopt($ch, CURLOPT_HEADER, 0);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+    $response = curl_exec($ch);
+    if(!empty($response)) $r = json_decode($response);
+
+    $success = false;
+    $success = $r;
+    $success->result = 0;
+    $success->text = 'Внимание. Сработала защита "reCAPTCHA". Ваши действия похожи на автоматический скрипт. Для продолжения регистрации, попробуйте обновить страницу, сменить браузер или устройство.';
+
+    if ($r && $r->success && $r->action == $captcha_action) {
+        if ($r->score >= d()->city->rc_filtr) {
+            $success->result = 1;
+
+            if($captcha_action=='phone_confirmation' || $captcha_action=='phone_reconfirmation') {
+                // получаем инфо о городе
+                get_city();
+
+                $_SESSION['city'] = d()->city->smsc_login;
+                $code = d()->send_code($phone);
+                // записываем инфо в сессию
+                $_SESSION['reg_phone'] = $phone;
+                $_SESSION['confirmation']['time'] = date('U');
+                $_SESSION['confirmation'][$phone]['code'] = $code;
+
+                // логируем сессию
+                $l = d()->Log->new;
+                $l->title = 'noregphone2|'.$phone.'|'.$code;
+                $l->text = json_encode($_SESSION);
+                $l->save;
+                // логируем сессию
+                //$l = d()->Log->new;
+                //$l->title = $phone.'|'.$code;
+                //$l->text = json_encode($_SESSION);
+                //$l->save;
+
+                $success->phone = $phone;
+                if($captcha_action=='phone_reconfirmation'){
+                    $success->text = 'код отправлен повторно';
+                    if(d()->city->send_code_type != 1)$success->text = 'авто-звонок отправлен повторно';
+                }
+            }
+
+            if($captcha_action=='writeguide') {
+                // получаем инфо о городе
+                get_city();
+
+                $l_title = 'Связь с руководством';
+                $l_text = '<p><strong>Сообщение:</strong> '.$_POST['text'].'<br><strong>Контакт:</strong> '.$_POST['contact'].'<br><strong>Город:</strong> '.d()->city->title;
+
+                $file = '';
+                if($_POST['file']){
+                    $file = 'https://'.d()->site_url.'/storage/otzyvy/'.md5($_POST['file'].'salt').'.'.strtolower( substr(strrchr($_POST['file'], '.'), 1));
+                    $l_text .= '<br><strong>Вложение:</strong> <a href="'.$file.'" target="_blank">скачать</a>';
+                }
+
+                $e = explode(',', d()->city->email_reviews);
+                foreach($e as $email){
+                    d()->Mail->to(trim($email));
+                    d()->Mail->set_smtp(d()->city->smtp_server,d()->city->smtp_port,d()->city->smtp_mail,d()->city->smtp_password,d()->city->smtp_protocol);
+                    d()->Mail->from(d()->city->smtp_mfrom,d()->city->smtp_tfrom);
+                    d()->Mail->subject($l_title);
+                    d()->Mail->message($l_text);
+                    d()->Mail->send();
+                }
+
+                $phone = '';
+                $email = '';
+                if($_POST['contact']){
+                    // email
+                    $pattern = "/[-a-z0-9!#$%&'*_`{|}~]+[-a-z0-9!#$%&'*_`{|}~\.=?]*@[a-zA-Z0-9_-]+[a-zA-Z0-9\._-]+/i";
+                    $text = $_POST['contact'];
+                    preg_match_all($pattern, $text, $result);
+                    $r = array_unique(array_map(function ($i) { return $i[0]; }, $result));
+                    $email = $r[0];
+
+                    // phone
+                    $text = str_replace($email, '', $_POST['contact']);
+                    $phone = preg_replace('/[^0-9]/', '', $text);
+                    $phone = d()->convert_phone($phone);
+                }
+
+                $r = d()->Review->new;
+                $r->city_id = d()->city->id;
+                $r->text = $_POST['text'];
+                $r->type = "Руководству";
+                $r->status = 0;
+                $r->phone = $phone;
+                $r->email = $email;
+                $r->status = 0;
+                $r->date = date('U');
+                $r->file = $file;
+                $r->save;
+
+                $success->text = 'Спасибо, сообщение успешно отправлено. В ближайшее время мы свяжемся с Вами.';
+            }
+        }
+    }
+
+    echo json_encode($success);
+}
+
+function auth_guard()
+{
+	if(d()->Auth->is_guest()){
+        header('Location: /');
+        exit;
+    }
+}
+
+function redirect_module()
+{
+    if(url(3)=='crm'){
+        get_city();
+        if($_SESSION['admin']){
+            $getline = '?action=login&user='.$_SESSION['admin'].'&hash='.md5('435gfghngf298sdfjdvkksd2'.$_SESSION['admin'].'!345vbvc3t6YEJDV8dv234');
+        }
+        //header('Location: https://crm.'.d()->domain.'/'.$getline);
+        header('Location: https://crm.appetitfood.ru/'.$getline);
+        exit;
+    }
+}
+
+function printr($m = Array()){
+    print '<pre>';
+    print_r($m);
+    print '</pre>';
+    exit();
+}
+
+function check_user(){
+    if(!$_POST['phone']){
+        return 'error';
+    }
+    $phone = d()->convert_phone($_POST['phone']);
+    get_city();
+    $u = d()->User->where('phone=? AND city=?', $phone,d()->city->code)->limit(0,1);
+    if(count($u)){
+        return 'auth';
+    }
+    return 'reg';
+}
+
+// генерация рандомной строки
+function randString($length = 10) {
+    $characters = 'abcdefghijklnmopqrstuvwxyzABCDEFGHIJKLNMOPQRSTUVWXYZ0123456789,.<>/?;:[]{}|~!@#$%^&*()-_+=';
+    $charactersLength = strlen($characters);
+    $randomString = '';
+    for ($i = 0; $i < $length; $i++) {
+        $randomString .= $characters[rand(0, $charactersLength - 1)];
+    }
+    return $randomString;
+}
+
+// регистрация пользователей
+function ajax_registration(){
+    if($_GET['action']=='checkcode'){
+        // проверяем совпадает ли код
+        $code = str_replace(' ', '', $_POST['code']);
+
+        // логируем сессию
+        // TODO: исправить костыль
+        if(!$_SESSION['reg_phone']){
+            // логируем сессию
+            $l = d()->Log->new;
+            $l->title = 'noregphone3';
+            $l->text = json_encode($_SESSION);
+            $l->save;
+        }else{
+            $l = d()->Log->new;
+            $l->title = $_SESSION['reg_phone'].'|'.$code.'|этот код ввел пользователь';
+            $l->text = json_encode($_SESSION);
+            $l->save;
+        }
+
+        if($_SESSION['confirmation'][$_SESSION['reg_phone']]['code'] == $code || !$_SESSION['reg_phone']){
+            $r = [
+                'result' => 1
+            ];
+            $_SESSION['confirmation'][$_SESSION['reg_phone']]['code'] = 'conf';
+        }else{
+            $r = [
+                'result' => 0,
+                'text' => 'код подтверждения введен неверно',
+                'code' => $code,
+            ];
+        }
+        print json_encode($r);
+        exit();
+    }
+
+    if(!$_POST['password'] || !$_POST['confirm_password']){
+        return 'error';
+    }
+    if($_POST['password'] != $_POST['confirm_password']){
+        return 'Пароли не совпадают';
+    }
+
+    $phone = d()->convert_phone($_SESSION['reg_phone']);
+
+    // генерируем пароль, как в битриксе
+    $salt = randString(8);
+    $pass = $salt.md5($salt.$_POST['password']);
+    // генерируем пароль, как в битриксе
+
+    // получаем город из домена
+    get_city();
+    if(!$_POST['forgot']){
+        // регистрация
+        $u = d()->User->new;
+        $u->phone = $phone;
+        $u->password = $pass;
+        $u->points = d()->city->points;
+        $u->city = d()->city->code;
+        $user = $u->save_and_load();
+
+        // создаем историю начисления баллов
+        create_ph($user->id, d()->city->code, 1, d()->city->points);
+
+        d()->Auth->login($user->id);
+
+        return 'success';
+    }else{
+        // смена пароля
+        $u = d()->User->where('phone=? AND city=?',$phone,d()->city->code)->limit(0,1);
+        if(!count($u))return 'Ошибка сервера #2';
+        $u->password = $pass;
+        $u->save;
+
+        return 'forgot_success';
+    }
+
+
+}
+
+// авторизация пользователей
+function ajax_auth(){
+    if(!$_POST['phone'] || !$_POST['password']){
+        return 'error';
+    }
+    // получаем город из домена
+    get_city();
+    $phone = d()->convert_phone($_POST['phone']);
+    $u = d()->User->where('phone=? AND city=?', $phone, d()->city->code)->limit(0,1);
+    if(count($u)){
+        $salt = substr($u->password, 0, 8);
+        $pass = $salt.md5($salt.$_POST['password']);
+        if($pass == $u->password){
+            d()->Auth->login($u->id);
+
+            $u->last_login = date('Y-m-d H:i:s');
+            $u->save();
+
+            return 'success';
+        }
+    }
+    return 'error';
+}
+
+function page_not_found()
+{
+	ob_end_clean();
+	header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found'); 
+	header('Status: 404 Not Found');
+	d()->content = d()->error_404_tpl();
+	print d()->main_tpl();
+	exit;
+}
+
+function get_server(){
+    if($_SESSION['admin']) {
+        print '<pre>';
+        print_r($_SERVER);
+        print '</pre>';
+        exit;
+    }
+    d()->page_not_found();
+}
+
+function get_session(){
+    if($_SESSION['admin']) {
+        if($_GET['action']=='clear'){
+            foreach($_SESSION as $k=>$v){
+                if($k=='admin' || $k=='auth')continue;
+                unset($_SESSION[$k]);
+            }
+            setcookie("wide_single_promo", '', time()-3600, '/');
+            header('Location: /get/session');
+            exit;
+        }
+        if($_GET['action']=='clear_zone'){
+            unset($_SESSION['zone']);
+            unset($_SESSION['delivery_price']);
+            header('Location: /get/session');
+            exit;
+        }
+
+        print '<pre>';
+        print_r($_SESSION);
+        print '</pre>';
+        print '<a href="?action=clear">Очистить</a><br>';
+        print '<a href="?action=clear_zone">Очистить зону</a>';
+        print '<hr>';
+        print '<pre>';
+        print_r($_COOKIE);
+        print '</pre>';
+        exit;
+    }
+    d()->page_not_found();
+}
+
+// удалить адрес из базы
+function del_address(){
+    if($_POST['id']) {
+        $adr = d()->Address->where('id=? AND user_id=?', $_POST['id'], d()->Auth->id)->limit('0, 1');
+        if($adr->count){
+            $adr->delete;
+            exit;
+        }
+    }
+    d()->page_not_found();
+}
+
+// редактирование личных данных
+function change_personal(){
+
+    if($_POST['type'] && !d()->Auth->is_guest()) {
+        $u = d()->Auth->user();
+        if($_POST['type']=='name'){
+            $u->name = $_POST['data'];
+        }
+        if($_POST['type']=='phone'){
+            $u->phone = d()->convert_phone($_POST['data']);
+        }
+        if($_POST['type']=='email' && $u->email != $_POST['data']){
+            // проверяем email на валидность
+            if(!d()->valid_email($_POST['data'], '') && $_POST['data']){
+                print 'novalidemail';
+                exit;
+            }
+
+            $u->email = trim($_POST['data']);
+            // email не подтвержден
+            $u->conf_email = 0;
+
+            // запускаем функцию подтверждения E-mail, если он заполнен
+            if($_POST['data']) $conf_email = conf_email(trim($_POST['data']), $u);
+        }
+        if($_POST['type']=='gender'){
+            $u->gender = $_POST['data'];
+        }
+        if($_POST['type']=='haschild'){
+            $u->haschild = $_POST['data'];
+        }
+        if($_POST['type']=='birthday'){
+            $u->birthday = $_POST['data'];
+        }
+        $u->save;
+
+        // запускаем функцию начисления бонусных баллов, если это необходимо
+        run_bonus_personal(d()->Auth->id);
+
+        if($_POST['type']=='email' && $u->email == $_POST['data'] && $u->conf_email) {
+            print 'nochangeemail';
+            exit;
+        }
+
+        print 'success';
+        exit;
+    }
+    d()->page_not_found();
+}
+
+// редактирование пользователей из админки
+function save_users()
+{
+    $user = d()->User(url(4))->limit(0,1);
+
+    // смена пароля
+    if($_POST['data']['password']){
+        if($_POST['data']['password'] != $_POST['data']['r_password']){
+            header('Location: /admin/edit/users/'.$user->id.'?error=Пароли не совпадают');
+            exit;
+        }
+        // генерируем пароль, как в битриксе
+        $salt = randString(8);
+        $user->password = $salt.md5($salt.$_POST['data']['password']);
+    }
+
+    $user->name = $_POST['data']['name'];
+    $user->email = $_POST['data']['email'];
+    $user->gender = $_POST['data']['gender'];
+    $user->birthday = $_POST['data']['birthday'];
+    $user->points = $_POST['data']['points'];
+    //$user->utm = $_POST['data']['utm'];
+
+    $user->save();
+
+    header('Location: /admin/list/users?phone='.$_POST['data']['phone']);
+    exit;
+}
+
+// обновление зон из админки
+function save_zonis()
+{
+    $city = d()->City(url(5))->limit(0,1);
+
+    $page = file_get_contents($_POST['data']['link']);
+
+    // обрезать все, что до символа '"features":'
+    $str = strpos($page, '"features":');
+    $page = substr($page, $str);
+
+    // обрезать все, после симола ,"map"::
+    $str = strpos($page, ',"map":');
+    $page = substr($page, 0, $str);
+
+    // получаем массив значений
+    $json = '{'.$page.'}';
+    $r = json_decode($json, true);
+
+    if(count($r['features'])){
+        d()->Check->sql('DELETE FROM `zonis` WHERE `city_id` = '. $city->id);
+    }
+
+    // записываем в базу только нужное
+    foreach($r['features'] as $k=>$v){
+        if($v['type']=='placemark')continue;
+        if(!$v['title'])continue;
+
+        // print $v['title'];
+        // print '<br><br>';
+        // print json_encode($v['geometry']['coordinates'][0]);
+        // print '<br><br><br><br>';
+
+        $z = d()->Zoni->new;
+        $z->text = $v['title'];
+        $z->city_id = $city->id;
+        // автозаполнение полей
+        $data = explode('.', $v['title']);
+        $z->title = $data[0];
+
+        $z->price = preg_replace("/[^0-9]/", '', $data[1]);
+        $z->min_order = preg_replace("/[^0-9]/", '', $data[2]);
+        $z->free = preg_replace("/[^0-9]/", '', $data[3]);
+        $z->time = substr($data[4], strpos($data[4], ":")+1);
+
+        // автозаполнение полей
+        $z->coords = '['.json_encode($v['geometry']['coordinates'][0]).']';
+        $z->save;
+    }
+
+    // print '<pre>';
+    // print_r($r);
+    // print '</pre>';
+    // exit();
+
+    $_SESSION['check_zone'] = 1;
+
+    header('Location: /admin/list/zonis/city_id/'.url(5));
+    exit;
+}
+
+// валидация E-mail
+function my_valid_email($value,$params)
+{
+    $value=strtolower($value);
+    return ( 1 == preg_match(
+            '/^[-a-z0-9\!\#\$\%\&\'\*\+\/\=\?\^\_\`\{\|\}\~]+(?:\.[-a-z0-9!' .
+            '\#\$\%\&\'\*\+\/\=\?\^\_\`{|}~]+)*@(?:[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?\.)*'.
+            '(?:aero|arpa|asia|biz|cat|com|coop|edu|gov|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|[a-z][a-z])$/' ,$value));
+}
+
+// подтверждение E-mail
+function conf_email($email, $u){
+    // получаем инфо о городе
+    get_city();
+    // Логин в системе Джастклик
+    $user_rs['user_id'] = d()->city->jc_login;
+    // Ключ для формирования подписи. См. раздел API (ссылка в правом нижнем углу в личном кабинете)
+    $user_rs['user_rps_key'] = d()->city->jc_key;
+
+    // для идентификации
+    $check_hash = g_user_hash($u);
+    $done_url = 'https://'.$_SERVER['HTTP_HOST'].'/?succesjustclick='.$u->id.'&hash='.$check_hash;
+
+    //$_SESSION['dbg'] = $done_url;
+
+    // Формируем массив данных для передачи в API
+    $send_data = array(
+        'rid[0]' =>  d()->city->jc_group1, // группа
+        'lead_name' => $u->name,
+        'lead_email' => $email,
+        'lead_phone' => '+'.$u->phone,
+        'lead_city' => d()->city->title,
+        // адрес после подтверждения подписки
+        'doneurl2' => $done_url,
+        'activation' => true, // требуем подтверждение подписки
+    );
+    // Формируем подпись к передаваемым данным
+    $send_data['hash'] = JC_GetHash($send_data, $user_rs);
+    // Вызываем функцию AddLeadToGroup в API и декодируем полученные данные
+    $resp = json_decode(JC_Send('http://'.d()->city->jc_login.'.justclick.ru/api/AddLeadToGroup', $send_data));
+
+    $_SESSION['dbg'] = $resp;
+
+    // Проверяем ответ сервиса
+     if(!JC_CheckHash($resp, $user_rs)){
+         return "errorhash";
+     }
+     if($resp->error_code == 0){
+         return "success";
+         //return "Пользователь добавлен в группу {$send_data['rid[0]']}. Ответ сервиса: {$resp->error_code}";
+     }else{
+         return "error ".$resp->error_code;
+         //return "Ошибка код:{$resp->error_code} - описание: {$resp->error_text}";
+     }
+
+}
+
+function ajax_order_info() {
+    if($_POST){
+        $_SESSION['order_info'][$_POST['name']] = $_POST['val'];
+    }
+}
+
+function get_cashback() {
+    return floor(d()->cart_discount_price/100*d()->city->points_cashback);
+}
+
+// генерация секрутного HASH для пользователя
+function g_user_hash($u){
+    return md5('SOLn^&'.$u->id.'fjm#^)MNA#XG'.$u->created_at);
+}
+
+// служебныефункция для работы API JustClick
+// Отправляем запрос в API сервиса
+function JC_Send($url, $data){
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // выводим ответ в переменную
+    $res = curl_exec($ch);
+    curl_close($ch);
+    return $res;
+}
+// Формируем подпись к передаваемым в API данным
+function JC_GetHash($params, $user_rs) {
+    $params = http_build_query($params);
+    $user_id = $user_rs['user_id'];
+    $secret = $user_rs['user_rps_key'];
+    $params = "$params::$user_id::$secret";
+    return md5($params);
+}
+
+// Проверяем полученную подпись к ответу
+function JC_CheckHash($resp, $user_rs) {
+    $secret = $user_rs['user_rps_key'];
+    $code = $resp->error_code;
+    $text = $resp->error_text;
+    $hash = md5("$code::$text::$secret");
+    if($hash == $resp->hash)
+        return true; // подпись верна
+    else
+        return false; // подпись не верна
+}
+// функция для работы API JustClick
+
+// функция начисления бонусных баллов
+function run_bonus_personal($id){
+    $u = d()->User->where('id=?', $id)->limit(0,1);
+    if(!$u->count){
+        return 'error';
+    }
+    // если бонус уже начислялся
+    if($u->bonus_personal){
+        return 'error';
+    }
+    if($u->name && $u->email && $u->conf_email && $u->gender && $u->birthday && $u->haschild){
+        // получаем инфо о городе
+        get_city();
+        $bonus = d()->city->points_personal;
+
+        // начисляем бонусы
+        $u->points += $bonus;
+        $u->bonus_personal = 1;
+        $u->save;
+
+        // создаем историю начислений
+        create_ph($u->id, d()->city->code, 2, $bonus);
+    }
+}
+
+// функция установки телефона в сессию
+function set_reg_phone(){
+    if($_POST['action']=='set_reg_phone'){
+        $_SESSION['reg_phone'] = d()->Auth->user()->phone;
+    }
+    d()->page_not_found();
+}
+
+// функция создания истории начислений баллов
+function create_ph($user_id='', $city='', $type='', $value='', $order_id='', $text=''){
+
+    if(!$user_id || !$city || !$type || !$value){
+        return;
+    }
+
+    // TYPE
+    if($type==1){
+        $title = 'Баллы за регистрацию';
+    }elseif($type==2){
+        $title = 'Дополнительные баллы за заполнение личных данных';
+    }elseif($type==3){
+        $title = 'Списание баллов за заказ №'.$order_id;
+    }elseif($type==4){
+        $title = 'Возврат';
+    }elseif($type==5){
+        // любое другое начисление
+        $title = $text;
+    }elseif($type==6){
+        // любое другое списание
+        $title = $text;
+    }
+
+    get_city();
+    $b = d()->Point->new;
+    $b->created_at = date('Y-m-d H:i:s', date('U')+d()->city->timezone*3600);
+    $b->updated_at = date('Y-m-d H:i:s', date('U')+d()->city->timezone*3600);
+    $b->user_id = $user_id;
+    $b->city = $city;
+    $b->title = $title;
+    $b->type = $type;
+    $b->value = $value;
+    $b->save;
+
+}
+
+// генерация кнопки Показать еще
+function g_loadmore($table='', $limit='', $total='', $user_id=''){
+    if(!$table){
+        return;
+    }
+    // limit = по сколько выбираем
+    // total = сколько уже выбрано
+
+    if($table=='points'){
+        $cnt = d()->Point->where('user_id=?',d()->this->id)->count;
+        // проверяем, нужна ли кнопка Показать еще
+        if($cnt <= $total){
+            return;
+        }
+        return '<div class="loadmore-wrap"><button class="btn btn-loadmore" data-table="'.$table.'" data-limit="'.$limit.'" data-total="'.$total.'" onclick="loadmore(this)">Показать еще</button><img src="/images/loading.gif" alt=""></div>';
+    }
+
+    if($table=='orders'){
+        $cnt = d()->Order->where('user_id=? AND city_id=?', d()->this->id, d()->city->id)->count;
+        // проверяем, нужна ли кнопка Показать еще
+        if($cnt <= $total){
+            return;
+        }
+        return '<div class="loadmore-wrap"><button class="btn btn-loadmore" data-table="'.$table.'" data-limit="'.$limit.'" data-total="'.$total.'" onclick="loadmore(this)">Показать еще</button><img src="/images/loading.gif" alt=""></div>';
+    }
+
+    if($table=='news'){
+        $cnt = d()->News->where('city_id=?', d()->city->id)->count;
+        // проверяем, нужна ли кнопка Показать еще
+        if($cnt <= $total){
+            return;
+        }
+        return '<div class="loadmore-wrap"><button class="btn btn-loadmore" data-table="'.$table.'" data-limit="'.$limit.'" data-total="'.$total.'" onclick="loadmore(this)">Показать еще</button><img src="/images/loading.gif" alt=""></div>';
+    }
+
+    return;
+}
+
+// выборка строк по кнопке Показать еще
+function ajax_get_more(){
+    if(!$_POST['table'] || !$_POST['limit'] || !$_POST['total']){
+        d()->page_not_found();
+        exit;
+    }
+    if($_POST['table']=='points'){
+        d()->points_list = d()->Point->where('user_id=?', d()->Auth->id)->order_by('id desc');
+        $cnt = d()->points_list->count;
+        d()->points_list->limit($_POST['total'], $_POST['limit']);
+        $total = $_POST['limit'] + $_POST['total'];
+        $more = 1;
+        if($cnt <= $total){
+            $more = 0;
+        }
+
+        $r = Array();
+        $r['result'] = d()->points_line_tpl();
+        $r['total'] = $total;
+        $r['more'] = $more;
+
+        print json_encode($r);
+        exit;
+    }
+
+    if($_POST['table']=='orders'){
+        get_city();
+        d()->orders_list = d()->Order->where('user_id=? AND city_id=?', d()->Auth->id, d()->city->id)->order_by('id desc');
+        $cnt = d()->orders_list->count;
+        d()->orders_list->limit($_POST['total'], $_POST['limit']);
+        $total = $_POST['limit'] + $_POST['total'];
+        $more = 1;
+        if($cnt <= $total){
+            $more = 0;
+        }
+
+        $r = Array();
+        $r['result'] = d()->orders_line_tpl();
+        $r['total'] = $total;
+        $r['more'] = $more;
+
+        print json_encode($r);
+        exit;
+    }
+
+    if($_POST['table']=='news'){
+        get_city();
+        d()->news_list = d()->News->where('city_id=?', d()->city->id)->order_by('id desc');
+        $cnt = d()->news_list->count;
+        d()->news_list->limit($_POST['total'], $_POST['limit']);
+        $total = $_POST['limit'] + $_POST['total'];
+        $more = 1;
+        if($cnt <= $total){
+            $more = 0;
+        }
+
+        $r = Array();
+        $r['result'] = d()->news_line_tpl();
+        $r['total'] = $total;
+        $r['more'] = $more;
+
+        print json_encode($r);
+        exit;
+    }
+
+    d()->page_not_found();
+}
+
+// определяем зону доставки
+function ajax_check_zone(){
+    $mass = Array();
+    if(!$_POST['adr'] && !$_POST['address_id']){
+        $mass['result']='zone_error';
+        return json_encode($mass);
+    }
+
+    $lon = $_POST['lon'];
+    $lat = $_POST['lat'];
+    $small_adr = $_POST['small_adr'];
+    $adr = $_POST['adr'];
+    $_SESSION['zone']['address_id'] = '';
+    $mass['post'] = $_POST;
+
+    if($_POST['address_id']){
+        $al = d()->Address($_POST['address_id'])->limit(0,1);
+        $lon = $al->lon;
+        $lat = $al->lat;
+        $c = d()->City->where('code=?', $al->city);
+        $adr = $c->title.', '.$al->street;
+        $_SESSION['zone']['address_id'] = $_POST['address_id'];
+    }
+
+    // используем координаты от Dadata
+    if($lon && $lat){
+        $points = Array();
+        $points[0] = $lon;
+        $points[1] = $lat;
+        $mass['coords_type'] = 'dadata';
+    }else{
+        // используем координаты от Яндекса
+        get_city();
+        $adrold = $adr;
+        $adr = urlencode($adr);
+        //$adr = urlencode('Россия, Респ Татарстан, г Казань, ул Тимирязева д 10/2');
+
+        $ll = '';
+        if($_POST['ll'])$ll = '&ll='.$_POST['ll'];
+        $url = 'http://geocode-maps.yandex.ru/1.x/?geocode='.$adr.'&format=json&apikey='.d()->city->ya_geo_apikey.$ll;
+
+        $r = json_decode(file_get_contents($url), true);
+        $pointpos = $r['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']['Point']['pos'];
+        $mass['pointpos'] = $pointpos;
+        $mass['yandex_response'] = $r['response']['GeoObjectCollection']['featureMember'];
+        if(
+            $pointpos == '50.101783 53.195538' ||
+            $pointpos == '50.251155 53.323717' ||
+            $pointpos == '53.206891 56.852676' ||
+            $pointpos == '49.108795 55.796289' ||
+            $pointpos == '53.45064 56.830871' ||
+            $pointpos == '50.100193 53.195873' ||
+            $pointpos == '50.80485 56.659666'
+        ){
+            // если яндекс определил херню то используем DaDaTa
+            $points = explode(',', $_POST['ll']);
+            $mass['coords_type'] = 'yandex to dadata';
+
+            $checkcoords = $points[1].', '.$points[0];
+            // cstl для адреса г Ижевск, ул Городок Машиностроителей, д 99А
+            if($checkcoords == '56.8312216, 53.1118923' && strpos($adrold,'99') !== false){
+                $points[1] = '56.830935';
+                $points[0] = '53.110672';
+                $mass['coords_type'] = 'yandex to dadata to cstl';
+            }
+        }else{
+            $points = explode(' ', $pointpos);
+            $mass['coords_type'] = 'yandex';
+        }
+    }
+    $coords_type = $mass['coords_type'];
+
+    if($points[0] && $points[1]){
+        $geomob = json_decode(d()->geomob($points[0],$points[1]), true);
+        $_SESSION['geomob'] = $geomob;
+        // не входит в зону доставки
+        if($geomob['city_id']){
+
+            $mass = $geomob;
+            $mass['tst'] = $adrold;
+            $mass['f_title'] = $mass['title'].'. Стоимость доставки '.$mass['price'].' руб. От '.$mass['free'].' руб. - доставка БЕСПЛАТНО.';;
+            $mass['result'] = 'success';
+            $mass['coords_type'] = $coords_type;
+
+            if($_POST['order_flag']){
+                $_SESSION['zone']['address'] = $small_adr;
+                $_SESSION['zone']['f_title'] = $mass['title'].'. Стоимость доставки '.$mass['price'].' руб. От '.$mass['free'].' руб. - доставка БЕСПЛАТНО.';
+                $_SESSION['zone']['title'] = $mass['title'];
+                $_SESSION['zone']['price'] = $mass['price'];
+                $_SESSION['zone']['min_order'] = $mass['min_order'];
+                $_SESSION['zone']['free'] = $mass['free'];
+                $_SESSION['zone']['time'] = $mass['time'];
+                $_SESSION['zone']['lat'] = $points[1];
+                $_SESSION['zone']['lon'] = $points[0];
+
+                $_SESSION['delivery_price'] = $mass['price'];
+            }
+            return json_encode($mass);
+        }
+    }
+    $mass['result']='zone_error';
+    $mass["coords"] = $points[1].', '.$points[0];
+    return json_encode($mass);
+}
+
+function geomob($long=0, $lat=0, $ordersave=0){
+
+    if($_GET["long"] && $_GET["lat"]){
+        $long = $_GET["long"];
+        $lat = $_GET["lat"];
+    }
+    get_city();
+    $data = Array();
+    $zonis = d()->Zoni->where('city_id=?', d()->city->id)->order_by('id desc')->to_array();
+    //unset($_SESSION['polygon']);
+    //unset($_SESSION['$pointt']);
+    $pointt = [$long, $lat];
+    foreach($zonis as $k=>$v){
+        $zzz = json_decode($v["coords"]);
+        $_SESSION['$pointt'][] = $pointt;
+        foreach($zzz as $key=>$value){
+            $polygonn = $value;
+            //$_SESSION['polygon'][] = $polygonn;
+            if(IsPointInside($polygonn, $pointt)==1){
+                $data["city_id"] = $v["city_id"];
+                $data["min_order"] = $v["min_order"];
+                $data["price"] = $v["price"];
+                $data["free"] = $v["free"];
+                $data["title"] = $v["title"];
+                $data["text"] = $v["text"];
+                $data["time"] = $v["time"];
+                $data["coords"] = $lat.', '.$long;
+            }
+        }
+    }
+    if($_GET["source"]=="1c"){
+        if($data["text"]){
+            print $data["text"];
+        }else{
+            print 'not found';
+        }
+        exit();
+    }
+
+    return json_encode($data);
+}
+
+// вычисления зон доставки
+function IsPointInside($polygon, $point) {
+    if(count($polygon) <= 1)
+        return false;
+
+    $intersections_num = 0;
+    $prev = count($polygon) - 1;
+    $prev_under = $polygon[$prev][1] < $point[1];
+
+    for($i = 0; $i < count($polygon); ++$i){
+        $cur_under = $polygon[$i][1] < $point[1];
+
+        $a[0] = $polygon[$prev][0] - $point[0];
+        $a[1] = $polygon[$prev][1] - $point[1];
+        $b[0] = $polygon[$i][0] - $point[0];
+        $b[1] = $polygon[$i][1] - $point[1];
+
+        /*
+        echo '<br>$a[0] = '.$a[0];
+        echo '<br>$a[1] = '.$a[1];
+        echo '<br>$b[0] = '.$b[0];
+        echo '<br>$a[1] = '.$a[1];
+        echo '<hr>';*/
+
+        $t = ($a[0] * ($b[1] - $a[1]) - $a[1] * ($b[0] - $a[0]));
+        if($cur_under && !$prev_under){
+            if($t > 0)
+                $intersections_num += 1;
+        }
+        if(!$cur_under && $prev_under){
+            if($t < 0)
+                $intersections_num += 1;
+        }
+
+        $prev = $i;
+        $prev_under = $cur_under;
+    }
+    //echo '<h2>$intersections_num = '.$intersections_num.'<h2>';
+
+    return !($intersections_num == 0 || $intersections_num%2 == 0);
+}
+
+// сохранение адреса доставки
+function ajax_add_address() {
+    if(!$_POST['address']){
+        return 'address_error';
+    }
+    if(!$_POST['title']){
+        return 'title_error';
+    }
+    if(d()->Auth->is_guest()){
+        return 'auth_error';
+    }
+    if(!$_POST['is_private']){
+        if(!$_POST['room_number'] || !$_POST['entrance'] || !$_POST['floor']){
+            return 'room_error';
+        }
+    }
+
+    get_city();
+
+    if(!$_POST['edit']){
+        $a = d()->Address->new;
+        $a->created_at = date('Y-m-d H:i:s', date('U')+d()->city->timezone*3600);
+        $a->updated_at = date('Y-m-d H:i:s', date('U')+d()->city->timezone*3600);
+        $a->user_id = d()->Auth->id;
+        $a->city = d()->city->code;
+        $a->title = $_POST['title'];
+        $a->street = $_POST['address'];
+        if($_POST['is_private']){
+            $a->is_private = 1;
+            $a->apartment = '';
+            $a->entrance = '';
+            $a->floor = '';
+        }else{
+            $a->apartment = $_POST['room_number'];
+            $a->entrance = $_POST['entrance'];
+            $a->floor = $_POST['floor'];
+        }
+        $a->lat = $_POST['lat'];
+        $a->lon = $_POST['lon'];
+        $a->save;
+        return 'success';
+    }else{
+        $a = d()->Address->where('id=? AND user_id=?', $_POST['edit'], d()->Auth->id);
+        if(!$a->count){
+            return 'auth_error';
+        }
+        $a->user_id = d()->Auth->id;
+        $a->title = $_POST['title'];
+        $a->street = $_POST['address'];
+        if($_POST['is_private']){
+            $a->is_private = 1;
+            $a->apartment = '';
+            $a->entrance = '';
+            $a->floor = '';
+        }else{
+            $a->apartment = $_POST['room_number'];
+            $a->entrance = $_POST['entrance'];
+            $a->floor = $_POST['floor'];
+        }
+        $a->lat = $_POST['lat'];
+        $a->lon = $_POST['lon'];
+        $a->save;
+        return 'success_edit';
+    }
+
+}
+
+// смена способа доставки
+function ajax_delivery_change() {
+    if($_POST['type']){
+        $_SESSION['delivery'] = $_POST['type'];
+        $r = Array();
+
+        // удаляем подарки за самовывоз если есть
+        if($_POST['type']==2){
+            ajax_remove_gift_pickup();
+        }
+        if($_POST['type']==1){
+            get_cart();
+        }
+
+        // если пришел запрос на обновление корзины
+        if($_POST['change_cart']){
+            // пересобираем корзину
+            $c = $_SESSION['cart'];
+            unset($_SESSION['cart']);
+            if($_SESSION['promocode']['products_used'])$_SESSION['promocode']['products_used']=0;
+            foreach($c as $k=>$v){
+                ajax_change_cart('add', $v['id'], $v['property']);
+                $pid = $v['id'].'_'.$v['property'];
+
+                // добавляем количество, если больше 1 и если это не подарок по промокоду
+                if($v['property']=='promo')continue;
+                for($i=0;$i<$v['count']-1;$i++){
+                    ajax_change_cart('plus', $pid);
+                }
+            }
+            // пересобираем корзину
+            get_cart();
+            $r['newcart'] = d()->cart_list_tpl();
+            $r['total'] = d()->cart_total_price;
+            $r['count'] = d()->cart_count;
+            $r['points'] = $_SESSION['points'];
+            $r['pickup_discount'] = d()->cart_pickup_discount;
+            $r['discount_promocode'] = d()->discount_promocode;
+            $r['cart_discount_price'] = d()->cart_discount_price;
+            $r['header_cart_total_price'] = d()->header_cart_total_price;
+        }
+
+        // если промокод нужно удалить
+        if($_POST['type'] != $_SESSION['promocode']['delivery'] && $_SESSION['promocode']['delivery']){
+            clear_promo();
+            $r['del_promo'] = 1;
+        }
+
+        $sum = d()->cart_total_price - d()->points_pay; // сумма корзины с учетом баллов
+        // отключаем проверку на минимальную сумму при добавлении промокода
+        // if($_SESSION['promocode']['min_sum'] && $_SESSION['promocode']['min_sum'] > $sum) {
+        //     clear_promo();
+        //     $r['del_promo'] = 1;
+        // }
+
+        // добавляем проверку, если сумма с учетом промокода будет меньше 0
+        if($_SESSION['promocode']['type']==1 && !$_SESSION['promocode']['discount_type'] && ($sum - $_SESSION['promocode']['value'])<1) {
+            clear_promo();
+            $r['del_promo'] = 1;
+        }
+
+
+        if($r['del_promo'] == 1){
+            // пересобираем корзину
+            get_cart();
+            $r['newcart'] = d()->cart_list_tpl();
+            $r['total'] = d()->cart_total_price;
+            $r['count'] = d()->cart_count;
+            $r['points'] = $_SESSION['points'];
+            $r['pickup_discount'] = d()->cart_pickup_discount;
+            $r['cart_discount_price'] = d()->cart_discount_price;
+        }
+
+        $r['result'] = 'ok';
+        return json_encode($r);
+        exit;
+    }
+    d()->page_not_found();
+}
+
+// смена способа доставки
+function ajax_vk_comment() {
+    if($_POST['last_comment'] && $_POST['date']){
+        get_city();
+        $o = d()->Option;
+        if(!d()->Auth->is_guest){
+            d()->user = d()->Auth->user;
+        }
+
+        $l_subject = 'Новый отзыв с '.$_SERVER['HTTP_HOST'].' (VK)';
+        $l_text = '<p><strong>Отзыв:</strong> '.$_POST['last_comment'].'<br><strong>Дата:</strong> '.date('d.m.Y, G:i').'</p>';
+
+        $e = explode(',', d()->city->email_reviews);
+        foreach($e as $email){
+            d()->Mail->to(trim($email));
+            d()->Mail->set_smtp(d()->city->smtp_server,d()->city->smtp_port,d()->city->smtp_mail,d()->city->smtp_password,d()->city->smtp_protocol);
+            d()->Mail->from(d()->city->smtp_mfrom,d()->city->smtp_tfrom);
+            d()->Mail->subject($l_subject);
+            d()->Mail->message($l_text);
+            d()->Mail->send();
+        }
+
+        $r = d()->Review->new;
+        $r->city_id = d()->city->id;
+        $r->text = $_POST['last_comment'];
+        $r->type = "VK";
+        $r->status = 0;
+        if(!d()->Auth->is_guest)$r->phone = d()->user->phone;
+        $r->date = date('U');
+        $r->save;
+
+        exit();
+    }
+    d()->page_not_found();
+}
+
+// получаем UNIX TIME с учетом часового пояса города
+function get_dates($city=Array()){
+    $time = time();
+    d()->unix_time = $time + $city->timezone*3600;
+    // выбираем день, для отображения режима работы (с 00.00 до 04.00 утра показываем вчерашний день)
+    $f_unix_time = d()->unix_time - 4*3600;
+
+
+    d()->n_week = date('N', $f_unix_time);
+    d()->fn_week = date('N', d()->unix_time);
+    d()->week_day = get_week_day(d()->n_week);
+    d()->worktime = d()->city['wt'.d()->n_week];
+
+    $city = d()->city->to_array();
+
+    if(date('H', d()->unix_time)>=0 && date('H', d()->unix_time)<=14){
+        d()->f_worktime = explode('-', $city[0]['wt'.d()->fn_week]);
+        d()->f_week_day = f_get_week_day(d()->fn_week);
+    }else{
+        d()->f_worktime = explode('-', $city[0]['wt'.d()->fn_week+1]);
+        d()->f_week_day = f_get_week_day(d()->fn_week+1);
+    }
+    if(d()->f_week_day == 'Вторник' || d()->f_week_day == 'вторник')d()->bukva = 'о';
+    d()->f_worktime = d()->f_worktime[0];
+}
+
+// получаем день недели с учетом часового пояса города
+function get_week_day($n){
+    switch($n){
+        case 1: return "Понедельник";
+        case 2: return "Вторник";
+        case 3: return "Среда";
+        case 4: return "Четверг";
+        case 5: return "Пятница";
+        case 6: return "Суббота";
+        case 7: return "Воскресенье";
+    }
+}
+function f_get_week_day($n){
+    switch($n){
+        case 1: return "понедельник";
+        case 2: return "вторник";
+        case 3: return "среду";
+        case 4: return "четверг";
+        case 5: return "пятницу";
+        case 6: return "субботу";
+        case 7: return "воскресенье";
+    }
+}
+
+// получаем корзину
+function get_cart(){
+    d()->cart_list = d()->Cart(array_values($_SESSION['cart']));
+
+    // общая сумма корзины без учета скидки за самовывоз и прочих акций
+    d()->cart_total_price_nd = 0;
+    // общая сумма корзины
+    d()->cart_total_price = 0;
+    d()->header_cart_total_price = 0;
+    // сумма допов
+    d()->items_total_price = 0;
+    // корзина с учетом скидок
+    d()->cart_discount_price = 0;
+    // итоговая сумма к оплате
+    d()->order_price = 0;
+    // оплата баллами
+    d()->points_pay = (int) $_SESSION['points'];
+    // полная сумма скидки
+    d()->discount_sum = 0;
+    // сумма скидки за самовывоз
+    d()->cart_pickup_discount = 0;
+    // количество блюд в корзине
+    d()->cart_count = 0;
+    // проверка на наличие подарка в корзине (акция день рождения)
+    d()->dr_used = 0;
+    // проверка на наличие подарка в корзине (за самовывоз)
+    d()->gift_pickup_used = 0;
+    // скидка по промокоду
+    d()->discount_promocode = 0;
+    // скидка по промокоду (только на определенные товары), для отображения в хедере
+    d()->header_discount_promocode = 0;
+
+    // стоимость доставки
+    if($_SESSION['delivery']==2){
+        d()->delivery_price =  (int) $_SESSION['delivery_price'];
+        d()->delivery_price_word = '<em>-</em>';
+    }
+
+    if($_SESSION['promocode']['type']==1 && !$_SESSION['promocode']['discount_type']){
+        d()->discount_promocode = $_SESSION['promocode']['value'];
+    }
+
+    d()->xs_cart_btn = 'none';
+
+    foreach($_SESSION['cart'] as $k=>$v){
+        d()->items_total_price += $v['items_price'];
+        d()->cart_total_price += $v['total_price']+$v['items_price'];
+        d()->cart_pickup_discount += $v['total_pickup_discount'];
+        d()->cart_count += $v['count'];
+        d()->xs_cart_btn = '';
+        if($v['property']=='gift_dr')d()->dr_used = 1;
+        if($v['property']=='gift_pickup')d()->gift_pickup_used = 1;
+
+        if($_SESSION['promocode']['type']==1 && $_SESSION['promocode']['discount_type']==1 || $_SESSION['promocode']['type']==2){
+            d()->discount_promocode += $v['total_promo_discount'];
+            if($v['promo_group']){
+                d()->promo_group = $v['promo_group'];
+            }
+        }
+    }
+
+    d()->cart_discount_price = d()->cart_total_price - d()->points_pay - d()->discount_promocode;
+
+    d()->order_price = d()->cart_discount_price + d()->delivery_price;
+    if(d()->delivery_price)d()->delivery_price_word = '<em>'.d()->delivery_price.'</em><i class="rub">q</i>';
+
+    // определена зона доставки, проверяем стоимость доставки (возможно бесплатно)
+    if($_SESSION['zone']['free'] && $_SESSION['zone']['free'] <= d()->cart_discount_price){
+        // пересчитаем переменные get_cart
+        d()->delivery_price =  0;
+        d()->delivery_price_word = '<em style="color:#00a517;">бесплатно</em>';
+        d()->order_price = d()->cart_discount_price + d()->delivery_price;
+    }
+
+    d()->discount_sum = d()->cart_pickup_discount + d()->discount_promocode;
+    d()->cart_total_price_nd = d()->cart_pickup_discount + d()->cart_total_price;
+
+    // для отображения цены корзины с учетом скидки на определенные товары вычитаем из общей стоимости только скидку на определенные товары
+    d()->header_cart_total_price = d()->cart_total_price;
+    if($_SESSION['promocode']['type']==1 && $_SESSION['promocode']['discount_type']==1 || $_SESSION['promocode']['type']==2){
+        d()->header_cart_total_price -= d()->discount_promocode;
+        d()->header_discount_promocode = d()->discount_promocode;
+    }
+}
+
+function check_order_zone(){
+    d()->check_zone = 0;
+    d()->check_min_sum = 0;
+
+    if(!$_SESSION['zone']['address']){
+        d()->check_zone = 0;
+        d()->btn_disabled = 'disabled';
+        return;
+    }
+    d()->check_zone = 1;
+
+    if($_SESSION['zone']['min_order'] > d()->cart_discount_price){
+        d()->check_min_sum = 0;
+        d()->btn_disabled = 'disabled';
+        d()->order_error = 'Минимальная сумма заказа, для Вашего адреса (без учета стоимости доставки): <strong>'.$_SESSION['zone']['min_order'].' руб.</strong>';
+        d()->order_error_show = 'block';
+        return;
+    }
+    d()->check_min_sum = 1;
+}
+
+// cart_list
+function ajax_cart_list(){
+    get_cart();
+
+    $r = Array();
+    $r['list'] = d()->cart_list_tpl();
+    $r['ch_list'] = d()->cart_list_ch_tpl();
+    $r['total_price'] = d()->cart_total_price;
+    $r['total_count'] = d()->cart_count;
+    // сумма корзины, с учетом скидки по промокоду
+    $r['price_not_points'] = d()->cart_total_price - d()->discount_promocode;
+    $r['discount_price'] = d()->cart_discount_price;
+    // скидка по промокоду (только на определенные товары)
+    $r['header_discount_promocode'] = d()->header_discount_promocode;
+    $r['promo_products_used'] = $_SESSION['promocode']['products_used'];
+    // скидка по промокоду
+    $r['discount_promocode'] = d()->discount_promocode;
+    // скидка в процентах
+    $r['discount_percent'] = $_SESSION['promocode']['percent'];
+
+    $r['header_cart_total_price'] = d()->header_cart_total_price;
+
+    return json_encode($r);
+}
+
+function ajax_remove_gift_dr(){
+    foreach($_SESSION['cart'] as $k=>$v){
+        if($v['property']=='gift_dr')unset($_SESSION['cart'][$k]);
+    }
+    if($_POST['check']=='sclear')unset($_SESSION['show_gifts_type']);
+}
+
+function ajax_remove_gift_pickup(){
+    foreach($_SESSION['cart'] as $k=>$v){
+        if($v['property']=='gift_pickup')unset($_SESSION['cart'][$k]);
+    }
+    if($_POST['check']=='sclear')unset($_SESSION['show_gifts_type']);
+}
+
+function ajax_add_gift(){
+    if($_POST['id']){
+        $r = Array();
+        $pid = explode('_', $_POST['id']);
+        $g = d()->Product($pid[0]);
+        $error = 0;
+        if(!$g->id)$error = 1;
+
+        // проверка на наличие в корзине подарка по акции др
+        //foreach($_SESSION['cart'] as $k=>$v){
+        //    if($v['property']=='gift_dr')$error = 1;
+        //}
+
+        if($error){
+            $r['result'] = 'error';
+            return json_encode($r);
+        }
+
+        $type = $_POST['type'];
+
+        ajax_change_cart('add', $_POST['id'], $type);
+
+        get_cart();
+        $r['ch_cart'] = d()->cart_list_ch_tpl();
+        $r['cart'] = d()->cart_list_tpl();
+        $r['cart_count'] = d()->cart_count;
+        $r['header_cart_total_price'] = d()->header_cart_total_price;
+
+        $dop_check = 0;
+        $dop_array = Array();
+        $checkl = d()->Other->where('product_id = ?', $g->id);
+        if(!$checkl->is_empty){
+            $dop_check = 1;
+            $dop_array[] = $_POST['id'];
+        }
+        $r['others'] = $dop_check;
+        $r['others_array'] = $dop_array;
+        $r['g_id'] = $g->id;
+
+        $r['result'] = 'success';
+        return json_encode($r);
+    }
+    d()->page_not_found();
+}
+
+function ajax_run_points(){
+    if(isset($_POST['points'])){
+        $r = Array();
+        if(d()->Auth->is_guest()){
+            $r['result'] = 'error';
+            $r['text'] = 'пожалуйста <a href="#auth-modal" data-toggle="modal">авторизуйтесь</a>';
+            return json_encode($r);
+            exit();
+        }
+
+        get_cart();
+        if((d()->cart_total_price-d()->discount_promocode)/2 < $_POST['points']){
+            $r['result'] = 'error';
+            $r['text'] = 'максимум 50% от суммы заказа';
+            return json_encode($r);
+            exit();
+        }
+
+        $u = d()->Auth->user();
+        if($u->points < $_POST['points']){
+            $r['result'] = 'error';
+            $r['text'] = 'недостаточно баллов';
+            return json_encode($r);
+            exit();
+        }
+
+        if($_SESSION['promocode']['is_not_points']){
+            $r['result'] = 'error';
+            $r['text'] = 'не сочетается с промокодом: '.strtoupper($_SESSION['promocode']['title']);
+            return json_encode($r);
+            exit();
+        }
+
+        $r['result'] = 'success';
+        $_SESSION['points'] = $_POST['points'];
+        $_SESSION['old_points'] = $_POST['points'];
+        return json_encode($r);
+        exit();
+    }
+
+    d()->page_not_found();
+}
+
+function clear_promo(){
+    $log = Array();
+    $log['old_session'] = $_SESSION;
+
+    // если промокод = подарок, удаляем подарки из корзины
+    if($_SESSION['promocode']['type']==3){
+        foreach($_SESSION['cart'] as $k=>$v){
+            $pos = strpos($k, 'promo');
+            if($pos!== false)unset($_SESSION['cart'][$k]);
+        }
+    }
+    // если промокод скидка на определенные товары
+    if($_SESSION['promocode']['type']==1 && $_SESSION['promocode']['discount_type']==1 || $_SESSION['promocode']['type']==2){
+        foreach($_SESSION['cart'] as $k=>$v){
+            if($v['promocode_id']){
+                unset($_SESSION['cart'][$k]['promocode_id']);
+                unset($_SESSION['cart'][$k]['promo_title']);
+                unset($_SESSION['cart'][$k]['promo_count']);
+                unset($_SESSION['cart'][$k]['promo_group']);
+                unset($_SESSION['cart'][$k]['promo_used']);
+                unset($_SESSION['cart'][$k]['promo_discount']);
+                unset($_SESSION['cart'][$k]['total_promo_discount']);
+            }
+        }
+    }
+    unset($_SESSION['promocode']);
+
+    $log['new_session'] = $_SESSION;
+
+    $l = d()->Log->new;
+    $l->title = 'clear_promo';
+    $l->text = json_encode($log);
+    $l->save;
+
+    points_refresh();
+}
+
+function ajax_run_promo(){
+    if(isset($_POST['promo'])){
+        $r = Array();
+        // удаление промокода
+        if($_POST['promo_clear']==1){
+            clear_promo();
+            $r['result'] = 'success';
+            if($_POST['get_cart']){
+                get_city();
+                get_cart();
+                $r['ch_cart'] = d()->cart_list_ch_tpl();
+                $r['cart'] = d()->cart_list_tpl();
+            }
+            return json_encode($r);
+        }
+
+        get_city();
+        get_cart();
+
+        // проверяем, есть ли такой промокод среди активных промокодов этого города
+        $promo_ru = d()->promo_trans_en($_POST['promo']);
+        $promo_en = d()->promo_trans_ru($_POST['promo']);
+
+        //$promo_ru = $_POST['promo'];
+        //$promo_en = $_POST['promo'];
+
+        $promo = d()->Promocode->where('name=? AND city_id=? OR name=? AND city_id=?', $promo_ru, d()->city->id, $promo_en, d()->city->id)->limit(0,1);
+        if($promo->is_empty()){
+            $r['result'] = 'error';
+            $r['text'] = 'промокод не найден';
+            return json_encode($r);
+        }
+
+        $check = 1;
+        // проверка на период действия
+        if($promo->start_date || $promo->end_date){
+            $d = date('U') + d()->city->timezone*3600;
+            if($promo->start_date && $promo->start_date > $d){
+                $check = 0;
+            }
+            if($promo->end_date && $promo->end_date+86399 < $d){
+                $check = 0;
+            }
+        }
+        // проверка на использование одноразового уникального
+        if($promo->is_single && $promo->used){
+            $check = 0;
+        }
+        if(!$promo->is_active || !$check){
+            $r['result'] = 'error';
+            $r['text'] = 'промокод не активен';
+            return json_encode($r);
+        }
+        if($promo->delivery){
+            if(!$_SESSION['delivery'])$_SESSION['delivery'] = d()->city->delivery;
+            if($promo->delivery != $_SESSION['delivery']){
+                $r['result'] = 'error';
+                $r['text'] = 'промокод только для доставки';
+                if($promo->delivery==1){
+                    $r['text'] = 'промокод только для самовывоза';
+                }
+                return json_encode($r);
+            }
+        }
+        if($promo->is_auth && d()->Auth->is_guest()){
+            $r['result'] = 'error';
+            $r['text'] = 'пожалуйста <a href="#auth-modal" data-toggle="modal">авторизуйтесь</a>';
+            return json_encode($r);
+        }
+
+        // проверка на дни недели
+        if($promo->week_days){
+            $n = date('N', date('U')+d()->city->timezone*3600);
+            if(strpos($promo->week_days, $n) === false){
+                $r['result'] = 'error';
+                $r['text'] = 'сегодня промокод не доступен';
+                return json_encode($r);
+            }
+        }
+
+        // проверка на даты исключения
+        if($promo->exceptions_dates){
+            $n = date('d.m', date('U')+d()->city->timezone*3600);
+            if(strpos($promo->exceptions_dates, $n) !== false){
+                $r['result'] = 'error';
+                $r['text'] = 'сегодня промокод не доступен';
+                return json_encode($r);
+            }
+        }
+
+
+        // отключаем проверку на минимальную сумму при добавлении промокода
+        //if($promo->min_sum && $promo->min_sum > d()->cart_discount_price){
+        //    $r['result'] = 'error';
+        //    $r['text'] = 'минимальная сумма заказа '.$promo->min_sum.' руб.';
+        //    return json_encode($r);
+        //}
+
+        // защита от отрицательной суммы, если промокод скидка в руб на весь заказ
+        if($promo->type==1 && !$promo->discount_type && (d()->cart_discount_price-$promo->value)<1){
+           $r['result'] = 'error';
+            $r['text'] = 'очень маленькая сумма заказа';
+            return json_encode($r);
+        }
+
+
+        if($promo->is_wide_single) {
+            $pos = strpos($_COOKIE['wide_single_promo'], '|' . $promo->id . '|');
+            if ($pos !== false) {
+                $r['result'] = 'error';
+                $r['text'] = 'промокод уже использован';
+                return json_encode($r);
+            }
+        }
+        // проверка на наличие акционных товаров в корзине (к которым должна применяться скидка)
+        if($promo->type == 1 && $promo->discount_type == 1) {
+            $incart = 0;
+            $products_temp = explode(',', $promo->products);
+            d()->products = Array();
+            $search_keys = '|'.implode('|', array_keys($_SESSION['cart']));
+            foreach($products_temp as $k=>$v){
+                $a = explode('|', $v);
+                d()->products[$a[0]] = $a;
+
+                $findme = '|'.$a[0].'_';
+                if(strpos($search_keys, $findme) !== false)$incart = 1;
+                //if($_SESSION['cart'][$a[0]]['id'])$incart = 1;
+            }
+            if(!$incart){
+                $r['result'] = 'error';
+                $r['text'] = 'в корзине отсутствуют блюда по промокоду';
+                return json_encode($r);
+            }
+        }
+
+        // проверка на наличие обязательных блюд в корзине
+        if($promo->required_products) {
+            $incart = 0;
+            $products_temp = explode(',', $promo->required_products);
+            d()->r_products = Array();
+            $search_keys = '|'.implode('|', array_keys($_SESSION['cart']));
+            foreach($products_temp as $k=>$v){
+                $a = str_replace('|', '', $v);
+                d()->r_products[$a] = $a;
+                $findme = '|'.$a.'_';
+                if(strpos($search_keys, $findme) !== false)$incart = 1;
+                //if($_SESSION['cart'][$a]['id'])$incart = 1;
+            }
+            if(!$incart){
+                $r['result'] = 'error';
+                $r['text'] = 'в корзине отсутствуют обязательные блюда';
+                return json_encode($r);
+            }
+        }
+
+
+        // проверка на временные рамки
+        $check = check_promotime($promo->start_time, $promo->end_time);
+        if(!$check){
+            $r['result'] = 'error';
+            if($promo->start_time && !$promo->end_time){
+                $r['text'] = 'промокод доступен с '.$promo->start_time.':00';
+            }elseif(!$promo->start_time && $promo->end_time){
+                $r['text'] = 'промокод доступен до '.$promo->end_time.':00';
+            }else{
+                $r['text'] = 'промокод доступен с '.$promo->start_time.':00 до '.$promo->end_time.':00';
+            }
+            return json_encode($r);
+        }
+
+        // промокод не сочетается с баллами
+        if($promo->is_not_points && $_SESSION['points']) {
+            $r['result'] = 'error';
+            $r['text'] = 'промокод не сочетается с бонусными баллами';
+            return json_encode($r);
+        }
+
+        // промокод не сочетается с подаками на ДР или за самовывоз
+        if($promo->is_not_dr || $promo->is_not_delivery) {
+            foreach($_SESSION['cart'] as $vl){
+                if($vl['property']=='gift_dr' && $promo->is_not_dr){
+                    $r['result'] = 'error';
+                    $r['text'] = 'промокод не сочетается с подарками на День Рождения';
+                    return json_encode($r);
+                    break;
+                }
+                if($vl['property']=='gift_pickup' && $promo->is_not_delivery){
+                    $r['result'] = 'error';
+                    $r['text'] = 'промокод не сочетается с подарками за Самовывоз';
+                    return json_encode($r);
+                    break;
+                }
+            }
+
+        }
+
+        // если промокод - скидка %
+        $percent = 0;
+        if($promo->type == 2){
+            $percent = $promo->value;
+        }
+
+        $_SESSION['promocode'] = Array(
+            'title' => $promo->name,
+            'id' => $promo->id,
+            'start_date' => $promo->start_date,
+            'end_date' => $promo->end_date,
+            'delivery' => $promo->delivery,
+            'is_auth' => $promo->is_auth,
+            'is_single' => $promo->is_single,
+            'min_sum' => $promo->min_sum,
+            'min_sum_points' => $promo->min_sum_points,
+            'is_wide_single' => $promo->is_wide_single,
+            'type' => $promo->type,
+            'discount_type' => $promo->discount_type,
+            'value' => $promo->value,
+            'percent' => $percent,
+            'round' => $promo->round,
+            'products' => $promo->products,
+            'products_limit' => $promo->products_limit,
+            'products_used' => 0,
+            'required_products' => $promo->required_products,
+            'week_days' => $promo->week_days,
+            'is_not_points' => $promo->is_not_points,
+            'is_not_dr' => $promo->is_not_dr,
+            'is_not_delivery' => $promo->is_not_delivery,
+            'exceptions_dates' => $promo->exceptions_dates,
+        );
+
+        // если промокод - подарок, добавляем его в корзину
+        if($promo->type == 3){
+            $gifts = explode(',', $promo->gift);
+            $dop_check = 0;
+            $dop_array = Array();
+            foreach($gifts as $k=>$v){
+                $v = str_replace('|', '', $v);
+                $pid = explode('_', $v);
+                $g = d()->Product($pid[0]);
+                if(!$g->id)continue;
+                ajax_change_cart('add', $v, 'promo');
+
+                $dop = explode('_', $v);
+                $checkl = d()->Other->where('product_id = ?', $dop[0]);
+                if(!$checkl->is_empty){
+                    $dop_check = 1;
+                    $dop_array[] = $v;
+                }
+            }
+        }
+
+        $discount = 0;
+
+        // если промокод - скидка руб
+        //unset($_SESSION['dbg']);
+        if($promo->type == 1){
+            // если скидка только на определенные товары
+            if($promo->discount_type == 1){
+                $pp_count = 0;
+                $check_group = 0;
+                // массив для отслеживания количества с учетом допов
+                $maxcnt = Array();
+                foreach($_SESSION['cart'] as $k=>$v){
+                    // айдишник без допов
+                    $tmp = explode('_',$k);
+                    array_pop($tmp);
+                    $ktmp = implode('_', $tmp);
+
+                    // определяем группу товара
+                    $group = d()->products[$ktmp][3];
+                    // проверка скидку у товаров из другой группы
+                    if($check_group != $group && $check_group) {
+                        continue;
+                    }
+
+                    // лимит группы
+                    $lim = explode(',', $promo->products_limit);
+                    foreach($lim as $vvv){
+                        $limit = explode('_', $vvv);
+                        if($limit[1] == $group){
+                            $products_limit = $limit[0];
+                        }
+                    }
+                    if(!$products_limit)$products_limit = 9999;
+
+                    //$_SESSION['dbg'][$k][$pp_count] = $pp_count;
+                    //$_SESSION['dbg'][$k][$products_limit] = $products_limit;
+
+                    $pcnt = d()->products[$ktmp][1];
+                    if(!$pcnt)$pcnt = 9999;
+
+                    // проверка на колво с допами
+                    if($maxcnt[$ktmp]){
+                        if($pcnt <= $maxcnt[$ktmp])continue;
+                        $pcnt = $pcnt - $maxcnt[$ktmp];
+                    }
+
+                    if(d()->products[$ktmp][0] && $products_limit > $pp_count && $pcnt){
+                        if($_SESSION['cart'][$k]['property']=='gift_dr' || $_SESSION['cart'][$k]['property']=='gift_pickup')continue;
+
+                        $check_group = $group;
+
+                        $_SESSION['cart'][$k]['promocode_id'] = $_SESSION['promocode']['id'];
+                        $_SESSION['cart'][$k]['promo_title'] = 'Скидка по промокоду '.strtoupper($promo->name);
+
+                        $_SESSION['cart'][$k]['promo_count'] = $pcnt;
+                        $promo_count = $_SESSION['cart'][$k]['count'];
+                        if($_SESSION['cart'][$k]['count'] > $pcnt)$promo_count = $pcnt;
+
+                        if($products_limit <= ($pp_count+$promo_count)){
+                            $promo_count = $products_limit - $pp_count;
+                        }
+
+                        $_SESSION['cart'][$k]['promo_discount'] = $_SESSION['cart'][$k]['price'] - d()->products[$ktmp][2];
+                        $_SESSION['cart'][$k]['total_promo_discount'] = $_SESSION['cart'][$k]['promo_discount'] * $promo_count;
+                        $_SESSION['cart'][$k]['promo_used'] = $promo_count;
+                        $_SESSION['cart'][$k]['promo_group'] = $group;
+
+                        $discount += $_SESSION['cart'][$k]['total_promo_discount'];
+                        $pp_count += $promo_count;
+                        $_SESSION['promocode']['products_used'] += $promo_count;
+
+                        if(!$maxcnt[$ktmp]){
+                            $maxcnt[$ktmp] = $promo_count;
+                        }else{
+                            $maxcnt[$ktmp] += $promo_count;
+                            $dopfrch = 1;
+                        }
+                    }
+                }
+                // если есть 2 одинаковых товара с разными допами
+                // крутим foreach что бы проверить promo_count
+                if($dopfrch){
+                    foreach($_SESSION['cart'] as $k=>$v){
+                        // айдишник без допов
+                        $tmp = explode('_',$k);
+                        array_pop($tmp);
+                        $ktmp = implode('_', $tmp);
+
+                        $pcnt = d()->products[$ktmp][1];
+                        if(!$pcnt)$pcnt = 9999;
+                        // проверка на колво с допами
+                        if($maxcnt[$ktmp]){
+                            if($maxcnt[$ktmp] >= $pcnt){
+                                $_SESSION['cart'][$k]['promo_count'] = $_SESSION['cart'][$k]['promo_used'];
+                            }else{
+                                $_SESSION['cart'][$k]['promo_count'] = $_SESSION['cart'][$k]['promo_used']+$pcnt-$maxcnt[$ktmp];
+                            }
+                        }
+                    }
+                }
+            }
+            // пересчет баллов
+            points_refresh();
+        }
+
+        // если промокод - скидка %
+        if($promo->type == 2){
+            foreach($_SESSION['cart'] as $k=>$v){
+                // если скидка на весь заказ, кроме товаров не собственнго производства и этот товар не собственного производства
+                if($promo->discount_type == 2 && $_SESSION['cart'][$k]['not_dd'])continue;
+
+                if($_SESSION['cart'][$k]['property']=='gift_dr' || $_SESSION['cart'][$k]['property']=='gift_pickup')continue;
+
+                $ip = $_SESSION['cart'][$k]['items_price']/$_SESSION['cart'][$k]['count'];
+                $d = price_round($_SESSION['cart'][$k]['price']+$ip, $percent, $promo->round);
+                $_SESSION['cart'][$k]['promocode_id'] = $_SESSION['promocode']['id'];
+                $_SESSION['cart'][$k]['promo_title'] = 'Скидка по промокоду '.strtoupper($promo->name);
+                $_SESSION['cart'][$k]['promo_discount'] = $d;
+                $_SESSION['cart'][$k]['total_promo_discount'] = $d * $_SESSION['cart'][$k]['count'];
+                $discount += $d * $_SESSION['cart'][$k]['count'];
+            }
+            // пересчет баллов
+            points_refresh();
+        }
+
+        get_cart();
+        $r = Array(
+            'result' => 'success',
+            'title' => $promo->name,
+            'delivery' => $promo->delivery,
+            'min_sum' => $promo->min_sum,
+            'type' => $promo->type,
+            'discount_type' => $promo->discount_type,
+            'value' => $promo->value,
+            'percent' => $percent,
+            'promo_sum' => d()->discount_promocode,
+            'round' => $promo->round,
+            'products' => $promo->products,
+            'products_limit' => $promo->products_limit,
+            'products_group' => d()->promo_group,
+            'products_discount' => $discount,
+            'total_count' => d()->cart_count,
+            'header_cart_total_price' => d()->header_cart_total_price,
+            'required_products' => $promo->required_products,
+            'ch_cart' => d()->cart_list_ch_tpl(),
+            'cart' => d()->cart_list_tpl(),
+            'week_days' => $promo->week_days,
+            'is_not_points' => $promo->is_not_points,
+            'is_not_dr' => $promo->is_not_dr,
+            'is_not_delivery' => $promo->is_not_delivery,
+            'exceptions_dates' => $promo->exceptions_dates,
+            'others' => $dop_check,
+            'others_array' => $dop_array,
+        );
+        return json_encode($r);
+    }
+
+    d()->page_not_found();
+}
+
+// получение цены с учетом скидки
+function get_discount_price($p='', $not=0, $d=''){
+    $price = $p;
+
+    // для ajax запросов
+    if(!d()->city->id)get_city();
+
+    // скидка за самовынос
+    if(!$not){
+        // переменная $d для того что бы посчитать скидку независимо от текущего состояния доставки
+        if(!$d){
+            $d = $_SESSION['delivery'];
+            if(!$d) $d = d()->city->delivery;
+        }
+
+        if(d()->city->discount_delivery && $d==1){
+            $cf = 100 - d()->city->discount_delivery;
+            $price = $p/100*$cf;
+            switch (d()->city->dd_round) {
+                case 0:
+                    $price = ceil($price);
+                    break;
+                case 1:
+                    $price = ceil($price/5) * 5;
+                    break;
+                case 2:
+                    $price = ceil($price/10) * 10;
+                    break;
+            }
+        }
+    }
+    // скидка за самовынос
+
+    if($p<$price) return $p;
+    return $price;
+}
+
+
+// изменение properties not_dd, в зависимости от изминения products
+function admin_properties_edit(){
+    if($_POST['element_id']=='add'){
+        // событие на создание свойства
+        $p = d()->Product($_POST['data']['product_id']);
+        $_POST['data']['not_dd'] = $p->not_dd;
+
+        unset($_POST['data']['products']);
+    }else{
+        // событие на радактирование продукта
+        d()->Property->sql('UPDATE properties SET not_dd="'.$_POST['data']['not_dd'].'" WHERE product_id="'.$_POST['element_id'].'"');
+
+        // проверяем, нужно ли редактировать другие товары
+        if($_POST['data']['products']){
+            $prds = explode(',', $_POST['data']['products']);
+            // переменные для изменения в доп товарах
+            $check = d()->Product($_POST['element_id']);
+            $change = Array();
+            if($check->is_active != $_POST['data']['is_active'])$change[] = 'is_active';
+            if($check->title != $_POST['data']['title'])$change[] = 'title';
+            if($check->image != $_POST['data']['image'])$change[] = 'image';
+            if($check->image_alt != $_POST['data']['image_alt'])$change[] = 'image_alt';
+            if($check->image_title != $_POST['data']['image_title'])$change[] = 'image_title';
+            if($check->sostav != $_POST['data']['sostav'])$change[] = 'sostav';
+            if($check->text != $_POST['data']['text'])$change[] = 'text';
+            if($check->url != $_POST['data']['url'])$change[] = 'url';
+            if($check->price != $_POST['data']['price'])$change[] = 'price';
+            if($check->weight != $_POST['data']['weight'])$change[] = 'weight';
+            if($check->weight_type != $_POST['data']['weight_type'])$change[] = 'weight_type';
+            if($check->number != $_POST['data']['number'])$change[] = 'number';
+            if($check->not_dd != $_POST['data']['not_dd'])$change[] = 'not_dd';
+            if($check->sticker != $_POST['data']['sticker'])$change[] = 'sticker';
+
+            foreach($prds as $k=>$v){
+                $p = d()->Product($v);
+                foreach($change as $key => $val){
+                    $p[$val] = $_POST['data'][$val];
+                }
+                $p->save;
+            }
+        }
+        unset($_POST['data']['products']);
+    }
+    if(strpos($_POST['data']['category_id'], '|') === false){
+        $_POST['data']['category_id'] = '|'.$_POST['data']['category_id'].'|';
+    }
+}
+
+function admin_promocodes_edit(){
+    if($_POST['data']['start_date']){
+        $_POST['data']['start_date'] = strtotime($_POST['data']['start_date']);
+    }else{
+        $_POST['data']['start_date'] = 0;
+    }
+
+    if($_POST['data']['end_date']){
+        $_POST['data']['end_date'] = strtotime($_POST['data']['end_date']);
+    }else{
+        $_POST['data']['end_date'] = 0;
+    }
+
+    if($_POST['data']['discount_type']==1){
+        $_POST['data']['value'] = 0;
+    }
+    //$_SESSION['debug'] = $_POST['data'];
+}
+
+function admin_cities_edit(){
+    if($_POST['data']['dd_type']==1){
+        $_POST['data']['discount_delivery'] = 0;
+        $_POST['data']['dd_round'] = 0;
+    }
+    if(!$_POST['data']['dd_type']){
+        $_POST['data']['dd_gifts'] = '';
+    }
+}
+
+function do_robots(){
+    $file = fopen($_SERVER['DOCUMENT_ROOT'].'/robots.txt', 'w');
+    fwrite($file, $_POST['data']['text']);
+    fclose($file);
+    return  "<script>window.open('','_self','');window.close();</script>";
+}
+
+function do_cities_wt(){
+    $c = d()->City(url(4));
+    $c->wt1 = $_POST['data']['wt1'];
+    $c->wt2 = $_POST['data']['wt2'];
+    $c->wt3 = $_POST['data']['wt3'];
+    $c->wt4 = $_POST['data']['wt4'];
+    $c->wt5 = $_POST['data']['wt5'];
+    $c->wt6 = $_POST['data']['wt6'];
+    $c->wt7 = $_POST['data']['wt7'];
+    $c->is_error_wt = $_POST['data']['is_error_wt'];
+    $c->is_modal_wt = $_POST['data']['is_modal_wt'];
+    $c->save;
+
+    header('Location: /admin/list/cities');
+    exit();
+}
+
+function do_products(){
+    $element_id = $_POST['element_id'];
+    if($element_id == 'add'){
+        $type = 'add';
+
+        if(count($_POST['dopcity'])){
+            foreach($_POST['dopcity'] as $k=>$v){
+
+                if($v['category']){
+                    $city = $v['id'];
+                    $category = '|'.str_replace(',', '|', $v['category']).'|';
+                    $subcategory = '';
+                    if($v['subcategory']){
+                        $subcategory = '|'.str_replace(',', '|', $v['subcategory']).'|';
+                    }
+                    $p = d()->Product->new;
+                    foreach($_POST['data'] as $key=>$value){
+                        if($key=='city_id')$value = $city;
+                        if($key=='category_id')$value = $category;
+                        if($key=='subcategory_id')$value = $subcategory;
+
+                        if($key=='filter'){
+                            $fs = explode(',', $value);
+                            $value = '';
+                            foreach($fs as $fv){
+                                $f = d()->Filter($fv);
+                                $filter = d()->Filter->where('city_id = ?', $city)->search('title', $f->title);
+                                if(!$filter->is_empty){
+                                    $value .= $filter->id.',';
+                                }
+                            }
+                            if($value)$value = substr($value,0,-1);
+                        }
+                        if($key=='autoadd_products')$value = '';
+
+                        //$_SESSION['debug']['foreach'][$city][$key] = $value;
+                        $p[$key] = $value;
+                    }
+                    $product = $p->save_and_load();
+                    $_SESSION['debug']['save_and_load'][] = $product->id;
+
+                    $l = d()->Log_product->new;
+                    $l->type = $type;
+                    $l->product_id = $product->id;
+                    $l->save;
+                }
+            }
+        }
+
+        // костылек
+        $e = d()->Product->new;
+        $e->title = 'test';
+        $elem = $e->save_and_load();
+        $element_id = $elem->id+1;
+        $e = d()->Product($elem->id);
+        $e->delete;
+        // костылек
+
+        // если есть еще города, в которые нужно добавить этот товар
+        $_SESSION['POST'] = $_POST;
+
+    }elseif($_POST['_action'] == 'admin_delete_element'){
+        $type = 'delete';
+    }else{
+        $type = 'edit';
+    }
+
+    $l = d()->Log_product->new;
+    $l->type = $type;
+    $l->product_id = $element_id;
+    $l->save;
+}
+
+function do_properties(){
+
+    $type = 'edit';
+    $element_id = $_POST['data']['product_id'];
+    if($_POST['_action'] == 'admin_delete_element'){
+        $property = d()->Property($_POST['element_id']);
+        $element_id = $property->product_id;
+        // если удаление дефолтного свойства, то ищем новое и ставим его цену товару
+        if($property->is_default){
+            $ps = d()->Property->where('product_id=? AND id!=?', $element_id, $property->id);
+            foreach($ps as $v){
+                if($ps->is_default){
+                    $p = d()->Product($element_id);
+                    $p->price = $ps->price;
+                    $p->save;
+                    break;
+                }
+            }
+        }
+    }
+    // если элемент по умолчанию, то меняем цену товара для грамотной сортировки
+    if($_POST['data']['is_default']){
+        $p = d()->Product($element_id);
+        $p->price = $_POST['data']['price'];
+        $p->save;
+    }
+
+    // делаем запись в логах
+    $l = d()->Log_product->new;
+    $l->type = $type;
+    $l->product_id = $element_id;
+    $l->save;
+}
+
+function do_style(){
+    $f = $_SERVER['DOCUMENT_ROOT'].'/images/style.less';
+    $file = fopen($f, 'r');
+    $data = fread($file, filesize($f));
+    fclose($file);
+
+    $file = fopen($f, 'w');
+
+    $t = explode('@color1:', trim($data));
+    $t = explode(';', $t[1]);
+    $data = str_replace('@color1:'.$t[0].';', '@color1: '.$_POST['data']['color1'].';',  $data);
+
+    $t = explode('@color2:', trim($data));
+    $t = explode(';', $t[1]);
+    $data = str_replace('@color2:'.$t[0].';', '@color2: '.$_POST['data']['color2'].';',  $data);
+
+    $t = explode('@color3:', trim($data));
+    $t = explode(';', $t[1]);
+    $data = str_replace('@color3:'.$t[0].';', '@color3: '.$_POST['data']['color3'].';',  $data);
+
+    $t = explode('@color4:', trim($data));
+    $t = explode(';', $t[1]);
+    $data = str_replace('@color4:'.$t[0].';', '@color4: '.$_POST['data']['color4'].';',  $data);
+
+    $t = explode('@color5:', trim($data));
+    $t = explode(';', $t[1]);
+    $data = str_replace('@color5:'.$t[0].';', '@color5: '.$_POST['data']['color5'].';',  $data);
+
+    fwrite($file, $data);
+    fclose($file);
+    //printr($t1);
+    //print $data;
+}
+
+function style_php(){
+    get_city();
+
+    $color1 = d()->city->color1;
+    $color4 = d()->city->color4;
+    $color2 = d()->city->color2;
+    $color3 = d()->city->color3;
+    $color5 = d()->city->color5;
+
+    $dir = substr(dirname(__FILE__),0,-4);
+
+    //header("Content-type: application/javascript; charset=utf-8");
+    header("Content-type: text/css; charset=utf-8");
+
+    $style_out = file_get_contents($dir.'/images/style.css');
+
+    $style_out = str_replace('-color1', $color1, $style_out);
+    $style_out = str_replace('-color4', $color4, $style_out);
+    $style_out = str_replace('-color2', $color2, $style_out);
+    $style_out = str_replace('-color3', $color3, $style_out);
+    $style_out = str_replace('-color5', $color5, $style_out);
+
+    echo $style_out;
+}
+
+function ajax_get_promo_gifts_admin(){
+    if($_POST['city_id']){
+        d()->city = d()->City($_POST['city_id']);
+    }else{
+        get_city();
+    }
+    if($_POST['gifts']){
+        d()->glist = explode(',', $_POST['gifts']);
+    }
+    d()->gifts_list = d()->Product->where('city_id=?', d()->city->id);
+
+    d()->id_title = 'promo1';
+    if($_POST['type']=='dr'){
+        d()->id_title = 'dr';
+        d()->dr_type = '_dr';
+    }
+
+    print d()->ajax_admin_gifts_tpl();
+}
+
+function ajax_get_promo_products_admin(){
+    if($_POST['city_id']){
+        d()->city = d()->City($_POST['city_id']);
+    }else{
+        get_city();
+    }
+    $sortline = 'sort ASC';
+    if($_POST['products']){
+        $p = explode(',', $_POST['products']);
+        d()->products = Array();
+        $sortline = '';
+        d()->picked_id = '';
+        foreach($p as $k=>$v){
+            $a = explode('|', $v);
+            d()->products[$a[0]] = $a;
+            $id = explode('_', $a[0]);
+            $sortline .= 'id='.$id[0].' DESC, ';
+            d()->picked_id .= '|'.$a[0].'|';
+        }
+        $sortline .= 'sort ASC';
+    }
+    d()->sortline = $sortline;
+    d()->categories_list = d()->Category->where('city_id=?', d()->city->id);
+    get_products_options();
+    d()->products_list = d()->Product->where('city_id=?', d()->city->id)->order_by($sortline);
+
+    print d()->ajax_admin_products_groups_tpl();
+}
+
+function ajax_get_sales_products_admin(){
+    d()->city = d()->City($_POST['city_id']);
+    //get_city();
+    $sortline = 'sort ASC';
+    if($_POST['products']){
+        $p = explode(',', $_POST['products']);
+        d()->products = Array();
+        $sortline = '';
+        d()->picked_id = '';
+        foreach($p as $k=>$v){
+            $a = explode('|', $v);
+            d()->products[$a[0]] = $a;
+            $id = explode('_', $a[0]);
+            $sortline .= 'id='.$id[0].' DESC, ';
+            d()->picked_id .= '|'.$a[0].'|';
+        }
+        $sortline .= 'sort ASC';
+    }
+    d()->sortline = $sortline;
+    d()->categories_list = d()->Category->where('city_id=?', d()->city->id);
+    get_products_options();
+    d()->products_list = d()->Product->where('city_id=?', d()->city->id)->order_by($sortline);
+
+    print d()->ajax_admin_products_fs_tpl();
+}
+
+function ajax_get_dopedit_products_admin(){
+    $cities = d()->City;
+    d()->cities = Array();
+    foreach($cities as $k=>$v){
+        d()->cities[$cities->id] = $cities->title;
+    }
+
+    d()->products_list = d()->Product->where('id != ?', $_POST['noid'])->order_by('title ASC');
+    print d()->ajax_admin_dopedit_products_tpl();
+}
+
+function ajax_get_autoadd_products_admin(){
+    d()->city = d()->City($_POST['city_id']);
+    $sortline = 'sort ASC';
+    if($_POST['products']){
+        $p = explode(',', $_POST['products']);
+        d()->products = Array();
+        $sortline = '';
+        d()->picked_id = '';
+        d()->cnt_array = Array();
+        foreach($p as $k=>$v){
+            $a = explode('|', $v);
+            d()->products[$a[0]] = $a;
+            d()->cnt_array[$a[0]] = $a[1];
+            $id = explode('_', $a[0]);
+            $sortline .= 'id='.$id[0].' DESC, ';
+            d()->picked_id .= '|'.$a[0].'|';
+        }
+        $sortline .= 'sort ASC';
+    }
+    d()->sortline = $sortline;
+    d()->categories_list = d()->Category->where('city_id=?', d()->city->id);
+    get_products_options();
+    d()->products_list = d()->Product->where('city_id=?', d()->city->id)->order_by($sortline);
+
+    print d()->ajax_admin_autoadd_products_tpl();
+    //print d()->ajax_admin_products_fs_tpl();
+}
+
+function ajax_get_other_items_admin(){
+    d()->city = d()->City($_POST['city_id']);
+    //get_city();
+    $sortline = 'sort ASC';
+    if($_POST['products']){
+        $p = explode(',', $_POST['products']);
+        d()->products = Array();
+        $sortline = '';
+        d()->picked_id = '';
+        foreach($p as $k=>$v){
+            $a = explode('|', $v);
+            d()->products[$a[0]] = $a;
+            $id = explode('_', $a[0]);
+            $sortline .= 'id='.$id[0].' DESC, ';
+            d()->picked_id .= '|'.$a[0].'|';
+        }
+        $sortline .= 'sort ASC';
+    }
+    d()->categories_list = d()->Category->where('city_id=?', d()->city->id);
+    get_products_options();
+    d()->products_list = d()->Product->where('city_id=?', d()->city->id)->order_by($sortline);
+
+    //print d()->ajax_admin_products_fs_tpl();
+    print d()->ajax_admin_items_tpl();
+}
+
+function ajax_get_promo_required_products_admin(){
+    if($_POST['city_id']){
+        d()->city = d()->City($_POST['city_id']);
+    }else{
+        get_city();
+    }
+
+    $sortline = 'sort ASC';
+    if($_POST['products']){
+        $p = explode(',', $_POST['products']);
+        d()->products = Array();
+        $sortline = '';
+        d()->picked_id = '';
+        foreach($p as $k=>$v){
+            $a = str_replace('|', '', $v);
+            $id = explode('_', $a);
+            d()->products[$a][0] = $a;
+            $sortline .= 'id='.$id[0].' DESC, ';
+            d()->picked_id .= '|'.$id[0].'|';
+        }
+        $sortline .= 'sort ASC';
+    }
+
+    d()->sortline = $sortline;
+    d()->categories_list = d()->Category->where('city_id=? AND is_active=1', d()->city->id);
+    get_products_options();
+    d()->products_list = d()->Product->where('city_id=? AND is_active=1', d()->city->id)->order_by($sortline);
+
+    print d()->ajax_admin_required_products_tpl();
+}
+
+function ajax_get_gift_products_admin(){
+    
+
+    if($_POST['city_id']){
+        d()->city = d()->City($_POST['city_id']);
+    }else{
+        get_city();
+    }
+
+
+
+    $sortline = 'sort ASC';
+    if($_POST['products']){
+        $p = explode(',', $_POST['products']);
+        d()->products = Array();
+        $sortline = '';
+        d()->picked_id = '';
+        foreach($p as $k=>$v){
+            $a = str_replace('|', '', $v);
+            $id = explode('_', $a);
+            d()->products[$a][0] = $a;
+            $sortline .= 'id='.$id[0].' DESC, ';
+            d()->picked_id .= '|'.$id[0].'|';
+        }
+        $sortline .= 'sort ASC';
+        //$_SESSION['debug']['check'] = 1;
+    }
+
+
+    d()->sortline = $sortline;
+    d()->categories_list = d()->Category->where('city_id=?', d()->city->id);
+    get_products_options();
+    d()->products_list = d()->Product->where('city_id=?', d()->city->id)->order_by($sortline);
+
+    print d()->ajax_admin_gift_products_tpl();
+}
+
+function ajax_check_order(){
+    if($_POST['info']){
+        get_city();
+        get_cart();
+        $u = d()->Auth->user();
+
+        $r = Array();
+        $info = json_decode($_POST['info'], true);
+        $info['zone'] = $_SESSION['zone'];
+        $info['points'] = $_SESSION['points'];
+        // проверяем способ доставки
+        if($info['delivery_type']==1){
+            // samovivoz
+
+        }else{
+            // dostavka
+            if($_SESSION['zone']['address_id']){
+                // esli adres vibran iz spiska
+                $adr = d()->Address($_SESSION['zone']['address_id'])->limit(0,1);
+                $info['zone']['address'] = $adr->street;
+                $info['floor'] = $adr->floor;
+                $info['entrance'] = $adr->entrance;
+                $info['room_number'] = $adr->apartment;
+                $info['is_private'] = $adr->is_private;
+            }
+
+            // proverka na min summu zoni
+            if($info['zone']['min_order'] > d()->cart_discount_price){
+                $r['result'] = 'error';
+                $r['error_text'] = 'Минимальная сумма заказа, для Вашего адреса (без учета стоимости доставки): '.$info['zone']['min_order'].' руб.';
+                return json_encode($r);
+                exit;
+            }
+            // proverka, esli ne vibrano vremya progotovleniya
+            if(!$info['cook_time']){
+                $r['result'] = 'error';
+                $r['t'] = 'ztime';
+                $r['error_text'] = 'Необходимо указать дату и время приготовления';
+                return json_encode($r);
+                exit;
+            }
+            // если не заполнены КВ, ПОД, ЭТ
+            if(!$info['is_private']){
+                if(!$info['room_number'] || !$info['floor'] || !$info['entrance']){
+                    $r['result'] = 'error';
+                    $r['t'] = 'room';
+                    $r['error_text'] = 'Необходимо указать квартиру, подъезд и этаж';
+                    return json_encode($r);
+                    exit;
+                }
+            }
+        }
+
+        // proverka oplati ballami
+        if($info['points']){
+            // сумма с учетом скидки по промокоду
+            $promo_cart_sum = d()->cart_total_price - d()->discount_promocode;
+            if($promo_cart_sum/2 < $info['points']){
+                $r['result'] = 'error';
+                $r['error_text'] = 'максимум 50% от суммы заказа';
+                return json_encode($r);
+                exit();
+            }
+            if($u->points < $info['points']){
+                $r['result'] = 'error';
+                $r['error_text'] = 'Недостаточно баллов';
+                return json_encode($r);
+                exit();
+            }
+        }
+
+        // ошибка Не заполнено имя
+        if(!$info['name']){
+            $r['result'] = 'error';
+            $r['t'] = 'fio';
+            $r['error_text'] = 'Необходимо указать, как к Вам обращаться';
+            return json_encode($r);
+            exit();
+        }
+
+        // ошибка Не заполнено количество персон
+        if(!$info['persons']){
+            $r['result'] = 'error';
+            $r['t'] = 'person';
+            $r['error_text'] = 'необходимо указать Количество персон';
+            return json_encode($r);
+            exit();
+        }
+
+        // ошибка Не заполнен телефон
+        if(!$info['phone']){
+            $r['result'] = 'error';
+            $r['t'] = 'phone';
+            $r['error_text'] = 'Необходимо указать контактный телефон';
+            return json_encode($r);
+            exit();
+        }
+
+        if($_SESSION['promocode']['id']) {
+            $promo = d()->Promocode($_SESSION['promocode']['id'])->limit(0, 1);
+        }
+
+        // проверка на временные рамки промокода (если есть)
+        if($_SESSION['promocode']['id']){
+            // проверка на временные рамки
+            if($info['cook_time']!='now'){
+                $check = check_promotime($promo->start_time, $promo->end_time, "15", $info['cook_time']);
+            }else{
+                $check = check_promotime($promo->start_time, $promo->end_time, "15");
+            }
+            if(!$check){
+                $r['result'] = 'error';
+                if($promo->start_time && !$promo->end_time){
+                    $r['error_text'] = 'Промокод доступен только с '.$promo->start_time.':00';
+                }elseif(!$promo->start_time && $promo->end_time){
+                    $r['error_text'] = 'Промокод доступен только до '.$promo->end_time.':00';
+                }else{
+                    $r['error_text'] = 'Промокод доступен только с '.$promo->start_time.':00 до '.$promo->end_time.':00';
+                }
+                return json_encode($r);
+            }
+        }
+
+        // проверка на дни недели промокода (если есть)
+        if($_SESSION['promocode']['id'] && $promo->week_days){
+            if($info['cook_time']!='now'){
+                // если предзаказ на другое время
+                $n = date('N', strtotime($info['cook_time']));
+                if(strpos($promo->exceptions_dates, $n) !== false){
+                    $r['error_text'] = 'Промокод <strong>'.d()->promo->name.'</strong> не доступен на указанную дату и время';
+                    return json_encode($r);
+                }
+            }else{
+                $n = date('N', date('U')+d()->city->timezone*3600);
+                if(strpos($promo->week_days, $n) === false){
+                    $r['error_text'] = 'Cегодня промокод <strong>'.d()->promo->name.'</strong> не доступен';
+                    return json_encode($r);
+                }
+            }
+        }
+
+        // проверка на даты исключения
+        if($_SESSION['promocode']['id'] && $promo->exceptions_dates){
+            // если предзаказ на другое время
+            if($info['cook_time']!='now'){
+                $n = date('d.m', strtotime($info['cook_time']));
+                if(strpos($promo->exceptions_dates, $n) !== false){
+                    $r['error_text'] = 'Промокод <strong>'.d()->promo->name.'</strong> не доступен на указанную дату и время';
+                    return json_encode($r);
+                }
+            }else{
+                $n = date('d.m', date('U')+d()->city->timezone*3600);
+                if(strpos($promo->exceptions_dates, $n) !== false){
+                    $r['error_text'] = 'Cегодня промокод <strong>'.d()->promo->name.'</strong> не доступен';
+                    return json_encode($r);
+                }
+            }
+        }
+
+        // промокод не сочетается с баллами
+        if($_SESSION['promocode']['id'] && $promo->is_not_points && $_SESSION['points']) {
+            $r['error_text'] = 'Промокод не сочетается с бонусными баллами';
+            return json_encode($r);
+        }
+
+        // промокод не сочетается с подаками на ДР
+        if($_SESSION['promocode']['id'] && $promo->is_not_dr || $_SESSION['promocode']['id'] &&  $promo->is_not_delivery) {
+            foreach($_SESSION['cart'] as $vl){
+                if($vl['property']=='gift_dr' && $promo->is_not_dr){
+                    $r['error_text'] = 'Промокод не сочетается с подарками на День Рождения';
+                    return json_encode($r);
+                    break;
+                }
+                if($vl['property']=='gift_pickup' && $promo->is_not_delivery){
+                    $r['error_text'] = 'Промокод не сочетается с подарками за Самовывоз';
+                    return json_encode($r);
+                    break;
+                }
+            }
+        }
+
+        // 2 промокода в корзине
+        $two_promo = 0;
+        $prm = 0;
+        foreach($_SESSION['cart'] as $k=>$v){
+            if($v['property']=='promo'){
+                if($prm && $prm != $v['promocode']){
+                    $two_promo = 1;
+                    break;
+                }else{
+                    $prm = $v['promocode'];
+                }
+            }
+        }
+        if($two_promo) {
+            $r['error_text'] = 'В заказе может быть использован только один промокод';
+            return json_encode($r);
+        }
+
+        // проверка, нужно ли подтверждать заказ
+        $ph = d()->convert_phone($info['phone']);
+        $c = d()->city->confirmation;
+        //if($c && !$_SESSION['order_conf'][$ph]['result'] && d()->Auth->is_guest() && d()->order_price < 2000){
+        if($c && !$_SESSION['order_conf'][$ph]['result'] && d()->Auth->is_guest()){
+            // проверям последнее время отправки кода и лимиты
+            $txt = '';
+            if(d()->city->send_code_time){
+                if($_SESSION['order_conf']['time']){
+                    $check_time = date('U') - $_SESSION['order_conf']['time'];
+                    if($check_time < d()->city->send_code_time){
+                        $ct = d()->city->send_code_time - $check_time;
+                        $sec  = declOfNum ($ct, array('секунду', 'секунды', 'секунд'));
+                        $txt = 'СМС с кодом подтверждения можно отправить через '.$ct.' '.$sec.'.';
+                        if(d()->city->send_code_type != 1)$txt = 'Авто-звонок с кодом подтверждения можно отправить через '.$ct.' '.$sec.'.';
+                    }
+                }
+            }
+
+            // отправляем звонок/смс
+            if(!$txt){
+                $code = d()->send_code($ph);
+                $_SESSION['order_conf'][$ph]['code'] = $code;
+                $_SESSION['order_conf']['time'] = date('U');
+            }
+
+            $r['result'] = 'confirmation';
+            $r['text'] = $txt;
+            return json_encode($r);
+        }
+
+        $utm = $_COOKIE['utm'];
+        if(!$utm){
+            $utm = $u->utm;
+        }
+
+        // определяем, повторный заказ
+        $repeat_order = 0;
+        $rsecs = 1800;
+        $repeat_time = date('Y-m-d H:i:s', date('U')+d()->city->timezone*3600-$rsecs);
+        $_SESSION['dbg'] = $repeat_time;
+        $ph = d()->convert_phone($info['phone']);
+        if($info['delivery_type']==1){
+            $repeat_check = d()->Order->where('phone = ? AND created_at >= ?', $ph, $repeat_time)->limit(0,1);
+        }else{
+            if(!$info['is_private']) {
+                $repeat_check = d()->Order->where('phone = ? AND created_at >= ? OR street = ? AND room_number = ? AND created_at >= ?', $ph, $repeat_time, $info['zone']['address'], $info['room_number'], $repeat_time)->limit(0,1);
+            }else{
+                $repeat_check = d()->Order->where('phone = ? AND created_at >= ? OR street = ? AND is_private = ? AND created_at >= ?', $ph, $repeat_time, $info['zone']['address'], $info['is_private'], $repeat_time)->limit(0,1);
+            }
+        }
+        if(!$repeat_check->is_empty){
+            $repeat_order = 1;
+        }
+
+        // определяем статус заказа
+        $status = 0; // новый
+        $ac = 0; // подтверждение оператором
+        //if(d()->city->confirmation && d()->order_price < 2000){
+        if(d()->city->confirmation){
+            //$status = 9; // принят
+            $ac = 1; // авто подтверждение
+        }
+
+        // sozdaem zakaz v baze
+        $o = d()->Order->new;
+        $o->city_id = d()->city->id;
+        $o->user_id = $u->id;
+        $o->created_at = date('Y-m-d H:i:s', date('U')+d()->city->timezone*3600);
+        $o->updated_at = date('Y-m-d H:i:s', date('U')+d()->city->timezone*3600);
+        $o->phone = d()->convert_phone($info['phone']);
+        $o->name = $info['name'];
+        $o->cart = json_encode($_SESSION['cart']);
+        $o->delivery = $info['delivery_type'];
+        if($info['delivery_type']==1){
+            $o->office_id = $info['office_id'];
+        }else{
+            if(!$info['is_private']){
+                $o->room_number = $info['room_number'];
+                $o->floor = $info['floor'];
+                $o->entrance = $info['entrance'];
+            }else{
+                $o->is_private = $info['is_private'];
+            }
+
+            $o->street = $info['zone']['address'];
+
+            $o->delivery_price = d()->delivery_price;
+            $o->delivery_zone = $info['zone']['f_title'];
+        }
+        $o->points = $info['points'];
+        $o->discount_promocode = d()->discount_promocode;
+        $o->finish_price = d()->order_price;
+        $o->pay = $info['pay_type'];
+        $o->banknote = $info['banknote'];
+        $o->comment = $info['comment'];
+        if($info['persons']){
+            $o->persons = $info['persons'];
+        }
+        if($info['cook_time']!='now'){
+            $o->cook_time = date('Y-m-d H:i:s', strtotime($info['cook_time']));
+        }else{
+            $o->cook_time = $info['cook_time'];
+        }
+        if($_SESSION['promocode']['id']){
+            $o->promocode_id = $_SESSION['promocode']['id'];
+        }
+        $o->utm = $utm;
+        $o->status = $status;
+        $o->repeat_order = $repeat_order;
+        $order = $o->save_and_load();
+
+        // если был промокод, ставим +1 к использован
+        if($_SESSION['promocode']['id']){
+            $promo = d()->Promocode($_SESSION['promocode']['id'])->limit(0,1);
+            $promo->used = $promo->used + 1;
+            $promo->save();
+            // если он одноразовый общий записываем в куки
+            if($_SESSION['promocode']['is_wide_single']){
+                setcookie("wide_single_promo", '|'.$_SESSION['promocode']['id'].'|', time()+3600*24*30*12, '/');
+            }
+        }
+
+        // сохраняем адрес, если нужно
+        if($info['address_title'] && $_SESSION['zone']['address']){
+            $adr = d()->Address->new;
+            $adr->created_at = date('Y-m-d H:i:s', date('U')+d()->city->timezone*3600);
+            $adr->updated_at = date('Y-m-d H:i:s', date('U')+d()->city->timezone*3600);
+            $adr->title = $info['address_title'];
+            $adr->street = $_SESS

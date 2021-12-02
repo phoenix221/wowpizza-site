@@ -1,0 +1,32 @@
+@if(url(1)=='ajax'):
+{{product_list_tpl}}
+@else:
+<div class="main-slider-wrap">
+    <div class="main-slider">
+        <foreach slides_list>
+        <a href="{.url}"><img src="{.image|preview 'auto', 'auto'}" alt="{.title}" title="{.number}"></a>
+        </foreach>
+    </div>
+</div>
+<div class="container index-content">
+    <div class="h-line">
+        <h3 class="hl-relative">
+            <span>Популярное</span>
+            <img src="/images/hl-m3-xs.png" class="hl-m3-xs wow fadeInDown animated" data-wow-duration=".8s" data-wow-delay="1.5s" alt="" />
+        </h3>
+        {{delivery_btn_tpl}}
+    </div>
+    <div id="products-wrap" data-url="{url}">
+        {{product_list_tpl}}
+    </div>
+    <h1 class="index-h1 index-top">{.title} {{edit}}</h1>
+    <ul class="menu-icons menu-icons-top">
+        <foreach categories_list>
+            <li><a href="/menu/{.url}/"><img src="/images/icon-template.png" class="lazyload" data-original="{.image}" alt=""><span>{.title}</span></a></li>
+        </foreach>
+    </ul>
+    <div class="text mt-20">
+    {.text}
+    </div>
+</div>
+@endif;

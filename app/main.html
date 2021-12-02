@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    {{stylesheets '/vendors/bootstrap/css/bootstrap.min.css', '/vendors/tinyslider/tiny-slider.css', 'minify'=>true, 'to'=>'/images/system1.css'}}
+    {{stylesheets '/images/style.less', '/images/datastyle.css', 'minify'=>true, 'to'=>'/images/finish.css'}}
+    <title>{Seo.title}</title>
+    <meta name="description" content='{Seo.description}'/>
+    <meta name="keywords" content='{Seo.keywords}'/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="yandex-verification" content="a61c38769b0f3bfb" />
+
+    <meta name="smartbanner:title" content="Приложение Аппетит">
+    <meta name="smartbanner:author" content="Доставка роллов и пиццы">
+    <meta name="smartbanner:price" content="бесплатно">
+    <meta name="smartbanner:price-suffix-google" content=" в Google Play">
+    <meta name="smartbanner:price-suffix-apple" content=" в App Store">
+    <meta name="smartbanner:button" content="Загрузить">
+    <meta name="smartbanner:icon-apple" content="/images/appicon.svg">
+    <meta name="smartbanner:icon-google" content="/images/appicon.svg">
+    <meta name="smartbanner:button-url-apple" content="https://apps.apple.com/ru/app/аппетит-доставка-роллов-пиццы/id1558072639">
+    <meta name="smartbanner:button-url-google" content="https://play.google.com/store/apps/details?id=appetit.app">
+    <meta name="smartbanner:enabled-platforms" content="android,ios">
+
+
+    <link rel="icon" href="/favicon.ico?4">
+
+    {city.ga_analytics}
+    {city.gtm_head}
+</head>
+<!--<body class="ny-hidden" onunload="finalize();" data-code="{city.code}" data-city="{city.title}" data-region="{city.dadata_region}" data-dadata="{city.dadata_token}" data-promo-min-sum="{promo_min_sum}" data-promo-delivery="{promo_delivery}" data-promo-type="{promo.type}" data-sc-type="{city.send_code_type}">-->
+<body onunload="finalize();" data-code="{city.code}" data-city="{city.title}" data-region="{city.dadata_region}" data-dadata="{city.dadata_token}" data-promo-min-sum="{promo_min_sum}" data-promo-delivery="{promo_delivery}" data-promo-type="{promo.type}" data-sc-type="{city.send_code_type}">
+<div class="body-div">
+    {city.gtm_body}
+    {{admin_panel}}
+    <header>
+        @if($_COOKIE['cookies_banner'] != 1):
+        <div class="cookies-banner">
+            <span>
+                Мы используем cookies для быстрой и удобной работы сайта.
+                Продолжая пользоваться сайтом, вы принимаете
+                <a href="#" onclick="modal_page('personal');">условия обработки персональных данных.</a>
+            </span>
+            <img src="/images/close-modal.png" class="cookies-banner-close" onclick="close_cookies_banner(this);" alt="" loading="lazy">
+        </div>
+        @endif;
+        <div class="container">
+            <div class="row city-line">
+                <div class="col-lg-2 col-md-2">
+                    <div class="city-choose {onecity}">
+                        <ul>
+                            <li class="active">{city.title}</li>
+                            <foreach city_list>
+                            @if(d()->this->code == 'ufa'):
+                            <li><a class="italic" href="//radugavkusaufa.ru">{.title}</a></li>
+                            @else:
+                            @if(d()->this->code != 'okt'):
+                            <li><a class="italic" href="//{.code}.{maindomain}">{.title}</a></li>
+                            @endif;
+                            @endif;
+                            </foreach>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-10 col-md-10 text-right tr-menu-wrap">
+                    <ul class="tr-menu">
+                        <li><a href="/security/">Ваша Безопасность</a></li>
+                        <li><a href="/news/">Новости</a></li>
+                        <li><a href="/vakansii/">Вакансии</a></li>
+                        <li><a href="{city.partners_link}" target="_blank">Реклама и партнерство</a></li>
+                        <li><a href="/about/">О нас</a></li>
+                        <li><a href="/contacts/">Контакты</a></li>
+                        @if($_COOKIE['likes']):
+                        <li><a href="/favorites/" title="Избранное" class="favorites-active"><i class="mdi mdi-heart"></i></a></li>
+                        @else:
+                        <li><a href="/favorites/" title="Избранное" class="favorites"><i class="mdi mdi-heart"></i></a></li>
+                        @endif;
+                    </ul>
+                    <form method="GET" action="/search/" class="">
+                        <input type="search" name="query" class="find-show" maxlength="64" required="" style="display: none;">
+                        <button type="button" class="head-find-but1 find-open" onclick="findopen(this);" style="display: block;"><i class="mdi mdi-magnify"></i></button>
+                        <button type="submit" class="head-find-but2 find-show" style="display: none;"><i class="mdi mdi-magnify"></i></button>
+                    </form>
+                </div>
+            </div>
+            <div class="head-mobile">
+                <!--<i class="mdi mdi-menu zi-5 ssm-toggle-nav ny-xs-show-3"></i>
+                <div class="hm-logo-mobile ny-xs-show-2">-->
+                <i class="mdi mdi-menu zi-5 ssm-toggle-nav"></i>
+                <div class="hm-logo-mobile">
+                    <!--<img src="/images/hl-cat-xs.png" alt="" class="hl-cat wow zoomIn animated {hlhide}" data-wow-duration="1.2s" data-wow-delay="1.7s" />-->
+                    <div class="hm-logo-bg-mobile-l"></div>
+                    <a href="/"><img src="{city.logo}" alt='Логотип "Аппетит"'/></a>
+                    <!--<a href="/"><img src="/images/ny-logo.png" alt='Логотип "Аппетит"'/></a>-->
+                    <div class="hm-logo-bg-mobile-r"></div>
+                    <!--<img src="/images/snowflakes-m.png" alt="" class="ny-snowflakes-m" />-->
+                </div>
+                @if(d()->Auth->is_guest()):
+                <!--<a href="#auth-modal" data-toggle="modal" class="auth-link-xs"><i class="mdi mdi-account ny-xs-show-1" class="zi-5"></i></a>-->
+                <a href="#auth-modal" data-toggle="modal" class="auth-link-xs"><i class="mdi mdi-account" class="zi-5"></i></a>
+                @else:
+                <!--<a href="/cabinet" class="auth-link-xs"><i class="mdi mdi-account ny-xs-show-1" class="zi-5"></i></a>-->
+                <a href="/cabinet" class="auth-link-xs"><i class="mdi mdi-account" class="zi-5"></i></a>
+                @endif;
+                <!--<img src="/images/hl-m1-xs.png" alt="" class="hl-m1-xs wow fadeInDown animated {hlhide}" data-wow-duration=".8s" data-wow-delay="1s" />-->
+            </div>
+        </div>
+        @if(url()=='index' || d()->show_slider == 1):
+        <div class="mobile-slider-wrap">
+            <div class="mobile-slider">
+                <foreach slides_list>
+                    <a href="{.url}"><img src="{.image}" alt="{.title}" title="{.number}" loading="lazy"></a>
+                </foreach>
+            </div>
+            <!--<img src="/images/hl-m2-xs.png" class="hl-m2-xs wow fadeInDown animated" data-wow-duration=".8s" data-wow-delay="1.3s" alt="" />-->
+        </div>
+        @endif;
+        <!--<div class="head-main ny-relative">-->
+        <div class="head-main">
+            <div class="container">
+                <div class="hm-flex">
+                    <div class="hm-logo">
+                        <!--<img src="/images/hl-cat.png" alt="" class="hl-cat wow zoomIn animated" data-wow-duration="1.2s" data-wow-delay="1.7s" />-->
+                        <a href="/"><img src="{city.logo}" alt='Логотип "Аппетит"'/></a>
+                        <!--<a href="/"><img src="/images/ny-logo.png" alt='Логотип "Аппетит"' class="ny-show-6"/></a>-->
+                        <div class="hm-logo-bg"></div>
+                    </div>
+                    <!--<div class="hm-info hl-relative ny-relative">-->
+                    <div class="hm-info hl-relative">
+                        <!--<img src="/images/hl-m1.png" alt="" class="hl-m1 wow fadeInDown animated" data-wow-duration=".8s" data-wow-delay="1s" />
+                        <img src="/images/hl-m2.png" alt="" class="hl-m2 wow fadeInDown animated" data-wow-duration=".8s" data-wow-delay="1.3s" />-->
+
+                        <!--<a href="/sales/" class="hm-discount ny-show-5"><span>Акции</span></a>-->
+                        <a href="/sales/" class="hm-discount"><span>Акции</span></a>
+                        <!--<a href="/delivery/" class="hm-delivery ny-show-4"><span>Доставка и оплата</span></a>-->
+                        <a href="/delivery/" class="hm-delivery"><span>Доставка и оплата</span></a>
+                        <!--<a href="/otzyvy/" class="hm-reviews ny-show-3"><span>Отзывы</span></a>-->
+                        <a href="/otzyvy/" class="hm-reviews"><span>Отзывы</span></a>
+                        <!--<span class="hm-phone ny-show-2"><a href="tel:{city.phone}" onclick="ym({city.yandex_counter},'reachGoal','call-pk');" class="phone">{city.phone}</a><small>{week_day} с {worktime}</small></span>-->
+                        <span class="hm-phone"><a href="tel:{city.phone}" onclick="ym({city.yandex_counter},'reachGoal','call-pk');checkGetClient();" class="phone">{city.phone}</a><small>{week_day} с {worktime}</small></span>
+
+                        @if(d()->Auth->is_guest()):
+                        <!--<a href="#auth-modal" title="Личный кабинет" data-toggle="modal" class="auth-lnk ny-show-1"><i class="mdi mdi-account"></i></a>-->
+                        <a href="#auth-modal" title="Личный кабинет" data-toggle="modal" class="auth-lnk"><i class="mdi mdi-account"></i></a>
+                        @else:
+                        <!--<a href="/cabinet" title="Личный кабинет" class="auth-lnk ny-show-1"><i class="mdi mdi-account"></i></a>-->
+                        <a href="/cabinet" title="Личный кабинет" class="auth-lnk"><i class="mdi mdi-account"></i></a>
+                        @endif;
+
+                    </div>
+                    <!--<img src="/images/snowflakes.png?2" alt="" class="ny-snowflakes" />-->
+                </div>
+            </div>
+        </div>
+        @if(!d()->hide_menu):
+        <div class="white-bg {shadow_menu}" id="sticky">
+            <div class="container">
+                <nav class="menu-cart-flex">
+                    <a class="menu-sales {actsales}" href="/sales/">Акции</a>
+                    <ul class="menu">
+                    <foreach categories_list>
+                        <li class="{.active}"><a href="/menu/{.url}/">{.title}</a></li>
+                    </foreach>
+                    </ul>
+                    <div class="cart {show_cart_btn}">
+                        <div class="add-cart-message" id="add-cart-message">Блюдо добавлено в корзину</div>
+                        <a class="cart-btn" href="/checkout">
+                            <span class="s-cart-cnt" id="cart-total-count" data-count="{cart_count}" data-value="{header_cart_total_price}">{header_cart_total_price}</span><i class="rub">q</i>
+                            <span class="s-cart-btn"><img src="/images/cart-icon.png" alt="Корзина"/></span>
+                        </a>
+                        <div class="cart-wrap">
+                            <div class="cart-info">
+                                <div class="cart-overflow">
+                                    <div class="cart-products" id="cart-products">
+                                        {{cart_list_tpl}}
+                                    </div>
+                                    <img src="/images/white-trans.png" alt="" class="white-trans"/>
+                                </div>
+                                <div class="cart-total-line">
+                                    <span>Итого: <span id="cart-total-price" data-price="{cart_total_price}" data-discount-price="{cart_discount_price}" data-promo-discount="{header_discount_promocode}">{header_cart_total_price}</span><i class="rub">q</i></span>
+                                    <div>
+                                        @if(d()->cart_list):
+                                        <a href="/checkout" class="btn btn-red btn-sm text-uppercase">Заказать <i class="mdi mdi-arrow-right"></i></a>
+                                        @else:
+                                        <a href="/checkout" class="btn btn-red btn-sm text-uppercase" disabled >Заказать <i class="mdi mdi-arrow-right"></i></a>
+                                        @endif;
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </div>
+        @endif;
+    </header>
+    {{{content}}}
+    <footer>
+        <div class="container">
+            <div class="f-wrap">
+                <div class="f-logo-wrap">
+                    <a href="/"><img src="{city.logo}" alt='Логотип "Аппетит"' class="f-logo"></a>
+                    <p class="f-info" itemscope itemtype="http://schema.org/Organization">
+                        <span class="none" itemprop="name">Доставка еды {city.name}</span>
+                        <a href="tel:{city.phone}" onclick="ym({city.yandex_counter},'reachGoal','call-mobile');checkGetClient();"><span itemprop="telephone">{city.phone}</span></a><br>
+                        <small>{week_day} с {worktime}</small><br>
+                        <span itemprop="address">{city.address}</span>
+                        <span class="furname">{city.ur_name}</span>
+                    </p>
+                    <div class="mobile-app">
+                        <a href="https://play.google.com/store/apps/details?id=appetit.app" target="_blank" rel="nofollow" title="Get it on Google Play"><img src="/images/google-play.png" alt="google play"></a>
+                        <a href="https://apps.apple.com/ru/app/аппетит-доставка-роллов-пиццы/id1558072639" target="_blank" rel="nofollow" title="Download on the App Store"><img src="/images/app-store-apple-logo.png" alt="app store"> </a>
+                    </div>
+                </div>
+                <div class="f-social">
+                    @if(d()->city->vk):
+                    <a href="{city.vk}" target="_blank" rel="nofollow"><i class="mdi mdi-vk"></i></a>
+                    @endif;
+                    @if(d()->city->instagram):
+                    <a href="{city.instagram}" target="_blank" rel="nofollow"><i class="mdi mdi-instagram"></i></a>
+                    @endif;
+                    <br>
+                    @if(d()->city->youtube):
+                    <a href="{city.youtube}" target="_blank" rel="nofollow"><i class="mdi mdi-youtube"></i></a>
+                    @endif;
+                    @if(d()->city->tiktok):
+                    <a href="{city.tiktok}" target="_blank" class="tiktok-img" rel="nofollow"></a>
+                    @endif;
+                </div>
+                <!--noindex-->
+                <div class="f-block1">
+                    <span class="foot-h3">Клиентам</span>
+                    <ul>
+                        <li><a href="/sales/">Акции</a></li>
+                        <li><a href="/delivery/" rel="nofollow">Доставка и оплата</a></li>
+                        <li><a href="/contacts/" rel="nofollow">Контакты</a></li>
+                        <li><a href="/security/" rel="nofollow">Онлайн трансляция с кухни</a></li>
+                        <li><a href="/security/" rel="nofollow">Результаты лаб. анализов</a></li>
+                        <li><a href="/delivery-terms/" rel="nofollow">Узнайте условия доставки</a></li>
+                        <li><a href="/orders_status/" rel="nofollow">Проверить статус заказа</a></li>
+                    </ul>
+                </div>
+                <div class="f-block2">
+                    <span class="foot-h3">Поддержка</span>
+                    <ul>
+                        <li><a href="/otzyvy/" rel="nofollow">Оставить отзыв</a></li>
+                        <li><a href="/otzyvy/?show=guid" rel="nofollow">Написать руководству</a></li>
+                    </ul>
+                </div>
+                <div class="f-block3">
+                    <span class="foot-h3">Компания</span>
+                    <ul>
+                        <li><a href="/vakansii/" rel="nofollow">Вакансии</a></li>
+                        <li><a href="/about/" rel="nofollow">О нас</a></li>
+                        <li><a href="{city.partners_link}" target="_blank" rel="nofollow">Реклама и партнерство</a></li>
+                        <li><a href="/news/sotrudnichestvo-s-blogerami/" rel="nofollow">Сотрудничество с блогерами</a></li>
+                        <li><a href="/partnerstvo-pod-brendom-appetit/" rel="nofollow">Работай под брендом «Аппетит»</a></li>
+    <!--                    <li><a href="/franchise/" rel="nofollow">Инвестируй в кафе доставки</a></li>-->
+                        <li><a href="/news/" rel="nofollow">Новости</a></li>
+    <!--                    <li><a href="/faq/" rel="nofollow">Вопросы и ответы</a></li>-->
+                        <li><a href="/requisites/" rel="nofollow">Реквизиты</a></li>
+                        <li><a href="/personal/" rel="nofollow">Политика конфиденциальности</a></li>
+                        <li><a href="/publichnaya-oferta/" rel="nofollow">Публичная оферта</a></li>
+                    </ul>
+                </div>
+                <!--/noindex-->
+            </div>
+        </div>
+    </footer>
+    <div class="nav-mobile">
+        <div class="nm-wrap">
+        <span class="mdi mdi-arrow-left-thick nav-mobile-close ssm-toggle-nav"></span>
+        <span class="nm-city-choose">Выберите город</span>
+        <div class="nm-city">
+            <p onclick="tgl_citylist(this)"><img src="{city.logo2}" alt="Логотип Аппетит" /> <span>{city.title}</span><i class="mdi mdi-menu-down"></i></p>
+        </div>
+        <ul class="nm-citylist">
+        <foreach city_list>
+            @if(d()->this->code == 'ufa'):
+            <li><a href="//radugavkusaufa.ru"><i class="mdi mdi-map-marker-outline"></i> {.title}</a></li>
+            @else:
+            @if(d()->this->code != 'okt'):
+            <li><a href="//{.code}.{maindomain}"><i class="mdi mdi-map-marker-outline"></i> {.title}</a></li>
+            @endif;
+            @endif;
+        </foreach>
+        </ul>
+        <div class="nm-phone">
+            <a href="tel:{city.phone}" onclick="ym({city.yandex_counter},'reachGoal','call-mobile');checkGetClient();"><i class="mdi mdi-cellphone"></i> {city.phone}</a>
+            <small>{week_day} с {worktime}</small>
+        </div>
+        <ul class="nm-categories">
+        <foreach categories_list>
+            <li><a href="/menu/{.url}/">{.title}</a></li>
+        </foreach>
+        </ul>
+        <ul class="nm-menu">
+            <li><a href="/delivery/">Доставка и оплата</a></li>
+            <li><a href="/otzyvy/">Отзывы</a></li>
+            <li><a href="/news/">Новости</a></li>
+            <li><a href="/favorites/">Избранное</a></li>
+            <li><a href="/orders_status/">Проверить статус заказа</a></li>
+            <li><a href="/security/">Ваша Безопасность</a></li>
+            <li><a href="/vakansii/">Вакансии</a></li>
+            <li><a href="/about/">О нас</a></li>
+            <li><a href="{city.partners_link}" target="_blank">Реклама и партнерство</a></li>
+            <li><a href="/contacts/">Контакты</a></li>
+        </ul>
+        <form action="/search/" method="get" class="nm-form">
+            <input type="text" name="query" placeholder="Поиск блюда" required />
+            <button type="submit">Найти</button>
+        </form>
+        </div>
+    </div>
+    <span class="copy-msg" id="copy-msg"></span>
+    <!-- тип акции для самовывоза -->
+    <input type="hidden" id="g-dd_type" value="{city.dd_type}">
+    <!-- мин сумма для подарков за самовывоза -->
+    <input type="hidden" id="g-dd_gifts_ms" value="{city.dd_gifts_ms}">
+    <!-- мин сумма для подарков на др -->
+    <input type="hidden" id="g-gift_dr_minsum" value="{city.gift_dr_minsum}">
+    <!-- сумма скидки за самовывоз -->
+    <input type="hidden" id="g-pickup-discount" value="{cart_pickup_discount}">
+    <!-- процент скидки за самовывоз -->
+    <input type="hidden" id="g-pickup-discount-p" value="{city.discount_delivery}">
+    <!-- баллы -->
+    <input type="hidden" id="g-points" value="{g_points}">
+    <!-- скидка по промокоду -->
+    <input type="hidden" id="g-promo-discount" value="{discount_promocode}">
+    <!-- баллы пользователя -->
+    <input type="hidden" id="g-user-points" value="{user.points}">
+    <!-- тип промокода -->
+    <input type="hidden" id="g-promo-type" value="{promo.type}">
+    <!-- подтип промокода -->
+    <input type="hidden" id="g-promo-discount-type" value="{promo.discount_type}">
+    <!-- детали промокода -->
+    <input type="hidden" id="g-promo-products" value="{promo.products}">
+    <!-- лимит промокода -->
+    <input type="hidden" id="g-promo-products-limit" value="{promo.products_limit}">
+    <!-- группа товаров промокода -->
+    <input type="hidden" id="g-promo-products-group" value="{promo_group}">
+    <!-- процент промокода (скидка в %) -->
+    <input type="hidden" id="g-promo-percent" value="{promo.percent}">
+    <!-- округление скидки в % -->
+    <input type="hidden" id="g-promo-percent-round" value="{promo.round}">
+    <!-- обязательные блюда для промокода -->
+    <input type="hidden" id="g-promo-required-products" value="{promo.required_products}">
+    <!-- дни недели промокода -->
+    <input type="hidden" id="g-promo-week-days" value="{promo.week_days}">
+    <!-- промокод не сочетается с баллами -->
+    <input type="hidden" id="g-promo-is-not-points" value="{promo.is_not_points}">
+    <!-- промокод не сочетается с акцией «Подарки на день рождения» -->
+    <input type="hidden" id="g-promo-is-not-dr" value="{promo.is_not_dr}">
+    <!-- промокод не сочетается с акцией «Скидка/подарки за самовывоз» -->
+    <input type="hidden" id="g-promo-is-not-delivery" value="{promo.is_not_delivery}">
+    <!-- промокод "День Рождение" -->
+    <input type="hidden" id="g-promo-birthday" value="{promo.birthday}">
+    <!-- даты исключения промокод -->
+    <input type="hidden" id="g-promo-exceptions-dates" value="{promo.exceptions_dates}">
+    <!-- выбраны ли подарки за самовывоз (комплексная проверка) -->
+    <input type="hidden" id="picked-deliv-gifts" value="{picked_deliv_gifts}">
+    <!-- есть ли в корзине подарки за самовывоз -->
+    <input type="hidden" id="deliv-gift-incart" value="{gift_pickup_used}">
+    <!-- ЯМ цели -->
+    <input type="hidden" id="yandex_counter" value="{city.yandex_counter}">
+    <!-- Подтверждение заказа звонком -->
+    <input type="hidden" id="confirmation" value="{city.confirmation}">
+    <!-- ограничение на самовывоз -->
+    <input type="hidden" id="wt-pickup" value="{wt_pickup}">
+    <!-- выбор сервиса подсказок адреса -->
+    <input type="hidden" id="check_hints" name="check_hints" value="{city.hints_address}">
+    <!-- настройки yandex подсказок -->
+    <input type="hidden" id="ya_oundedby" name="ya_oundedby" value="{options.y_oundedby}">
+    <input type="hidden" id="ya_replace" name="ya_replace" value="{options.y_replace}">
+    <input type="hidden" id="ya_city" name="ya_city" value="{options.y_city}">
+    <!-- clientID -->
+    <input type="hidden" id="clientID" name="clientID" value>
+    <!-- предзаказы -->
+    <input type="hidden" id="pre_order_today" name="pre_order_today" value="{city.pre_order_today}">
+    <input type="hidden" id="pre_order_tomorrow" name="pre_order_tomorrow" value="{city.pre_order_tomorrow}">
+    <!-- отмена заказов -->
+    <input type="hidden" id="order-phone" name="order-phone" value="{lk_user_phone}">
+    <input type="hidden" id="order-id" name="order-id" value="">
+    <input type="hidden" id="lk-order-id" name="lk-order-id" value="">
+    <input type="hidden" id="order-result" name="order-result" value="{details_result}">
+    <input type="hidden" id="cancel-result" name="cancel-result" value="{cancel_result}">
+    <!-- подарок за оплату наличными -->
+    <input type="hidden" id="is_cash" name="is_cash" value="{city.is_cash}">
+    <input type="hidden" id="min-gift-cash" name="min-gift-cash" value="{city.min_gift_cash}">
+
+    @if(d()->city->is_stop_order && !$_SESSION['admin']):
+    <input type="hidden" id="i-stop-order" value="show">
+    @endif;
+    @if(d()->new_city):
+    <input type="hidden" id="i-new-city-modal" value="show">
+    @endif;
+    @if(d()->info_modal):
+    <input type="hidden" id="i-info-modal" value="show">
+    @endif;
+    @if(d()->wt_modal):
+    <input type="hidden" id="i-wt-modal" value="show">
+    @endif;
+    @if(d()->wt_pickup_modal):
+    <input type="hidden" id="i-wt-pickup-modal" value="show">
+    @endif;
+    @if(d()->okt):
+    <input type="hidden" id="i-okt-modal" value="show">
+    @endif;
+    @if(d()->city->is_info && !$_SESSION['info']):
+    <input type="hidden" id="i-info" value="show">
+    @endif;
+    <input type="hidden" name="rc_client_key" value="{city.rc_client_key}" />
+
+    <a href="/checkout" class="xs-cart-btn {xs_cart_btn}"><i class="mdi mdi-cart-outline"></i><i id="xs-cart-count">{cart_count}</i></a>
+    <a href="#"class="scrollup">Наверх</a>
+
+    {{modal_tpl}}
+
+    <!-- MDI -->
+    <link media="none" onload='if(media!="all") media="all"' rel="stylesheet" type="text/css",  href=/vendors/mdi/css/materialdesignicons.min.css>
+    {{stylesheets '/vendors/suggestions.min.css', '/vendors/zebra/css/bootstrap/zebra_datepicker.css', 'minify'=>true, 'to'=>'/images/footer_system.css'}}
+    <link rel="stylesheet" href="/vendors/smartbanner/smartbanner.min.css">
+    
+    <script type="text/javascript" src="/js/jquery-3.4.1.min.js"></script>
+    <!-- touchSwipe library -->
+    <script src="/vendors/slideandswipe/jquery.touchSwipe.min.js"></script>
+    <script src="/vendors/slideandswipe/jquery.slideandswipe.min.js"></script>
+    <!-- reCaptha -->
+    <script src='//www.google.com/recaptcha/api.js?render={city.rc_client_key}' async></script>
+    <!-- tiny slider -->
+    <!--[if (lt IE 9)]><script src="/vendors/tinyslider/tiny-slider.helper.ie8.js" async></script><![endif]-->
+
+    {{javascripts  '/vendors/bootstrap/js/bootstrap.js', '/vendors/velocity/velocity.min.js', '/vendors/velocity/velocity.ui.min.js', '/vendors/jquery.validate.js', '/vendors/inputmask/jquery.inputmask.min.js', '/vendors/jquery.suggestions.min.js', '/vendors/jquery.animateNumber.min.js', '/vendors/zebra/zebra_datepicker.min.js', '/vendors/tinyslider/tiny-slider.js', '/vendors/flexmenu.js', '/js/jquery.lazyload.min.js', 'minify'=>true, 'to'=>'/js/fnsh.js'}}
+    <script src="/vendors/smartbanner/smartbanner.min.js" async></script>
+    {{javascripts  '/js/main.js', 'minify'=>true, 'to'=>'/js/ma1n.js'}}
+
+    <!--halloween
+    <link rel="stylesheet" href="/vendors/wowanimate.css">
+    <script src="/vendors/wow.min.js"></script>
+    <script>new WOW().init();</script>
+    halloween-->
+
+    @if(d()->show_textback):
+    {city.textback_window}
+    @endif;
+
+    <!--события пикселя-->
+    <script>
+    <? if(d()->show_pixel_vc): ?>
+    if(typeof fbq !== 'undefined') {
+        fbq('track', 'ViewContent');
+    }
+    <? endif; ?>
+    <? if(d()->show_pixel_pur): ?>
+    if(typeof fbq !== 'undefined') {
+        fbq('track', 'Purchase', {value: '<?=d()->this->finish_price?>', currency: 'RUB'});
+    }
+    <? endif; ?>
+    </script>
+    @if(d()->order_check):
+    <script>
+        in_time();
+        if($('#in_time').hasClass('active')){
+            select_time();
+        }
+        if($('#check_hints').val() == 1){
+            // dadata
+            address_sug();
+        }else{
+            // yandex suggest
+            yandex_sug();
+        }
+    </script>
+    @endif;
+    @if(d()->order_index):
+    <script>
+        $('input[name="promocode"]').focus(function() {
+            $('.promo-tooltip').show();
+        });
+        $('input[name="promocode"]').blur(function() {
+            $('.promo-tooltip').hide();
+        });
+    </script>
+    @endif;
+    @if(d()->order_status):
+    <script>
+        $('#find_btn_sts').prop( "disabled", true );
+        $('#cancel_btn_sts').prop( "disabled", true );
+        $('input[name="order_status_id"]').focus(function() {
+            $('#find_btn_sts').prop( "disabled", false );
+        });
+        $('input[name="order_status_id"]').blur(function() {
+            if($(this).val() == ''){
+                $('#find_btn_sts').prop( "disabled", true );
+            }
+        });
+    </script>
+    @endif;
+    <!--new-year-->
+    @if(!$_SESSION['ny_animation']):
+    <!--<img src="/images/ny-cat.png" alt="" class="ny-cat" />-->
+    <!--<script>
+        $(document).ready(function () {
+            setTimeout(function () {
+                $('.ny-cat').addClass('ny-cat-run');
+            }, 500);
+            setTimeout(function () {
+                $('.ny-show-1').css('opacity', '1');
+                $('.ny-xs-show-1').css('opacity', '1');
+            }, 1700);
+            setTimeout(function () {
+                $('.ny-show-2').css('opacity', '1');
+            }, 2150);
+            setTimeout(function () {
+                $('.ny-show-3').css('opacity', '1');
+                $('.ny-xs-show-2').css('opacity', '1');
+            }, 2400);
+            setTimeout(function () {
+                $('.ny-show-4').css('opacity', '1');
+                $('.ny-xs-show-3').css('opacity', '1');
+            }, 2850);
+            setTimeout(function () {
+                $('.ny-show-5').css('opacity', '1');
+            }, 3300);
+            setTimeout(function () {
+                $('.ny-show-6').css('opacity', '1');
+            }, 4500);
+            setTimeout(function () {
+                $('.ny-xs-show').css('opacity', '1');
+            }, 2500);
+        });
+    </script>-->
+    @if($_COOKIE['cookies_banner'] != 1):
+    <!--<style>
+        @media (max-width: 991px) {
+            .ny-cat-run, .ny-cat {
+                top: 110px !important;
+            }
+        }
+    </style>-->
+    @endif;
+    @$_SESSION['ny_animation'] = 1;
+    @else:
+    <!--<style>
+        .ny-show-1, .ny-show-2, .ny-show-3, .ny-show-4, .ny-show-5, .ny-show-6, .ny-xs-show-1, .ny-xs-show-2, .ny-xs-show-3{
+            opacity: 1 !important;
+            transition: .5s !important;
+        }
+    </style>-->
+    @endif;
+    <!--new-year-->
+</div>
+</body>
+</html>

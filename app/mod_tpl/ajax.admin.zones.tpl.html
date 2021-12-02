@@ -1,0 +1,184 @@
+@if(!d()->c_check):
+<input id="r-zones-search" placeholder="Поиск по зонам">
+<style>
+    .ddh2{
+        display: inline-block;
+    }
+    .r-table{
+        display:-webkit-box;display:-ms-flexbox;display:flex;
+        -ms-flex-wrap:wrap;flex-wrap:wrap;
+    }
+    .r-table div.line{
+        width: 100%;
+    }
+    .r-table div.line{
+        width: 100%;
+        display:-webkit-box;display:-ms-flexbox;display:flex;
+        -webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between;
+        -webkit-box-align:center;-ms-flex-align:center;align-items:center;
+        margin: 5px 0;
+    }
+    .r-table div.hide{
+        display: none !important;
+    }
+    .r-table div.line:nth-child(2n){
+        background: #f7f7f7;
+    }
+    .r-table div.line .ttl{
+        width: 450px;
+        text-align: left;
+    }
+    .r-pick{
+        display: block;
+    }
+    .r-del{
+        display: none;
+    }
+    div.r-order{
+        order:-1;
+    }
+    div.r-picked .r-pick{
+        display: none;
+    }
+    div.r-picked .r-del{
+        display: block;
+    }
+    .mo-modal input{
+        padding: 8px;
+        border-radius: 5px;
+        border: 1px solid #aaa;
+        font-size: 15px;
+        line-height: 15px;
+        width: 100%;
+        color: #666;
+        box-sizing: border-box;
+        margin: 10px 0 15px 0 !important;
+    }
+    .mo-modal input.small{
+        padding: 4px;
+        border-radius: 2px;
+        border: 1px solid #aaa;
+        font-size: 14px;
+        line-height: 14px;
+        width: 60px;
+        color: #666;
+        box-sizing: border-box;
+        margin: 0 2px !important;
+        text-align: center;
+    }
+    .mo-modal input.none{
+        display: none;
+    }
+    div.r-picked input.none{
+        display: inline-block !important;
+    }
+    .r-categories_list{
+        margin-bottom:15px;
+    }
+    .r-categories_list button{
+        margin: 2px 0;
+    }
+    .r-categories_list button.active{
+        background-color: #006dcc;
+        background-image: linear-gradient(to bottom,#08c,#04c);
+        color:#fff;
+        text-shadow: 0 -1px 0 rgba(0,0,0,0.25);
+    }
+    .r-categories_list button.active:hover{
+        background-color: #04c !important;
+        background-image: linear-gradient(to bottom,#04c,#04c) !important;
+    }
+    .none{
+        display: none !important;
+    }
+    .ma-modal input {
+        padding: 8px;
+        border-radius: 5px;
+        border: 1px solid #aaa;
+        font-size: 15px;
+        line-height: 15px;
+        width: 100%;
+        color: #666;
+        box-sizing: border-box;
+        margin: 10px 0 15px 0 !important;
+    }
+</style>
+
+<div id="r-zones-table-wrap">
+    @endif;
+    <div class="r-table" id="r-zones-table">
+        <foreach zones_list as z>
+            @d()->pick = '';
+            @if(d()->zones[d()->z->id])d()->pick = 'r-picked r-order';
+            <div data-id="{z.id}" id="r-zones-{z.id}" class="line {pick}">
+                <div class="ttl"><span>{z.title}</span></div>
+                <div style="padding: 0 10px;width:200px;text-align: right;">
+                    <div class="r-pick">
+                        <button type="button" onclick="r_pick_zones(this, '{z.id}');" class="btn btn-primary btn-small">Выбрать</button>
+                    </div>
+                    <div class="r-del">
+                        <button type="button" class="btn btn-default btn-small" disabled>Выбрано</button>
+                        <button type="button" onclick="r_del_zones(this, '{z.id}');" class="btn btn-danger btn-small">Удалить</button>
+                    </div>
+                </div>
+            </div>
+        </foreach>
+    </div>
+
+    @if(!d()->c_check):
+</div>
+<script>
+    $(document).ready(function () {
+        $("#r-zones-search").keyup(function(){
+            _this = this;
+
+            $("#r-zones-table div.line").each(function(){
+                if($(this).find('.ttl').text().toLowerCase().indexOf($(_this).val().toLowerCase()) === -1) {
+                    $(this).addClass('none');
+                } else {
+                    $(this).removeClass('none');
+                }
+            });
+        });
+
+        $('#get-zones-modal').on('hide.bs.modal', function () {
+            r_run_z_id_list();
+        });
+    });
+
+    function r_pick_zones(elem, id) {
+        var div = $(elem).closest('div');
+        var line = $(elem).closest('div.line');
+        var b_pick = $(elem).closest('.r-pick');
+        var b_del = line.find('.r-del');
+
+        line.addClass('r-picked');
+    }
+
+    function r_del_zones(elem, id) {
+        var line = $(elem).closest('div.line');
+        if(!line.length){
+            var line = $('#r-zones-'+id);
+        }
+        line.removeClass('r-picked');
+        r_run_z_id_list();
+    }
+
+    function r_run_z_id_list() {
+        var line_picks = $('#r-zones-table .r-picked');
+        var z_list = '';
+        var id_list = '';
+        $(line_picks).each(function(){
+            z_list += '<li>'+$(this).find('.ttl span').text()+'<i title="Удалить" class="dgio mdi mdi-close-circle" onclick=\'r_del_zones(this, "'+$(this).data('id')+'");\'></i></li>';
+            if(id_list){
+                id_list += ',';
+            }
+            id_list += '|'+$(this).data('id')+'|';
+
+        });
+        $('#r-zones-ul').html(z_list);
+        $('input[name="data[zones]"]').val(id_list);
+        console.log(id_list);
+    }
+</script>
+@endif;

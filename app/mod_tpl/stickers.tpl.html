@@ -1,0 +1,12 @@
+<?
+if(count(d()->this->stickers_array)){
+    print '<div class="stickers-list">';
+    $i = 0;$f=7;$ds=0;
+    foreach(d()->this->stickers_array as $v){
+        print '<img style="left:'.$i*$f.'px;" data-style="left:'.$ds.'px;" src="'.d()->stickers_list[$v]['image'].'" alt="" data-toggle="tooltip" data-title="'.d()->stickers_list[$v]['title'].'" >';
+        $i++;
+        $ds = $i*(51+4);
+    }
+    print '</div>';
+}
+?>

@@ -1,0 +1,121 @@
+<?='<?xml version="1.0" encoding="UTF-8"?>';?>
+
+<rss xmlns:yandex="http://news.yandex.ru"
+     xmlns:media="http://search.yahoo.com/mrss/"
+     xmlns:turbo="http://turbo.yandex.ru"
+     version="2.0">
+    <channel>
+        <!-- Информация о сайте-источнике -->
+        <title>{name}</title>
+        <link>https://{url_main}</link>
+        <description>«Аппетит» - служба доставки еды</description>
+        <language>ru</language>
+        <turbo:analytics id="{counter}" type="Yandex" params=""/>
+        <foreach xmlpromos_list>
+            <item turbo="true">
+                <!-- Информация о странице -->
+                <link>https://{url_main}/sales/{.url}/</link>
+                <pubDate>{.created_at}</pubDate>
+                <turbo:content>
+                    <![CDATA[
+                    <header>
+                        <h1>{.title}</h1>
+                        @if(d()->this->image_anons):
+                        <figure>
+                            <img src="https://{url_main}{.image_anons}" alt="{.image_anons_alt}" title="{.image_anons_title}">
+                        </figure>
+                        @endif;
+                    </header>
+                    @if(d()->this->image):
+                    <img src="https://{url_main}{.image}" alt="{.image_alt}" title="{.image_title}" />
+                    @endif;
+                    @if(d()->this->image2):
+                    <img src="https://{url_main}{.image2}" alt="{.image2_alt}" title="{.image2_title}" />
+                    @endif;
+                    @if(d()->this->image3):
+                    <img src="https://{url_main}{.image3}" alt="{.image3_alt}" title="{.image3_title}" />
+                    @endif;
+                    @if(d()->this->image4):
+                    <img src="https://{url_main}{.image4}" alt="{.image4_alt}" title="{.image4_title}" />
+                    @endif;
+                    <? d()->txt = preg_replace('/<img[^>]*>/','',d()->this->text)?>
+                    {txt}
+                    <h3>Условия</h3>
+                    <p>
+                        @if(d()->this->products_count):
+                        В одном заказе может быть {.products_count}.
+                        @endif;
+                        @if(d()->this->min_sum!=''):
+                        @if(d()->this->min_sum>0):
+                        Минимальная сумма заказа {.min_sum} руб.
+                        @else:
+                        Без минимальной суммы заказа.
+                        @endif;
+                        @endif;
+                        @if(!d()->this->is_not_points || !d()->this->is_not_dr || !d()->this->is_not_delivery):
+                        @if(d()->this->is_not_points):
+                        Не суммируется с акцией "Бонусные баллы".
+                        @endif;
+                        @if(d()->this->is_not_dr):
+                        Не суммируется с акцией "Подарки на день рождения".
+                        @endif;
+                        @if(d()->this->is_not_delivery):
+                        Не суммируется с акцией "Подарки за самовывоз".
+                        @endif;
+                        @else:
+                        Не суммируется с другими акциями.
+                        @endif;
+                    </p>
+                    <p>Условия доставки уточняйте у операторов. Акция может быть отменена в любой момент без предупреждения.
+                        Не является публичной офертой.</p>
+                    @if(d()->this->period):
+                    <p>Период действия: <strong>{.period}</strong></p>
+                    @endif;
+                    @if(d()->this->promocode):
+                    <p>Промокод: {.promocode}</p>
+                    @endif;
+                    @if(d()->this->used_template):
+                    <h3>Как использовать промокод?</h3>
+                    @if(d()->this->used_template==1):
+                    <p>
+                        Для этого необходимо:<br>
+                        <ul>
+                            <li>- добавить блюда по акции в корзину;</li>
+                            <li>- ввести в корзине промокод{.promocode_fu};</li>
+                            <li>- цена изменится после ввода промокода автоматически;</li>
+                            <li>- оформить заказ.</li>
+                        </ul>
+                        Или просто сообщи промокод{.promocode_fu} оператору при заказе по телефону <a href="tel:{city.phone}">{city.phone}</a>.
+                    </p>
+                    @endif;
+                    @if(d()->this->used_template==2):
+                    <p>
+                        Для этого необходимо:<br>
+                        <ul>
+                            <li>- добавить блюда по акции в корзину;</li>
+                            <li>- ввести в корзине промокод{.promocode_fu};</li>
+                            <li>- подарок добавится после ввода промокода автоматически;</li>
+                            <li>- оформить заказ.</li>
+                        </ul>
+                        Или просто сообщи промокод{.promocode_fu} оператору при заказе по телефону <a href="tel:{city.phone}">{city.phone}</a>.
+                    </p>
+                    @endif;
+                    @if(d()->this->used_template==3):
+                    <p>
+                        Для этого необходимо:<br>
+                        <ul>
+                            <li>- добавить блюда по акции в корзину;</li>
+                            <li>- ввести в корзине промокод{.promocode_fu};</li>
+                            <li>- скидка / подарочные блюда активируется автоматически, после ввода промокода;</li>
+                            <li>- оформить заказ.</li>
+                        </ul>
+                        Или просто сообщи промокод{.promocode_fu} оператору при заказе по телефону <a href="tel:{city.phone}">{city.phone}</a>.
+                    </p>
+                    @endif;
+                    @endif;
+                    ]]>
+                </turbo:content>
+            </item>
+        </foreach>
+    </channel>
+</rss>

@@ -1,0 +1,142 @@
+<div class="container page-container">
+    {{nav_tpl}}
+    <div class="page-wrap" id="quiz">
+        <h1 class="text-center">Какой ты ролл?</h1>
+        <div class="page-content">
+            <p class="quiz-small-p"><em>5 вопросов</em></p>
+            <p class="quiz-small-h">Пройди тест и узнай, какой ты ролл!</p>
+            <hr class="quiz-hr">
+            <div style="" id="test-block">
+                <p class="quiz-cnt" id="quiz-cnt"></p>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Что вы выберете?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="0">Уютные посиделки дома с друзьями</span>
+                        <span class="quiz-btn" data-value="1">Шумная вечеринка в клубе</span>
+                        <span class="quiz-btn" data-value="1.25">Прогулка на свежем воздухе</span>
+                        <span class="quiz-btn" data-value="1.5">Вечер с книжкой</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Ваше любимое время года?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="0">Весна</span>
+                        <span class="quiz-btn" data-value="1">Лето</span>
+                        <span class="quiz-btn" data-value="1.25">Осень</span>
+                        <span class="quiz-btn" data-value="1.5">Зима</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Если не роллы, то...</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="0">Пицца</span>
+                        <span class="quiz-btn" data-value="1">Бургер</span>
+                        <span class="quiz-btn" data-value="1.25">Пирожки</span>
+                        <span class="quiz-btn" data-value="1.5">Другие азиатские блюда</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Какой предмет в школе нравился больше?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="0">Математика</span>
+                        <span class="quiz-btn" data-value="1">Биология</span>
+                        <span class="quiz-btn" data-value="1.25">Литература</span>
+                        <span class="quiz-btn" data-value="1.5">История</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>В какой стране Вы бы хотели жить?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="0">Америка</span>
+                        <span class="quiz-btn" data-value="1">Где-нибудь в Европе</span>
+                        <span class="quiz-btn" data-value="1.25">Где-нибудь в Африке</span>
+                        <span class="quiz-btn" data-value="1.5">Мне нравится жить там, где я живу</span>
+                    </div>
+                </div>
+                <div class="quiz-finish">
+                    <p>Результат:</p>
+                    <div class="quiz-res" data-value="1.5">
+                        <h3>Ты ЗАПЕЧЕННЫЙ РОЛЛ</h3>
+                        <p>В тебе таится много всего интересного, но показываешь ты это далеко не всем.</p>
+                    </div>
+                    <div class="quiz-res" data-value="2.5">
+                        <h3>Ты ЖАРЕНЫЙ РОЛЛ</h3>
+                        <p>Почему жареный? Потому что ты любишь отличаться от всех и привлекать к себе внимание.</p>
+                    </div>
+                    <div class="quiz-res" data-value="3.5">
+                        <h3>Ты ДРАКОН</h3>
+                        <p>Комментарии излишни:)</p>
+                    </div>
+                    <div class="quiz-res" data-value="4.5">
+                        <h3>Ты ЦЕЗАРЬ</h3>
+                        <p>Ты будешь чувствовать себя комфортно даже в непривычных для тебя условиях.</p>
+                    </div>
+                    <div class="quiz-res" data-value="5.5">
+                        <h3>Ты УНАГИ МАКИ</h3>
+                        <p>На первый взгляд ты кажешься простым. Но стоит познакомиться поближе, и ты поражаешь своей необычностью и уникальностью!</p>
+                    </div>
+                    <div class="quiz-res" data-value="6.5">
+                        <h3>Ты КАЛИФОРНИЯ</h3>
+                        <p>Для каждого из твоего окружения ты разный(ая)</p>
+                    </div>
+                    <div class="quiz-res" data-value="7.5">
+                        <h3>Ты ФИЛАДЕЛЬФИЯ</h3>
+                        <p>В тебе все идеально сочетается: как снаружи, так и внутри!</p>
+                    </div>
+                    <hr class="quiz-hr">
+                    <img src="/images/quiz-gift.png" alt="" style="margin-bottom:25px;" />
+                    @if(d()->city->id == 1):
+                    <h2 class="final-h2">Получи ПОДАРКИ на выбор!</h2>
+                    <p class="final-p">*Подпишись ниже на один из мессенджеров и получи промокод с условиями получения шеф ролла или пиццы в Подарок.</p>
+                    <script src="//unpkg.com/@textback/notification-widget@latest/build/index.js"></script>
+                    <tb-notification-widget  widget-id="0e17f103-1251-ef8e-b0ef-016dc97212df"></tb-notification-widget>
+                    @endif;
+                    @if(d()->city->id == 2):
+                    <h2 class="final-h2">Получи ПОДАРКИ на выбор!</h2>
+                    <p class="final-p">*Подпишись ниже на один из мессенджеров и получи промокод с условиями получения шеф ролла или пиццы в Подарок.</p>
+                    <script src="//unpkg.com/@textback/notification-widget@latest/build/index.js"></script>
+                    <tb-notification-widget  widget-id="d86798a6-75d6-6a8e-bd17-016e6a5afeee">
+                    </tb-notification-widget>
+                    @endif;
+                    @if(d()->city->id == 3):
+                    <h2 class="final-h2">Получи ПОДАРКИ на выбор!</h2>
+                    <p class="final-p">*Подпишись ниже на один из мессенджеров и получи промокод с условиями получения шеф ролла или пиццы в Подарок.</p>
+                    <script src="//unpkg.com/@textback/notification-widget@latest/build/index.js"></script>
+                    <tb-notification-widget  widget-id="e1982030-2087-79df-b208-016e4059e7cc">
+                    </tb-notification-widget>
+                    @endif;
+                    @if(d()->city->id == 5):
+                    <h2 class="final-h2">Получи ПОДАРКИ на выбор!</h2>
+                    <p class="final-p">*Подпишись ниже на один из мессенджеров и получи промокод с условиями получения шеф ролла или пиццы в Подарок.</p>
+                    <script src="//unpkg.com/@textback/notification-widget@latest/build/index.js"></script>
+                    <tb-notification-widget  widget-id="938df45a-464d-55af-49e1-0172662b58cd">
+                    </tb-notification-widget>
+                    @endif;
+                    @if(d()->city->id == 6):
+                    <h2 class="final-h2">Получи ПОДАРКИ на выбор!</h2>
+                    <p class="final-p">*Подпишись ниже на один из мессенджеров и получи промокод с условиями получения шеф ролла или пиццы в Подарок.</p>
+                    <script src="//unpkg.com/@textback/notification-widget@latest/build/index.js"></script>
+                    <tb-notification-widget  widget-id="964fe921-7c8d-ac77-715c-016e97b01440">
+                    </tb-notification-widget>
+                    @endif;
+                    @if(d()->city->id == 7):
+                    <h2 class="final-h2">Получи ПОДАРКИ на выбор!</h2>
+                    <p class="final-p">*Подпишись ниже на один из мессенджеров и получи промокод с условиями получения шеф ролла или пиццы в Подарок.</p>
+                    <script src="//unpkg.com/@textback/notification-widget@latest/build/index.js"></script>
+                    <tb-notification-widget  widget-id="a09eb4cd-a488-d76b-5249-017502ab0cdf">
+                    </tb-notification-widget>
+                    @endif;
+                    @if(d()->city->id == 8):
+                    <h2 class="final-h2">Получи ПОДАРКИ на выбор!</h2>
+                    <p class="final-p">*Подпишись ниже на один из мессенджеров и получи промокод с условиями получения шеф ролла или пиццы в Подарок.</p>
+                    <script src="//unpkg.com/@textback/notification-widget@latest/build/index.js"></script>
+                    <tb-notification-widget  widget-id="b267f623-1e00-5394-34c6-017b390b47b8">
+                    </tb-notification-widget>
+                    @endif;
+                </div>
+                <input type="hidden" id="quiz-result" value="0" />
+            </div>
+            <hr class="quiz-hr">
+        </div>
+    </div>
+</div>

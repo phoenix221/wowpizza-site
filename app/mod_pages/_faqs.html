@@ -1,0 +1,40 @@
+<div class="container page-container">
+    {{nav_tpl}}
+    <div class="page-wrap">
+        <h1>Часто задаваемые вопросы</h1>
+        <div class="page-content">
+            <div class="panel-group" id="accordion">
+                <foreach faqs_list>
+                    <div class="panel panel-default faqs-items" id="faq{.id}">
+                        <div class="panel-title collapsed">
+                            <div class="faqs-question">
+                                {.question}
+                            </div>
+                            <div class="right-fags-question">
+                                <i class="mdi mdi-chevron-down" data-toggle="collapse" data-parent="#accordion" data-id="collapse{.id}" onclick="faqs(this);" href="#collapse{.id}"></i>
+                            </div>
+                        </div>
+                        <div id="collapse{.id}" class="panel-collapse collapse">
+                            <div class="faqs-answers">
+                                {.answers}
+                            </div>
+                        </div>
+                    </div>
+                </foreach>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function faqs(e){
+        var t = $(e);
+        var elem = t.data("id");
+        $('#'+elem).on('show.bs.collapse', function () {
+            t.removeClass('mdi-chevron-down').addClass('mdi-chevron-up');
+        });
+        $('#'+elem).on('hide.bs.collapse', function () {
+            t.removeClass('mdi-chevron-up').addClass('mdi-chevron-down');
+        });
+    }
+</script>
+

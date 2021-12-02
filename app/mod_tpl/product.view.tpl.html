@@ -1,0 +1,44 @@
+@if(url(1)=='ajax'):
+{{product_view_info_tpl}}
+@else:
+<div class="container page-container" itemscope itemtype="http://schema.org/Product">
+    {{nav_tpl}}
+    <div class="page-wrap">
+        <div class="h-line">
+            <h1><span itemprop="name">{.title} {{edit}}</span></h1>
+            {{delivery_btn_tpl}}
+        </div>
+    </div>
+    <div class="page-wrap" id="products-wrap" data-url="{url}">
+        {{product_view_info_tpl}}
+    </div>
+</div>
+
+<script>
+    window.dataLayer = window.dataLayer || [];
+    dataLayer.push({
+        'ecommerce': {
+            'currencyCode': 'RUB',
+            'detail': {
+                'actionField': {'list': '<?=$_SESSION['ec_list']?>'},
+                'products': [{
+                    'name': '<?=d()->nq(d()->this->title)?>',
+                    'id': '<?=d()->this->id?>',
+                    'price': '<?=d()->this->price?>',
+                    'brand': '',
+                    'category': '<?=d()->this->category_word?>',
+                    'variant': ''
+                }]
+            },
+        },
+        'event': 'gtm-ee-event',
+        'gtm-ee-event-category': 'Enhanced Ecommerce',
+        'gtm-ee-event-action': 'Product Details',
+        'gtm-ee-event-non-interaction': 'False',
+    });
+</script>
+@$_SESSION['ec_list'] = "Рекомендуемые (карточка товара)";
+@endif;
+
+<!-- метка для события для пикселя-->
+@d()->show_pixel_vc = 1;

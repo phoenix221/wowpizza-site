@@ -1,0 +1,138 @@
+<?
+if(url(4) && url(4)!='add'){
+    d()->other = d()->Other(url(4));
+    d()->products = d()->other->text;
+    if(d()->products){
+        $p = explode(',', d()->products);
+        d()->picked_id = Array();
+        d()->picked_pid = Array();
+        //d()->picked_products = Array();
+        foreach($p as $k=>$v){
+            $pid = explode('_', $v);
+            d()->picked_id[] = $pid[0];
+            d()->picked_pid[$pid[0]] = $pid[1];
+            //d()->picked_products[$v] = $v;
+        }
+        d()->pl = d()->Product(d()->picked_id);
+        d()->products_list = '';
+        foreach(d()->pl as $v){
+            $price = d()->pl->price;
+            $dop_ttl = '';
+            $t_id = d()->pl->id.'_0';
+            if(d()->picked_pid[d()->pl->id]){
+                $property = d()->Property(d()->picked_pid[d()->pl->id]);
+                $dop_ttl = ', '.$property->title;
+                $price = $property->price;
+                $t_id = d()->pl->id.'_'.d()->picked_pid[d()->pl->id];
+            }
+            d()->products_list .= '<li>'.d()->pl->title.$dop_ttl.' <strong>('.$price.' руб.)</strong> <i title="Удалить" class="dgi mdi mdi-close-circle" onclick=\'del_product(this, "'.$t_id.'");\'></i></li>';
+        }
+    }
+}
+?>
+<style>
+    .ma-modal{
+        width:800px !important;
+        max-width:100% !important;
+        margin: 0 !important;
+        top: 80px !important;
+        max-height: 85% !important;
+        min-height: 85% !important;
+        left: 50% !important;
+        margin-left: -400px !important;
+        overflow-y: scroll;
+        border-radius: 0 !important;
+    }
+    .ma-modal .modal-body {
+        max-height: none !important;
+        margin-top: 50px;
+    }
+    .fm-header{
+        position: fixed;
+        margin-top:-50px;
+        background: #fff;
+        z-index: 50;
+        width: 784px !important;
+        max-width: 100% !important;
+        box-sizing: border-box;
+        padding-right: 14px !important;
+    }
+    .fm-footer{
+        position: fixed !important;
+        background: #fff !important;
+        z-index: 50 !important;
+        width: 800px !important;
+        max-width: 100% !important;
+        box-sizing: border-box;
+        padding-right: 30px !important;
+        bottom: 0;
+    }
+    .relative{
+        position: relative;
+    }
+    .gl{
+        list-style: disc;
+        margin-top: 10px;
+        margin-bottom: 0;
+    }
+    .dgi{
+        margin-left: 5px;
+        cursor: pointer;
+        color: #bd362f;
+    }
+</style>
+
+<div id="sale1">
+    <div class="p1" id="p1_1">
+        <div id="discount_type_1" class="p1_outer">
+            <div class="control-group">
+                <label class="control-label"></label>
+                <div class="controls">
+                    <em style="color:#777;">Выбрано:</em>
+                    <ul id="products-ul" class="gl">
+                        {products_list}
+                    </ul>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label"></label>
+                <div class="controls"><a href="#get-products-modal" data-toggle="modal" class="btn btn-default">Список блюд</a></div>
+            </div>
+            <input type="hidden" name="data[text]" value="{products}">
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap -->
+<script type="text/javascript" src="/vendors/bootstrap/js/bootstrap.js"></script>
+<!-- MDI -->
+<link rel="stylesheet" href="/vendors/mdi/css/materialdesignicons.min.css">
+<script>
+    $(document).ready(function () {
+        var products = $('input[name="data[text]"]').val();
+        var load = $('.loading_products');
+        load.show();
+        $.post('/ajax/get_other_items_admin', {products:products, city_id:"<?=d()->cityid;?>"}, function(data) {
+            load.hide();
+            $('#get-products-modal .modal-body .modal-content').html(data);
+        });
+
+    });
+</script>
+
+<div id="get-products-modal" class="modal ma-modal" tabindex="-1" role="dialog" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header fm-header">
+                <img src="/images/close-modal.png" class="close" style="width: 15px;opacity: 1;" data-dismiss="modal" aria-hidden="true" alt="">
+                <h4 class="modal-title">Список товаров</h4>
+            </div>
+            <div class="modal-body">
+                <div class="modal-content">
+
+                </div>
+                <img src="/images/loading.gif" alt="" style="width:35px;" class="loading_products">
+            </div>
+        </div>
+    </div>
+</div>

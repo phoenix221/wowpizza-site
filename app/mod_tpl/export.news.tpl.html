@@ -1,0 +1,36 @@
+<?='<?xml version="1.0" encoding="UTF-8"?>';?>
+
+<rss xmlns:yandex="http://news.yandex.ru"
+     xmlns:media="http://search.yahoo.com/mrss/"
+     xmlns:turbo="http://turbo.yandex.ru"
+     version="2.0">
+    <channel>
+        <!-- Информация о сайте-источнике -->
+        <title>{name}</title>
+        <link>https://{url_main}</link>
+        <description>«Аппетит» - служба доставки еды</description>
+        <language>ru</language>
+        <turbo:analytics id="{counter}" type="Yandex" params=""/>
+        <foreach xmlnews_list>
+            <item turbo="true">
+                <!-- Информация о странице -->
+                <link>https://{url_main}/news/{.url}/</link>
+                <pubDate>{.created_at}</pubDate>
+                <turbo:content>
+                    <![CDATA[
+                        <header>
+                            <h1>{.title}</h1>
+                            @if(d()->this->image):
+                            <figure>
+                                <img src="https://{url_main}{.image}" alt="{.image_alt}" title="{.image_title}">
+                            </figure>
+                            @endif;
+                        </header>
+                        <? d()->txt = preg_replace('/<img[^>]*>/','',d()->this->text)?>
+                        {txt}
+                    ]]>
+                </turbo:content>
+            </item>
+        </foreach>
+    </channel>
+</rss>

@@ -1,0 +1,120 @@
+<?print '<?xml version="1.0" encoding="utf-8"?>';?>
+
+<КоммерческаяИнформация ДатаФормирования="<?=date('Y-m-d')?>">
+    <foreach orders_list>
+        <Документ>
+            <Ид>{.id}</Ид>
+            <Номер>{.id}</Номер>
+            <Дата>{.created_at}</Дата>
+            <Город>{city.title}</Город>
+            @d()->total_sum = d()->this->finish_price + d()->this->points;
+            <Сумма>{total_sum}</Сумма>
+            <ОплаченоБонусами>{.points}</ОплаченоБонусами>
+            <ИтоговаяСумма>{.finish_price}</ИтоговаяСумма>
+            @d()->promo = '';
+            @if(d()->this->promocode_id)d()->promo = d()->Promocode(d()->this->promocode_id);
+            <Промокод>{promo.name}</Промокод>
+            <ПромокодКомментарий>{promo.job_comment}</ПромокодКомментарий>
+            <Контрагент>
+                <Ид>{.user_id}</Ид>
+                <Имя>{.name|xml}</Имя>
+                <Телефон>{.phone}</Телефон>
+                <Адрес>{.street}, квартира (офис): {.room_number}, подъезд: {.entrance}, этаж: {.floor}</Адрес>
+                <ДомофонНеРаботает>{.is_not_intercom}</ДомофонНеРаботает>
+            </Контрагент>
+            <Комментарий>{.comment|xml}</Комментарий>
+            @if(d()->this->rejection):
+            <ПричинаОтказа>{.rejection|xml}</ПричинаОтказа>
+            @endif;
+            <КоличествоПерсон>{.persons}</КоличествоПерсон>
+            <КоличествоПриборов>{.persons}</КоличествоПриборов>
+            @if(d()->this->cook_time == 'now'):
+            <НачатьГотовить>сейчас</НачатьГотовить>
+            @else:
+            <НачатьГотовить>ко времени: {.cook_time}</НачатьГотовить>
+            @endif;
+            <Товары>
+                @d()->cart_list = d()->Cart(array_values(json_decode(d()->this->cart, true)));
+                <foreach cart_list>
+                    <?
+                        d()->proper_id = '';
+                        d()->proper_id1c = '';
+                        if(d()->this->property && d()->this->property>0){
+                            d()->proper = d()->Property->where('id=?', d()->this->property);
+                            d()->proper_id = 'S-'.d()->proper->id;
+                            d()->proper_id1c = d()->proper->id_1c;
+                        }else{
+                            if(d()->this->property == 'promo' && d()->this->gift_property>0 || d()->this->property == 'gift_cash' && d()->this->gift_property>0 || d()->this->property == 'gift_pickup' && d()->this->gift_property>0){
+                                d()->proper = d()->Property->where('id=?', d()->this->gift_property);
+                                d()->proper_id = 'S-'.d()->proper->id;
+                                d()->proper_id1c = d()->proper->id_1c;
+                            }
+                        }
+                        $category_id = explode(',', str_replace('|', '', str_replace('||', ',', d()->this->category_id)));
+                    ?>
+                    <Товар>
+                        <Ид>{.id}</Ид>
+                        <Ид1C>{.id_1c}</Ид1C>
+                        <Раздел><?=d()->cat_list[$category_id[0]]['title'];?></Раздел>
+                        <Наименование>{.title}</Наименование>
+                        <Характеристика>{.f_property_title_1c}</Характеристика>
+                        <ХарактеристикаИд>{proper_id}</ХарактеристикаИд>
+                        <ХарактеристикаИд1С>{proper_id1c}</ХарактеристикаИд1С>
+                        <Количество>{.cnt}</Количество>
+                        <ЦенаЗаЕдиницу>{.price}</ЦенаЗаЕдиницу>
+                        <Сумма>{.total_price}</Сумма>
+                        <СкидкаПоПромокоду>{.total_promo_discount}</СкидкаПоПромокоду>
+                        @if(d()->this->items):
+                        <Допы>
+                            @foreach(d()->this->items_array as d()->ki=>d()->vi):
+                            @d()->product = d()->Product(d()->vi['id']);
+                            @$icid = explode(',', str_replace('|', '', str_replace('||', ',', d()->product->category_id)));
+                            @d()->category = d()->Category($icid[0]);
+                            @d()->property = d()->Property(d()->vi['property']);
+                            @d()->item_price = d()->product->price;
+                            @if(!d()->property->is_empty)d()->item_price = d()->property->price;
+                            @d()->item_total_price = d()->item_price*d()->vi['cnt'];
+                            <Доп>
+                                <Ид>{vi.id}</Ид>
+                                <Ид1C>{product.id_1c}</Ид1C>
+                                <Раздел>{category.title}</Раздел>
+                                <Наименование>{product.title}</Наименование>
+                                <Характеристика>{property.title}</Характеристика>
+                                <Количество>{vi.cnt}</Количество>
+                                <ЦенаЗаЕдиницу>{item_price}</ЦенаЗаЕдиницу>
+                                <Сумма>{item_total_price}</Сумма>
+                            </Доп>
+                            @endforeach;
+                        </Допы>
+                        @endif;
+                    </Товар>
+                </foreach>
+            </Товары>
+            <Оплата>
+                @if(d()->this->pay == 'pay_1')d()->pay_word = 'Наличные';
+                @if(d()->this->pay == 'pay_2')d()->pay_word = 'Банковская карта';
+                @if(d()->this->pay == 'pay_3')d()->pay_word = 'Онлайн оплата';
+                <ТипОплаты>{pay_word}</ТипОплаты>
+                <СтатусОплаты>ожидает оплаты</СтатусОплаты>
+                <Сдача>{.banknote|onlynumbers}</Сдача>
+            </Оплата>
+            <Доставка>
+                @if(d()->this->delivery == 2):
+                <Наименование>Доставка</Наименование>
+                <Филиал></Филиал>
+                <Сумма>{.delivery_price}</Сумма>
+                <Зона>{.delivery_zone}</Зона>
+                @else:
+                <Наименование>Самовывоз</Наименование>
+                @d()->office = d()->Office(d()->this->office_id)->title;
+                <Филиал>{office}</Филиал>
+                <Сумма></Сумма>
+                <Зона></Зона>
+                @endif;
+            </Доставка>
+            <УТМ>{.utm|h}</УТМ>
+            <ПовторныйЗаказ>{.repeat_order}</ПовторныйЗаказ>
+            <Приложение>{.is_app}</Приложение>
+        </Документ>
+    </foreach>
+</КоммерческаяИнформация>

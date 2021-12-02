@@ -1,0 +1,26 @@
+@if(url(1)!='ajax'):
+<div class="container lk-container">
+    {{nav_tpl}}
+    {{lk_menu_tpl}}
+    <div class="lk-wrap">
+@endif;
+
+        <div class="lk-pers-wrap">
+            {{lk_alert_tpl}}
+            <h1>Бонусные баллы</h1>
+            <p class="lk-clovo-poins">Количество баллов: <span>{.points}</span><button class="btn btn-warning uiballs" onclick="points_info_modal()">Условия начисления и использования баллов</button></p>
+            <div class="lk-bh" id="points-block">
+                <div class="lk-bh-row lk-bh-head">
+                    <div><strong>Дата</strong></div>
+                    <div><strong>Баллы</strong></div>
+                    <div><strong>Описание</strong></div>
+                </div>
+                {{points_line_tpl}}
+            </div>
+        </div>
+        {load_more}
+
+@if(url(1)!='ajax'):
+    </div>
+</div>
+@endif;

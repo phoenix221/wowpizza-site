@@ -1,0 +1,171 @@
+<script src="https://api-maps.yandex.ru/2.1/?apikey={key}&lang=ru_RU" type="text/javascript"></script>
+@if(url(1)!='ajax'):
+<div class="container lk-container">
+    {{nav_tpl}}
+    {{lk_menu_tpl}}
+    <div class="lk-wrap">
+@endif;
+
+        <div class="lk-pers-wrap">
+            {{lk_alert_tpl}}
+            <h1>Личные данные</h1>
+            <div class="alert alert-success {success_alert} mb-25" id="lk-success-alert">{success_message}</div>
+            <div class="alert alert-danger {error_alert} mb-25" id="lk-error-alert">{error_message}</div>
+            <div class="row">
+                <div class="col-lg-6 col-md-6 col-sm-12">
+                    <div class="lk-pers-line">
+                        <span class="ttl">Баланс:</span>
+                        @if(d()->this->points):
+                        <div class="lk-pers-data balance-green">{.points} {ball_word}</div>
+                        @else:
+                        <div class="lk-pers-data"><span class="gray">0 баллов</span></div>
+                        @endif;
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+            <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="lk-pers-line">
+                    <span class="ttl">Имя:</span>
+                    <div class="lk-pers-data">
+                        <div class="lk-pers-info">
+                            @if(d()->this->name):
+                            <a href="#" onclick="lk_change(this)" title="Редактировать"><span>{.name}</span><i class="mdi mdi-pencil-outline"></i></a>
+                            @else:
+                            <a href="#" onclick="lk_change(this)" title="Редактировать"><span class="gray">Не указано</span><i class="mdi mdi-pencil-outline"></i></a>
+                            @endif;
+                        </div>
+                        <div class="lk-edit-block">
+                            <input type="text" name="name" value="{.name}" placeholder="Укажите ваше Имя" />
+                            <button class="btn" onclick="save_lk_info(this, 'name');">Сохранить</button>
+                        </div>
+                        <img src="/images/loading.gif" alt="" class="load">
+                    </div>
+                </div>
+                <div class="lk-pers-line">
+                    <span class="ttl">Телефон:</span>
+                    <div class="lk-pers-data">
+                        <a href="#" title="Редактировать" onclick="change_phone();"><span id="lk-phone-number">{.phone}</span><i class="mdi mdi-pencil-outline"></i></a>
+                    </div>
+                </div>
+                <div class="lk-pers-line">
+                    <span class="ttl">E-mail:</span>
+                    <div class="lk-pers-data">
+                        <div class="lk-pers-info">
+                            @if(d()->this->email):
+                                @if(d()->this->conf_email):
+                                <a href="#" onclick="lk_change(this)" title="Редактировать"><span id="email">{.email}</span><i class="mdi mdi-pencil-outline"></i></a>
+                                @else:
+                                <a href="#" onclick="lk_change(this)" title="Редактировать"><span class="gray" id="email">{.email}</span><i title="E-mail не подтвержден" class="mdi mdi-lock-clock"></i><i class="mdi mdi-pencil-outline"></i></a>
+                                @endif;
+                            @else:
+                            <a href="#" onclick="lk_change(this)" title="Редактировать"><span class="gray">Не указано</span><i class="mdi mdi-pencil-outline"></i></a>
+                            @endif;
+                        </div>
+                        <div class="lk-edit-block">
+                            <input type="text" name="email" value="{.email}" placeholder="Укажите ваш E-mail" />
+                            <button class="btn" onclick="save_lk_info(this, 'email');">Сохранить</button>
+                        </div>
+                        <img src="/images/loading.gif" alt="" class="load">
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="lk-pers-line">
+                    <span class="ttl">День рождения:</span>
+                    <div class="lk-pers-data">
+                        <div class="lk-pers-info">
+                            @if(d()->this->birthday):
+                            <span title="День рождения изменить невозможно">{.birthday}</span>
+                            @else:
+                            <a href="#" onclick="lk_change(this)" title="Редактировать"><span class="gray">Не указано</span><i class="mdi mdi-pencil-outline"></i></a>
+                            @endif;
+                        </div>
+                        <div class="lk-edit-block">
+                            <input type="tel" name="birthday" value="{.birthday}" placeholder="Ваша дата рождения" id="birthday_input" />
+                            <button class="btn" onclick="show_birthday_alert(this);">Сохранить</button>
+                        </div>
+                        <img src="/images/loading.gif" alt="" class="load">
+                    </div>
+                </div>
+                <div class="lk-pers-line">
+                    <span class="ttl">Пол:</span>
+                    <div class="lk-pers-data">
+                        <div class="lk-pers-info">
+                            @if(d()->this->gender):
+                            <a href="#" onclick="lk_change(this)" title="Редактировать"><span>{.gender_word}</span><i class="mdi mdi-pencil-outline"></i></a>
+                            @else:
+                            <a href="#" onclick="lk_change(this)" title="Редактировать"><span class="gray">Не указано</span><i class="mdi mdi-pencil-outline"></i></a>
+                            @endif;
+                        </div>
+                        <div class="lk-edit-block">
+                            <select name="gender">
+                                <option value="">Не указано</option>
+                                <option value="male" {male_select}>Мужской</option>
+                                <option value="female" {female_select}>Женский</option>
+                            </select>
+                            <button class="btn" onclick="save_lk_info(this, 'gender');">Сохранить</button>
+                        </div>
+                        <img src="/images/loading.gif" alt="" class="load">
+                    </div>
+                </div>
+                <div class="lk-pers-line lk-pers-line-last">
+                    <span class="ttl">У вас есть дети?</span>
+                    <div class="lk-pers-data">
+                        <div class="lk-pers-info">
+                            @if(d()->this->haschild):
+                            <a href="#" onclick="lk_change(this)" title="Редактировать"><span>{.haschild_word}</span><i class="mdi mdi-pencil-outline"></i></a>
+                            @else:
+                            <a href="#" onclick="lk_change(this)" title="Редактировать"><span class="gray">Не указано</span><i class="mdi mdi-pencil-outline"></i></a>
+                            @endif;
+                        </div>
+                        <div class="lk-edit-block">
+                            <select name="haschild">
+                                <option value="0">Не указано</option>
+                                <option value="1" {child_select}>Есть</option>
+                                <option value="2" {nochild_select}>Нет</option>
+                            </select>
+                            <button class="btn" onclick="save_lk_info(this, 'haschild');">Сохранить</button>
+                        </div>
+                        <img src="/images/loading.gif" alt="" class="load">
+                    </div>
+                </div>
+            </div>
+            </div>
+            <!--<p class="persdan">Указывая личную информацию вы соглашаетесь <a href="#" onclick="modal_page('personal');">с условиями обработки персональных данных</a></p>-->
+            <button class="btn btn-big-red mt-30" onclick="change_password();"><i class="mdi mdi-lock"></i> Сменить пароль</button>
+            <div class="row">
+            <div class="col-lg-12 mt-40">
+                <h2 class="addresses-h">Адреса доставки</h2>
+                <ul class="addresses-list">
+                    <foreach adresses_list>
+                        <li>
+                            <h4>{.title}</h4>
+                            <p><i class="mdi mdi-map-marker-outline"></i> {.street}</p>
+                            <p class="links"><a href="#" onclick='change_address({.id}, "{.street}", "{.title}", "{.floor}", "{.entrance}", "{.apartment}", "{.is_private}");'>Изменить</a> <a href="#" onclick="del_address(this, '{.id}');">Удалить</a></p>
+                        </li>
+                    </foreach>
+                    @if(!d()->adresses_list->count):
+                    <li>Адреса отсутствуют</li>
+                    @endif;
+                </ul>
+                <a href="#add-address-modal" data-toggle="modal" class="btn btn-big-red mt-30"><i class="mdi mdi-home"></i> Добавить адрес</a>
+            </div>
+        </div>
+        </div>
+
+@if(url(1)!='ajax'):
+    </div>
+</div>
+@endif;
+<script>
+    window.onload = function(){
+        if($('#check_hints').val() == 1){
+            // dadata
+            address_sug();
+        }else{
+            // yandex suggest
+            yandex_sug();
+        }
+    };
+</script>

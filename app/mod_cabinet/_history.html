@@ -1,0 +1,26 @@
+@if(url(1)!='ajax'):
+<div class="container lk-container">
+    {{nav_tpl}}
+    {{lk_menu_tpl}}
+    <div class="lk-wrap">
+@endif;
+<div class="lk-pers-wrap">
+    {{lk_alert_tpl}}
+    <h1>История заказов</h1>
+    <div class="lk-bh lk-bh-orders" id="orders-block">
+        <div class="lk-bh-row lk-bh-head">
+            <div><strong>Номер</strong></div>
+            <div><strong>Дата</strong></div>
+            <div><strong>Заказ</strong></div>
+            <div><strong>Сумма</strong></div>
+            <div><strong>Статус</strong></div>
+        </div>
+        {{orders_line_tpl}}
+    </div>
+    {no_results}
+</div>
+{load_more}
+@if(url(1)!='ajax'):
+    </div>
+</div>
+@endif;

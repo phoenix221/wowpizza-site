@@ -1,0 +1,142 @@
+<?
+    if(url(4) && url(4)!='add'){
+        d()->promo = d()->Promocode(url(4));
+d()->zones = d()->promo->zones;
+if(d()->zones){
+$z = explode(',', d()->zones);
+d()->picked_zones = Array();
+foreach($z as $k=>$v){
+$a = str_replace('|', '', $v);
+d()->picked_zones[$a] = $a;
+}
+d()->zl = d()->Zoni($z);
+d()->r_zones_list = '';
+foreach(d()->picked_zones as $k=>$v){
+$t_id = $k;
+d()->r_zones_list .= '<li>'.d()->zl->find_by_id($k)->title.' <i title="Удалить" class="dgio mdi mdi-close-circle ddh2" onclick=\'r_del_zones(this, "'.$t_id.'");\'></i></li>';
+}
+}
+
+}
+?>
+<style>
+    .ddh2{
+        display: none;
+    }
+    .mo-modal{
+        width:800px !important;
+        max-width:100% !important;
+        margin: 0 !important;
+        top: 80px !important;
+        max-height: 85% !important;
+        min-height: 85% !important;
+        left: 50% !important;
+        margin-left: -400px !important;
+        overflow-y: scroll;
+        border-radius: 0 !important;
+    }
+    .mo-modal .modal-body {
+        max-height: none !important;
+        margin-top: 50px;
+    }
+    .fmo-header{
+        position: fixed;
+        margin-top:-50px;
+        background: #fff;
+        z-index: 50;
+        width: 784px !important;
+        max-width: 100% !important;
+        box-sizing: border-box;
+        padding-right: 14px !important;
+    }
+    .fmo-footer{
+        position: fixed !important;
+        background: #fff !important;
+        z-index: 50 !important;
+        width: 800px !important;
+        max-width: 100% !important;
+        box-sizing: border-box;
+        padding-right: 30px !important;
+        bottom: 0;
+    }
+    .relative{
+        position: relative;
+    }
+    .glo{
+        list-style: disc;
+        margin-top: 10px;
+        margin-bottom: 0;
+    }
+    .dgio{
+        margin-left: 5px;
+        cursor: pointer;
+        color: #bd362f;
+    }
+</style>
+
+<div id="zones">
+    <div class="control-group">
+        <label class="control-label">Зона доставки</label>
+        <div class="controls"><a href="#get-zones-modal" data-toggle="modal" class="btn btn-default">Список зон</a></div>
+    </div>
+    <div class="control-group">
+        <label class="control-label"></label>
+        <div class="controls">
+            <em style="color:#777;">Выбрано:</em>
+            <ul id="r-zones-ul" class="glo">
+                {r_zones_list}
+            </ul>
+        </div>
+    </div>
+    <input type="hidden" name="data[zones]" value="{zones}">
+</div>
+<br>
+<br>
+
+<!-- Bootstrap -->
+<script type="text/javascript" src="/vendors/bootstrap/js/bootstrap.js"></script>
+<!-- MDI -->
+<link rel="stylesheet" href="/vendors/mdi/css/materialdesignicons.min.css">
+<script>
+    $(document).ready(function () {
+
+        var zones = $('input[name="data[zones]"]').val();
+        console.log(zones);
+        console.log("city id: <?=d()->city->id?>");
+        $.post('/ajax/get_promo_zones_admin', {zones:zones, city_id:"<?=d()->city->id?>"}, function(data) {
+            var load = $('.loading_zones');
+            load.hide();
+            $('#get-zones-modal .modal-body .modal-content').html(data);
+        });
+
+        // $('#get-required-products-modal').on('show.bs.modal', function () {
+        //     var products = $('input[name="data[required_products]"]').val();
+        //     var load = $('.required_loading_products');
+        //     load.show();
+        //     console.log(products);
+        //     $.post('/ajax/get_promo_required_products_admin', {products:products}, function(data) {
+        //         load.hide();
+        //         $('#get-required-products-modal .modal-body .modal-content').html(data);
+        //     });
+        // });
+
+    });
+
+</script>
+
+<div id="get-zones-modal" class="modal ma-modal" tabindex="-1" role="dialog" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header fm-header">
+                <img src="/images/close-modal.png" class="close" style="width: 15px;opacity: 1;" data-dismiss="modal" aria-hidden="true" alt="">
+                <h4 class="modal-title">Список зон</h4>
+            </div>
+            <div class="modal-body">
+                <div class="modal-content">
+
+                </div>
+                <img src="/images/loading.gif" alt="" style="width:35px;" class="loading_zones">
+            </div>
+        </div>
+    </div>
+</div>

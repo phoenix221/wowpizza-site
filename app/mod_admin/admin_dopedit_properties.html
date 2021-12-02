@@ -1,0 +1,126 @@
+<?
+if(url(4) && url(4)!='add'):
+    ?>
+<style>
+    .ma-modal{
+        width:800px !important;
+        max-width:100% !important;
+        margin: 0 !important;
+        top: 80px !important;
+        max-height: 85% !important;
+        min-height: 85% !important;
+        left: 50% !important;
+        margin-left: -400px !important;
+        overflow-y: scroll;
+        border-radius: 0 !important;
+    }
+    .ma-modal .modal-body {
+        max-height: none !important;
+        margin-top: 50px;
+    }
+    .fm-header{
+        position: fixed;
+        margin-top:-50px;
+        background: #fff;
+        z-index: 50;
+        width: 784px !important;
+        max-width: 100% !important;
+        box-sizing: border-box;
+        padding-right: 14px !important;
+    }
+    .fm-footer{
+        position: fixed !important;
+        background: #fff !important;
+        z-index: 50 !important;
+        width: 800px !important;
+        max-width: 100% !important;
+        box-sizing: border-box;
+        padding-right: 30px !important;
+        bottom: 0;
+    }
+    .relative{
+        position: relative;
+    }
+    .gl{
+        list-style: disc;
+        margin-top: 10px;
+        margin-bottom: 0;
+    }
+    .dgi{
+        margin-left: 5px;
+        cursor: pointer;
+        color: #bd362f;
+    }
+</style>
+<legend>Дополнительные свойства для редактирования </legend>
+<div class="p1" id="pp1_1">
+    <div id="discount_type_1" class="p1_outer">
+        <div class="control-group">
+            <label class="control-label"></label>
+            <div class="controls">
+                <em style="color:#777;">Выбрано:</em>
+                <ul id="properties-ul" class="gl">
+
+                </ul>
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label"></label>
+            <div class="controls"><a href="#get-properties-modal" data-toggle="modal" class="btn btn-default">Список свойств</a></div>
+        </div>
+        <input type="hidden" name="properties[{.id}]" value="">
+    </div>
+</div>
+<div class="control-group">
+    <div class="controls">
+        <p style="color:#666;">
+            <em>
+                В дополнительных свойствах может быть изменена только следующая информация:<br><br>
+                • Название;<br>
+                • Изображение;<br>
+                • Цена;<br>
+                • Грамовка;<br>
+                • Количество персон;<br>
+            </em>
+        </p>
+    </div>
+</div>
+
+<!--
+Bootstrap
+<script type="text/javascript" src="/vendors/bootstrap/js/bootstrap.js"></script>
+-->
+<!--
+MDI
+<link rel="stylesheet" href="/vendors/mdi/css/materialdesignicons.min.css">
+-->
+<script>
+    $(document).ready(function () {
+        var load = $('#get-properties-modal .loading_properties');
+        load.show();
+        $.post('/ajax/get_dopedit_properties_admin', {noid:<?=url(4)?>}, function(data) {
+            load.hide();
+            $('#get-properties-modal .modal-body .modal-content').html(data);
+        });
+    });
+</script>
+
+<div id="get-properties-modal" class="modal ma-modal" tabindex="-1" role="dialog" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header fm-header">
+                <img src="/images/close-modal.png" class="close" style="width: 15px;opacity: 1;" data-dismiss="modal" aria-hidden="true" alt="">
+                <h4 class="modal-title">Список свойств</h4>
+            </div>
+            <div class="modal-body">
+                <div class="modal-content">
+
+                </div>
+                <img src="/images/loading.gif" alt="" style="width:35px;" class="loading_properties">
+            </div>
+        </div>
+    </div>
+</div>
+<?
+endif;
+?>

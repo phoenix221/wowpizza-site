@@ -1,0 +1,19 @@
+@if(d()->field_params[1] == 'hint_link'):
+<div class="control-group">
+    <div class="controls">
+    <p style="color:#666;">Пример ссылки:<br><em>https://yandex.ru/maps/43/kazan/?from=api-maps&ll=49.141957%2C55.811248&mode=usermaps&origin=jsapi_2_1_74&um=constructor%3A43cbf6736e8fce071136b672d8d67c63d3764d5c10d1d079d28788c0140fecab&z=11</em></p>
+    </div>
+</div>
+@elseif(d()->field_params[1] == 'GTM'):
+<div class="control-group">
+    <div class="controls">
+    <p style="color:#666;">Экспортированные настройки, для корректной работы электронной торговли: <a href="/vendors/workspace.json" download>скачать</a>.<br>После импорта настроек необходимо изменить значение переменной UA-ID-Appetit на действующий Идентификатор отслеживания Google Analytics</p>
+    </div>
+</div>
+@else:
+<div class="control-group">
+	<div class="controls">
+	<p style="color:#666;"><em><?=d()->field_params[1];?></em></p>
+	</div>
+</div>
+@endif;

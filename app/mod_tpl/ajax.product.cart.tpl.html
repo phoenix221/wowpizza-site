@@ -1,0 +1,60 @@
+<div class="row other-row js-product">
+    <div class="col-md-6 col-sm-6">
+        <img id="image" src="{.image|preview 500, 385}" alt="{.image_alt}" class="other-img" />
+        @if(d()->number_persons || d()->p_list[0]['number_persons'] != ''):
+        {{tableware_cart_tpl}}
+        @endif;
+    </div>
+    <div class="col-md-6 col-sm-6 fnmt">
+        <span class="other-ttl">{.title}</span>
+        @d()->main_price = d()->product_price;
+        @if(d()->this->text):
+        <div class="other-text-div">
+            <p class="other-text">{.text}</p>
+        </div>
+        @endif;
+        @if(d()->auto_products_list != 0):
+        <div class="other-cw">
+            <span class="other-prop-ttl">Дополнительные товары</span>
+            <foreach auto_products_list as auto>
+                <div class="other_radio_style non_radio">
+                    <label>{auto.title}</label>
+                    <div class="other-price-wrap">
+                        <span>{auto.count} шт.</span>
+                        <span class="other-price" data-price="{auto.price}">{auto.price}<i class="rub">q</i></span>
+                    </div>
+                </div>
+            </foreach>
+        </div>
+        @endif;
+        <div class="other-acl">
+            <div class="other-tp"><span>{.price}</span><i class="rub">q</i></div>
+            <input type="hidden" name="def_price" value="{.price}" />
+            <input type="hidden" name="items" value="" />
+
+            <input type="hidden" name="id" value="{.id}">
+            <input type="hidden" name="title" value='{.title}'>
+            <input type="hidden" name="category" value='{.category_word}'>
+            <input type="hidden" name="list" value='{ec_list}'>
+            <input type="hidden" name="property" value="0">
+            <input type="hidden" name="price" value="{.price}">
+            <input type="hidden" name="image" value="{.image|preview 370, 285}">
+            <input itemprop="priceCurrency" type="hidden" name="currency" value="RUB">
+            @if(!d()->this->p_list):
+            <button class="btn btn-red-auth" onclick="addcart(this);">В корзину</button>
+            @else:
+            <button class="btn btn-red-auth" onclick="property_select(this, {.id});">В корзину</button>
+            @endif;
+        </div>
+    </div>
+</div>
+<div class="text-center other-cancel"><button class="btn btn-default-auth" data-dismiss="modal">Отмена</button></div>
+<script>
+    $(document).ready(function () {
+        var block = $('.tableware_cart span').text();
+        console.log(block);
+        if(block == 0){
+            $('.tableware_cart').hide();
+        }
+    })
+</script>

@@ -1,0 +1,45 @@
+<div class="container page-container">
+    {{nav_tpl}}
+    <div class="page-wrap">
+        <h1>Акции {{add 'sales', 'city_id'=>d()->city->id}}</h1>
+        <div id="sticky-subcategories">
+            <div class="subcategories {none_subcategories}">
+                <a href="?categoria=9998" class="subcat-lnk {active_all}">Все акции</a>
+                <foreach sales_categories_list>
+                    <a href="?categoria={.id}" class="subcat-lnk {.act_cls}">{.sales_title}</a>
+                </foreach>
+            </div>
+        </div>
+        <div class="sales-wrap">
+            <foreach sales_list>
+            <div class="sale">
+                <div>
+                    <a href="/sales/{.url}/" rel="nofollow"><img src="{.image_anons}" alt="{.image_anons_alt}" title="{.image_anons_title}"></a>
+                    <div class="sale-links">
+                        {{edit}}{{delete}}
+                        <a href="/sales/{.url}/" class="title" rel="nofollow" title="{.title}">{.title}</a>
+                        <p>{.anons}</p>
+                    </div>
+                </div>
+                <a href="/delivery-terms/" class="btn btn-link link-terms">Узнайте условия доставки</a>
+                <div class="sale-b-links">
+                    @if(d()->this->promocode):
+                    @d()->pc = explode(',', d()->this->promocode);
+                    @foreach (d()->pc as d()->key=>d()->val):
+                    @d()->text = trim(d()->val, ' ');
+                        <button onclick="copytext_autin(this)" class="btn btn-big-red btn-big-gr" data-msg="Скопировано в буфер обмена" data-copyid="copy-promo-{key}" id="copy-promo-{key}">{text}</button>
+                    @endforeach;
+<!--                    <button onclick="copytext_autin(this)" class="btn btn-big-red btn-big-gr" data-msg="Скопировано в буфер обмена" data-copyid="copy-promo-{.id}" id="copy-promo-{.id}">{.promocode}</button>-->
+                    @endif;
+                    <a href="/sales/{.url}/" class="btn btn-big-red right">Подробнее</a>
+                </div>
+            </div>
+            </foreach>
+        </div>
+        @if(d()->sales_list->is_empty):
+        <div class="page-content">
+        <p class="mt-30">Акции отсутствуют...</p>
+        </div>
+        @endif;
+    </div>
+</div>

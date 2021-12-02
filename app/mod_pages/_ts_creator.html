@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <!-- MDI -->
+    <link rel="stylesheet" type="text/css",  href=/vendors/mdi/css/materialdesignicons.min.css>
+    {{stylesheets '/vendors/bootstrap/css/bootstrap.min.css', '/vendors/bootstrap/css/bootstrap-multiselect.min.css', '/vendors/bootstrap/less/bootstrap-multiselect.less', '/vendors/zebra/css/bootstrap/zebra_datepicker.css',  'minify'=>true, 'to'=>'/images/s.css'}}
+    {{stylesheets '/images/style.less', '/images/datastyle.css', 'minify'=>true, 'to'=>'/images/finish.css'}}
+    <style>
+        #date1:read-only, #date2:read-only{
+            cursor: text;
+            background: #fff;
+        }
+        .search_box {
+            position: relative;
+        }
+        .search_box-result{
+            position: absolute;
+            top: 100%;
+            width: 100%;
+            max-height: 250px;
+            overflow-y: auto;
+            z-index: 9999;
+            background: #fff;
+            left: 0;
+            padding: 10px;
+            box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+            border: 1px solid #ddd;
+            display: none;
+        }
+        .search_result {
+            width: 100%;
+        }
+        .search_result div{
+            margin-bottom: 5px;
+        }
+        .divh{
+            float: right;
+            font-size: 14px;
+            line-height: 36px;
+            display: block;
+        }
+        .custom-select{
+            display: inline-block;
+            width: 100%;
+            padding: .375rem 1.75rem .375rem .75rem;
+            font-weight: 400;
+            line-height: 1.5;
+            background-color: #fff;
+            vertical-align: middle;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+        .dropdown-toggle {
+            white-space: nowrap;
+        }
+        .btn-group, .btn-group-vertical {
+            position: relative;
+            display: -ms-inline-flexbox;
+            display: inline-flex;
+            vertical-align: middle;
+            width: 100%;
+        }
+        .dropdown-item {
+            display: block;
+            width: 100%;
+            padding: .25rem 1.5rem;
+            clear: both;
+            font-weight: 400;
+            color: #212529;
+            text-align: inherit;
+            white-space: nowrap;
+            background-color: transparent;
+            border: 0;
+        }
+        button, input, optgroup, select, textarea {
+            margin: 0;
+            font-family: inherit;
+            font-size: inherit;
+            line-height: inherit;
+        }
+        .multiselect-container{
+            padding: 3px 20px;
+            width: 100%;
+        }
+        .dropdown-menu{
+            font-size: 16px;
+            padding: 5px 0;
+        }
+        .form-check-label{
+            padding: 0 5px;
+        }
+    </style>
+    <title>{Seo.title}</title>
+    <meta name="description" content='{Seo.description}'/>
+    <meta name="keywords" content='{Seo.keywords}'/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="icon" href="/favicon.ico?3">
+</head>
+<body>
+{{admin_panel}}
+    <div class="container">
+        <h1 class="mt-30">Генератор ТЗ <small>(version 1.0)</small> <div class="divh"><a href="?action=clear" class="clear">Очистить</a> / <a href="/admin/list/ts_histories" class="clear" target="_blank">История</a></div></h1>
+        <hr>
+        @if($_GET['alert']=='in_crm'):
+        <div class="alert alert-success">Акция выгружена в CRM</div>
+        @endif;
+        <form method="post" autocomplete="off">
+            <div class="row mt-30">
+                <div class="col-md-6 col-xs-12">
+                    <div class="row">
+                        <div class="col-md-6 col-xs-12">
+                            <div class="form-group">
+                                <label for="city">Город</label>
+                                <select name="city[]" id="city" multiple="multiple" class="form-control">
+                                    <foreach cities_list>
+                                        @d()->ch = '';
+                                        @if(d()->this->id == d()->ts['city'])d()->ch = 'selected';
+                                        <option value="{.id}" {ch}>{.title}</option>
+                                    </foreach>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-xs-12">
+                            <div class="form-group">
+                                <label for="promocodes">Промокод(ы)</label>
+                                <input name="promocodes" class="form-control mb-10" id="promocodes" value="<?=d()->ts['promocodes']?>" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 col-xs-12">
+                            <div class="form-group">
+                                <label for="date1">Период действия</label>
+                                <input value="<?=d()->ts['date1']?>" name="date1" class="form-control mb-10" id="date1" autocomplete="off" />
+                                <div class="zebra-wrap1 relative"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-xs-12">
+                            <div class="form-group">
+                                <label for="date2">&nbsp;</label>
+                                <input value="<?=d()->ts['date2']?>" name="date2" class="form-control mb-10" id="date2" autocomplete="off" />
+                                <div class="zebra-wrap2 relative"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-xs-12">
+                            <div class="form-group">
+                                <label for="day">Подготовить на:</label>
+                                <select name="day" id="day" class="form-control">
+                                    <option value="понедельник" <?if(d()->ts['day']=='понедельник')echo 'selected';?>>Понедельник</option>
+                                    <option value="вторник" <?if(d()->ts['day']=='вторник')echo 'selected';?>>Вторник</option>
+                                    <option value="среду" <?if(d()->ts['day']=='среду')echo 'selected';?>>Среду</option>
+                                    <option value="четверг" <?if(d()->ts['day']=='четверг')echo 'selected';?>>Четверг</option>
+                                    <option value="пятницу" <?if(d()->ts['day']=='пятницу')echo 'selected';?>>Пятницу</option>
+                                    <option value="субботу" <?if(d()->ts['day']=='субботу')echo 'selected';?>>Субботу</option>
+                                    <option value="воскресенье" <?if(d()->ts['day']=='воскресенье')echo 'selected';?>>Воскресенье</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 col-xs-12">
+                            <div class="form-group">
+                                <label for="design">Шаблон макета</label>
+                                <select name="design" id="design" class="form-control">
+                                    <option value="0" <?if(d()->ts['design']==0)echo 'selected';?>>Отсутствует</option>
+                                    <option value="1" <?if(d()->ts['design']==1)echo 'selected';?>>Общий макет в актуальных акциях</option>
+                                    <option value="2" <?if(d()->ts['design']==2)echo 'selected';?>>Слайды на главной странице</option>
+                                    <option value="3" <?if(d()->ts['design']==3)echo 'selected';?>>Пост/таргет VK</option>
+                                    <option value="4" <?if(d()->ts['design']==4)echo 'selected';?>>Рассылка VK</option>
+                                    <option value="5" <?if(d()->ts['design']==5)echo 'selected';?>>Инста</option>
+                                    <option value="6" <?if(d()->ts['design']==6)echo 'selected';?>>E-mail</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-xs-12">
+                            <div class="form-group">
+                                <label for="kanal">Канал рекламы</label>
+                                <select name="kanal" id="kanal" class="form-control">
+                                <foreach channels_list>
+                                    <option value="{.id}" <?if(d()->ts['kanal']==d()->this->id)echo 'selected';?>>{.title}</option>
+                                </foreach>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xs-12">
+                    <div class="form-group">
+                        <label for="text">Условия акции</label>
+                        @if(!d()->ts['text']):
+                        <textarea name="text" class="form-control mb-10" id="text" style="resize: none;" rows="3">Акция действует без ограничений, т.е в одном заказе может быть неограниченное количество сетов по акции и без минимальной суммы заказа, не суммируется с баллами, условия доставки уточняйте у операторов.</textarea>
+                        @else:
+                        <textarea name="text" class="form-control mb-10" id="text" style="resize: none;" rows="3"><?print d()->ts['text'];?></textarea>
+                        @endif;
+                    </div>
+                    <div class="form-group">
+                        <label for="maket">Размер макета</label>
+                        <textarea name="maket" class="form-control mb-10" id="maket" style="resize: none;" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="row mt-30">
+                <div class="type type-1">
+                <?if(count($_SESSION['ts']['data'])):?>
+                <?
+                $items = count($_SESSION['ts']['data'])/8;
+                $i = 1;
+                $line = Array();
+                for($i=1;$i<=$items;$i++):
+                $product = '';
+                if($_SESSION['ts']['data']['product'.$i])$product = str_replace('"','',$_SESSION['ts']['data']['product'.$i]);
+                $str = '';
+                if($_SESSION['ts']['data']['str'.$i])$str = $_SESSION['ts']['data']['str'.$i];
+                $w = '';
+                if($_SESSION['ts']['data']['weight'.$i])$w = $_SESSION['ts']['data']['weight'.$i];
+                $c = '';
+                if($_SESSION['ts']['data']['count'.$i])$c = $_SESSION['ts']['data']['count'.$i];
+                $op = '';
+                if($_SESSION['ts']['data']['old_price'.$i])$op = $_SESSION['ts']['data']['old_price'.$i];
+                $p = '';
+                if($_SESSION['ts']['data']['price'.$i])$p = $_SESSION['ts']['data']['price'.$i];
+                $v = '';
+                if($_SESSION['ts']['data']['profit'.$i])$v = $_SESSION['ts']['data']['profit'.$i];
+                $promo = '';
+                if($_SESSION['ts']['data']['promo'.$i])$promo = $_SESSION['ts']['data']['promo'.$i];
+                ?>
+                    <div class="col-xs-12 pos" data-n="<?=$i;?>">
+                        <div class="row">
+                            <div class="col-md-4 col-xs-12">
+                                <div class="form-group search_box">
+                                    <label for="product">Блюдо</label>
+                                    <input value="<?=$product?>" name="data[product<?=$i;?>]" class="form-control mb-10" onkeyup="live(this);" />
+                                    <div class="search_box-result"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-1 col-xs-12">
+                                <div class="form-group">
+                                    <label>Шт.</label>
+                                    <input value="<?=$c?>" name="data[count<?=$i;?>]" class="form-control mb-10 jj-count" />
+                                </div>
+                            </div>
+                            <div class="col-md-1 col-xs-12">
+                                <div class="form-group">
+                                    <label>Вес</label>
+                                    <input value="<?=$w?>" name="data[weight<?=$i;?>]" class="form-control mb-10 jj-weight" />
+                                </div>
+                            </div>
+                            <div class="col-md-1 col-xs-12">
+                                <div class="form-group">
+                                    <label>Цена</label>
+                                    <input value="<?=$p?>" name="data[price<?=$i;?>]" class="form-control mb-10 wprice" onchange="change_input(this);" />
+                                </div>
+                            </div>
+                            <div class="col-md-1 col-xs-12">
+                                <div class="form-group">
+                                    <label><s>Цена</s></label>
+                                    <input value="<?=$op?>" name="data[old_price<?=$i;?>]" class="form-control mb-10 jj-price woldprice" onchange="change_input(this);" />
+                                </div>
+                            </div>
+                            <div class="col-md-1 col-xs-12">
+                                <div class="form-group">
+                                    <label>Выгода</label>
+                                    <input value="<?=$v?>" name="data[profit<?=$i;?>]" class="form-control mb-10 wprofit" />
+                                </div>
+                            </div>
+                            <div class="col-md-1 col-xs-12">
+                                <div class="form-group">
+                                    <label>Строка</label>
+                                    <input value="<?=$str?>" name="data[str<?=$i;?>]" class="form-control mb-10" />
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-xs-12">
+                                <div class="form-group">
+                                    <label>Промокод</label>
+                                    <input value="<?=$promo?>" name="data[promo<?=$i;?>]" class="form-control mb-10" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <?
+                endfor;
+                else:
+                ?>
+                <div class="col-xs-12 pos" data-n="1">
+                    <div class="row">
+                        <div class="col-md-4 col-xs-12">
+                            <div class="form-group search_box">
+                                <label for="product">Блюдо</label>
+                                <input name="data[product1]" class="form-control mb-10" onkeyup="live(this);" />
+                                <div class="search_box-result"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-1 col-xs-12">
+                            <div class="form-group">
+                                <label>Шт.</label>
+                                <input name="data[count1]" class="form-control mb-10 jj-count" />
+                            </div>
+                        </div>
+                        <div class="col-md-1 col-xs-12">
+                            <div class="form-group">
+                                <label>Вес</label>
+                                <input name="data[weight1]" class="form-control mb-10 jj-weight" />
+                            </div>
+                        </div>
+                        <div class="col-md-1 col-xs-12">
+                            <div class="form-group">
+                                <label>Цена</label>
+                                <input name="data[price1]" class="form-control mb-10 wprice" onchange="change_input(this);"/>
+                            </div>
+                        </div>
+                        <div class="col-md-1 col-xs-12">
+                            <div class="form-group">
+                                <label><s>Цена</s></label>
+                                <input name="data[old_price1]" class="form-control mb-10 jj-price woldprice" onchange="change_input(this);"/>
+                            </div>
+                        </div>
+                        <div class="col-md-1 col-xs-12">
+                            <div class="form-group">
+                                <label>Выгода</label>
+                                <input name="data[profit1]" class="form-control mb-10 wprofit" />
+                            </div>
+                        </div>
+                        <div class="col-md-1 col-xs-12">
+                            <div class="form-group">
+                                <label>Строка</label>
+                                <input name="data[str1]" class="form-control mb-10" />
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-xs-12">
+                            <div class="form-group">
+                                <label>Промокод</label>
+                                <input name="data[promo1]" class="form-control mb-10" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <?endif;?>
+                </div>
+            </div>
+            <div class="row mt-30">
+                <div class="col-lg-6">
+                    <button type="button" class="btn btn-default" style="width:100%;" onclick="change_cnt('del');">Удалить позицию</button>
+                </div>
+                <div class="col-lg-6">
+                    <button type="button" class="btn btn-warning" style="width:100%;" onclick="change_cnt('add');">Добавить позицию</button>
+                </div>
+            </div>
+            <hr>
+            <button type="submit" class="btn btn-primary" style="width:100%;">Сохранить</button>
+        </form>
+        <hr>
+        @if(d()->show_result):
+        <div class="result" style="padding-top:40px;">
+            <h2>Дизайнер</h2><br>
+<!--            <p><strong>{ts_site},</strong> {maket}</p>-->
+            <p>{maket}</p>
+            <p><strong>{kanal} {city_title} на {day}</strong></p>
+            {desc}
+            {promocode}
+            <hr>
+            <h2>Операторы</h2><br>
+            <p><strong>{kanal} {city_title} на {day}</strong></p>
+            @if(d()->date1 && d()->date2):
+            <p>Период действия: c {date1} до {date2}</p>
+            @endif;
+            @if(d()->date1 && !d()->date2):
+            <p>Период действия: c {date1}</p>
+            @endif;
+            @if(!d()->date1 && d()->date2):
+            <p>Период действия: до {date2}</p>
+            @endif;
+            {desc}
+            {promocode}
+            {usl}
+        </div>
+        <hr>
+        <a href="?action=in_crm" class="btn btn-success">Выгрузить в CRM</a>
+        @endif;
+    </div>
+<script type="text/javascript" src="/js/jquery-3.4.1.min.js"></script>
+{{javascripts  '/vendors/bootstrap/js/bootstrap.js', '/vendors/bootstrap/js/bootstrap-multiselect.js', '/vendors/jquery.validate.js', '/vendors/inputmask/jquery.inputmask.min.js', '/vendors/zebra/zebra_datepicker.min.js', 'minify'=>true, 'to'=>'/js/s.js'}}
+<script>
+$(document).ready(function () {
+
+    $('#city').multiselect();
+
+    $('.change-price').on('input', function() {
+        console.log($(this).val());
+    });
+
+    <?if(d()->scroll):?>
+    $('html,body').stop().animate({ scrollTop: $('.result').offset().top }, 1000);
+    <?endif;?>
+
+    $('#date1').Zebra_DatePicker({
+        format: 'd.m.Y',
+        show_icon: false,
+        container: $('.zebra-wrap1'),
+        days: ['ВС', 'ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ'],
+        months: ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'],
+        show_select_today: 'Сегодня',
+        lang_clear_date: 'Очистить',
+    });
+    $('#date2').Zebra_DatePicker({
+        format: 'd.m.Y',
+        show_icon: false,
+        container: $('.zebra-wrap2'),
+        days: ['ВС', 'ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ'],
+        months: ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'],
+        show_select_today: 'Сегодня',
+        lang_clear_date: 'Очистить',
+    });
+
+    $("#type").change(function() {
+        change_type($(this).val());
+    });
+    if($("#type").length){
+        change_type($("#type").val());
+    }else{
+        change_type(1);
+    }
+
+
+    $("#design").change(function() {
+        change_maket($("#design").val());
+    });
+    $("#city").change(function() {
+        change_maket($("#design").val());
+    });
+    change_maket($("#design").val());
+
+
+    $('.live-search').on('keyup', function(){
+
+    });
+
+    $(document).on('click', function(e){
+        if(!$(e.target).closest('.search_box').length){
+            $('.search_box-result').html('').fadeOut(100);
+        }
+    });
+
+});
+
+function live(elem) {
+    var search = $(elem).val();
+    var result = $(elem).closest('.form-group').find('.search_box-result');
+    if ((search != '') && (search.length > 1)){
+        $.ajax({
+            type: "POST",
+            url: "/ajax/ts_creator_products",
+            data: {'search': search},
+            success: function(msg){
+                result.html(msg);
+                if(msg != ''){
+                    result.fadeIn();
+                } else {
+                    result.fadeOut(100);
+                }
+            }
+        });
+    } else {
+        result.html('');
+        result.fadeOut(100);
+    }
+}
+
+function pick(elem){
+    var weight = $(elem).data('weight');
+    var count = $(elem).data('count');
+    var price = $(elem).data('price');
+    var r = $(elem).text();
+
+    if(weight){
+        $(elem).closest('.pos').find('.jj-weight').val(weight);
+    }
+    if(count){
+        $(elem).closest('.pos').find('.jj-count').val(count);
+    }
+    $(elem).closest('.pos').find('.jj-price').val(price);
+    change_input('input[name="'+$(elem).closest('.pos').find('.jj-price').attr('name')+'"]');
+
+    var input = $(elem).closest('.search_box').find('input');
+    var box = $(elem).closest('.search_box').find('.search_box-result');
+    input.val(r);
+    box.html('').fadeOut(100);
+
+
+    event.preventDefault();
+}
+function change_type(v){
+    $('.type input, .type textarea').each(function(){
+        $(this).prop('disabled', true);
+    });
+    $('.type').hide();
+
+    $('.type-'+v+' input, .type-'+v+' textarea').each(function(){
+        $(this).prop('disabled', false);
+    });
+    $('.type-'+v).show();
+}
+
+function change_maket(v){
+    var m = $('#maket');
+    var dop = '';
+    if($('#city').val()==2){
+        dop = ' + значек бесплатной доставки';
+    }
+
+    m.val('');
+    if(v==1){
+        m.val('1800*2600');
+    }else if(v==2){
+        m.val('500*500');
+    }else if(v==3){
+        m.val('1080*1080 / «подпишись и получи сет»'+dop);
+    }else if(v==4){
+        m.val('600*600 '+dop);
+    }else if(v==5){
+        m.val('Аппетит, 1.макет 1080*1080 «подпишись и получи сет» + промокод  / 2.макет - 1080*1920 с кнопкой хочу / 3.макет 1080*1080 '+dop);
+    }else if(v==6){
+        m.val('600*600 с желтой полосой'+dop);
+    }
+
+}
+function change_cnt(t){
+    if($("#type").length){
+        var type = $('#type').val();
+    }else{
+        var type = 1;
+    }
+    var pos = $('.type-'+type).find('.pos');
+    if(t == 'del'){
+        if(pos.length > 1){
+            pos.each(function(){
+                if(pos.length == $(this).data('n')){
+                    $(this).remove();
+                }
+            });
+        }
+    }
+    if(t == 'add'){
+        var cnt = pos.length;
+        var new_cnt = cnt+1;
+        $(".type-"+type+" .pos:first").clone().data("n", new_cnt).attr("data-n", new_cnt).appendTo('.type-'+type);
+        var pos = $(".type-"+type).find('.pos');
+        pos.each(function(){
+            if(new_cnt == $(this).data('n')){
+                console.log($(this).data('n'));
+                var inputs = $(this).find('input');
+                inputs.each(function(){
+                    var name = $(this).attr('name');
+                    name = name.replace("1]", new_cnt+"]");
+                    $(this).attr('name', name).val('');
+                });
+            }
+        });
+    }
+}
+function change_input(e) {
+    var i = $(e);
+    var wrap = i.closest('.row');
+    var price = Number(wrap.find('.wprice').val());
+    var oldprice = Number(wrap.find('.woldprice').val());
+    if(price>0 && oldprice>0){
+        wrap.find('.wprofit').val(oldprice-price)
+    }
+}
+</script>
+</body>
+</html>

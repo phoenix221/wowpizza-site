@@ -1,0 +1,7 @@
+<foreach news_list>
+    <div class="col-md-4 col-sm-6 col-xs-12 news-block">
+        <a href="/news/{.url}/" rel="nofollow"><img src="{.image|preview}" alt="{.image_alt}" title="{.image_title}" class="image"></a>
+        <a href="/news/{.url}/" class="title">{.title} {{edit}} {{delete}}</a>
+        <div class="text-right"><a href="/news/{.url}/" class="btn btn-big-red" rel="nofollow">Подробнее</a></div>
+    </div>
+</foreach>

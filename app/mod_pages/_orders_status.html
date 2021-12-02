@@ -1,0 +1,65 @@
+<div class="container page-container">
+    {{nav_tpl}}
+    <div class="page-wrap">
+        <h1>Проверить статус заказа</h1>
+        <div class="page-content">
+            <div class="orders_items">
+                <input type="text" name="order_status_id" id="order_status_id" value="" placeholder="Введите номер заказа или телефон" class="orders_input">
+                <button id="find_btn_sts" class="btn btn-red-auth btn-st-order btn-green mr-10" onclick="find_orders();">Проверить</button>
+                <button id="cancel_btn_sts" class="btn btn-red-auth btn-st-order" onclick="cancel_orders();">Отказаться</button>
+            </div>
+            <div class="orders_status">
+                <p id="status-hint"></p>
+                <div class="status-icon">
+                    <p id="kitchen_order"><i class="mdi mdi-chef-hat"></i></p>
+                    <p id="courier_order"><i class="mdi mdi-truck-fast"></i></p>
+                    <p id="check_order"><i class="mdi mdi-check-bold"></i></p>
+                    <p id="cancel_order"><i class="mdi mdi-close"></i></p>
+                </div>
+                <p id="hint-message"></p>
+                <button class="btn btn-light btn-check-status" onclick="delails_order();">Подробности о заказе</button>
+            </div>
+            <div class="btn-or-status">
+                <button class="btn btn-default" onclick="javascript:history.back();">Назад</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="order-details" class="modal" tabindex="-1" data-easein="fadeIn" role="dialog" aria-hidden="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <img src="/images/close-modal.png" class="close" data-dismiss="modal" aria-hidden="true" alt="" loading="lazy">
+                <span class="modal-title-order">Подробности о заказе<br>
+                    <small class="auth-hint" id="details-hint"></small>
+                </span>
+            </div>
+            <div class="modal-body">
+                <div class="modal-800w text-center">
+                    <div class="confirm">
+                        <p>Для просмотра информации о заказе, подтверидете номер телефона*<br>
+                            <small>*Номер телефона который указан в заказе</small></p>
+                        <button class="btn btn-red-auth" id="confirm-phone" onclick="confirm_details_order(1);">Подтвердить</button>
+                    </div>
+                    <div class="confirm-phone-block" id="confirm-phone-block">
+                        <small>Что-бы получить "Код подтверждения" пожалуйста запустите нашего бота в Telegram и следуйте дальнейшим инструкциям<br><br><a href="https://t.me/appetitfood_bot" target="_blank" class="btn btn-tg">Telegram-бот "Аппетит"</a></small>
+                        <input id="conf-code-details-order" class="conf-code" placeholder="_ _ _ _" name="conf-code-details-order" type="tel">
+                        <div onclick="confirm_details_order()" class="resend-link" id="other-conf-link"><span class="btn btn-default btn-sm">получить код другим способом</span></div>
+                        <div onclick="resend_code();" class="resend-link none" id="resend-link"><span class="btn btn-default btn-sm">отправить повторно</span></div>
+                        <div id="resend-hint" class="resend-hint"></div>
+                    </div>
+                    <div class="details-items">
+                        <p id="or_id"></p>
+                        <p id="or_name"></p>
+                        <p id="or_phone"></p>
+                        <p id="or_street"></p>
+                        <p id="or_price"></p>
+                        <p id="or_status"></p>
+                    </div>
+                </div>
+                <div class="auth-error" id="details-error"></div>
+                <div class="auth-loading" id="details-loading"><img src="/images/loading.gif" alt="" loading="lazy"></div>
+            </div>
+        </div>
+    </div>
+</div>

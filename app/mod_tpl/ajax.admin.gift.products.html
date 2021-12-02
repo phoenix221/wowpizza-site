@@ -1,0 +1,238 @@
+@if(!d()->c_check):
+<input id="search-<?=$_POST['field_name']?>" placeholder="Поиск по подаркам">
+<style>
+    .r-table{
+        display:-webkit-box;display:-ms-flexbox;display:flex;
+        -ms-flex-wrap:wrap;flex-wrap:wrap;
+    }
+    .r-table div.line{
+        width: 100%;
+    }
+    .r-table div.line{
+        width: 100%;
+        display:-webkit-box;display:-ms-flexbox;display:flex;
+        -webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between;
+        -webkit-box-align:center;-ms-flex-align:center;align-items:center;
+        margin: 5px 0;
+    }
+    .r-table div.hide{
+        display: none !important;
+    }
+    .r-table div.line:nth-child(2n){
+        background: #f7f7f7;
+    }
+    .r-table div.line .ttl{
+        width: 450px;
+        text-align: left;
+    }
+    .r-pick{
+        display: block;
+    }
+    .r-del{
+        display: none;
+    }
+    div.r-order{
+        order:-1;
+    }
+    div.r-picked .r-pick{
+        display: none;
+    }
+    div.r-picked .r-del{
+        display: block;
+    }
+    .mo-modal input{
+        padding: 8px;
+        border-radius: 5px;
+        border: 1px solid #aaa;
+        font-size: 15px;
+        line-height: 15px;
+        width: 100%;
+        color: #666;
+        box-sizing: border-box;
+        margin: 10px 0 15px 0 !important;
+    }
+    .mo-modal input.small{
+        padding: 4px;
+        border-radius: 2px;
+        border: 1px solid #aaa;
+        font-size: 14px;
+        line-height: 14px;
+        width: 60px;
+        color: #666;
+        box-sizing: border-box;
+        margin: 0 2px !important;
+        text-align: center;
+    }
+    .mo-modal input.none{
+        display: none;
+    }
+    div.r-picked input.none{
+        display: inline-block !important;
+    }
+    .r-categories_list{
+        margin-bottom:15px;
+    }
+    .r-categories_list button{
+        margin: 2px 0;
+    }
+    .r-categories_list button.active{
+        background-color: #006dcc;
+        background-image: linear-gradient(to bottom,#08c,#04c);
+        color:#fff;
+        text-shadow: 0 -1px 0 rgba(0,0,0,0.25);
+    }
+    .r-categories_list button.active:hover{
+        background-color: #04c !important;
+        background-image: linear-gradient(to bottom,#04c,#04c) !important;
+    }
+    .none{
+        display: none !important;
+    }
+    .ma-modal input {
+        padding: 8px;
+        border-radius: 5px;
+        border: 1px solid #aaa;
+        font-size: 15px;
+        line-height: 15px;
+        width: 100%;
+        color: #666;
+        box-sizing: border-box;
+        margin: 10px 0 15px 0 !important;
+    }
+</style>
+
+<div class="r-categories_list">
+    <foreach categories_list>
+        <button type="button" class="btn btn-default btn-small" data-id="{.id}">{.title}</button>
+    </foreach>
+</div>
+<div id="table-wrap-<?=$_POST['field_name']?>">
+    @endif;
+    <div class="r-table" id="table-<?=$_POST['field_name']?>">
+        <foreach products_list as p>
+            @if(is_array(d()->this->p_list) && d()->this->p_list):
+            <foreach p_list as pl>
+                @d()->pick = '';
+                @if(d()->products[d()->p->id.'_'.d()->pl['id']][0])d()->pick = 'r-picked r-order';
+                <div data-id="{p.id}_{pl.id}" data-category="{p.category_id}" class="line gp-line-{p.id}_{pl.id} {pick}">
+                    <div style="width:105px;"><img src="{p.image|preview 380, 315}" width="80px" alt=""></div>
+                    <div class="ttl"><span>{p.title}, {pl.title}</span></div>
+                    <div style="padding: 0 10px;width:200px;text-align: right;">
+                        <div class="r-pick">
+                            <button type="button" onclick="pick_gift_<?=$_POST['field_name']?>(this, '{p.id}_{pl.id}');" class="btn btn-primary btn-small">Выбрать</button>
+                        </div>
+                        <div class="r-del">
+                            <button type="button" class="btn btn-default btn-small" disabled>Выбрано</button>
+                            <button type="button" onclick="del_gift_<?=$_POST['field_name']?>(this, '{p.id}_{pl.id}');" class="btn btn-danger btn-small">Удалить</button>
+                        </div>
+                    </div>
+                </div>
+            </foreach>
+            @else:
+            @d()->pick = '';
+            @if(d()->products[d()->p->id.'_0'][0])d()->pick = 'r-picked r-order';
+            <div data-id="{p.id}_0" data-category="{p.category_id}" class="line gp-line-{p.id}_0 {pick}">
+                <div style="width:105px;"><img src="{p.image|preview 380, 315}" width="80px" alt=""></div>
+                <div class="ttl"><span>{p.title}</span></div>
+                <div style="padding: 0 10px;width:200px;text-align: right;">
+                    <div class="r-pick">
+                        <button type="button" onclick="pick_gift_<?=$_POST['field_name']?>(this, '{p.id}_0');" class="btn btn-primary btn-small">Выбрать</button>
+                    </div>
+                    <div class="r-del">
+                        <button type="button" class="btn btn-default btn-small" disabled>Выбрано</button>
+                        <button type="button" onclick="del_gift_<?=$_POST['field_name']?>(this, '{p.id}_0');" class="btn btn-danger btn-small">Удалить</button>
+                    </div>
+                </div>
+            </div>
+            @endif;
+        </foreach>
+    </div>
+
+    @if(!d()->c_check):
+</div>
+<script>
+    $(document).ready(function () {
+        $('#pgul-<?=$_POST['field_name']?>-loading').hide();
+        $('#pgul-<?=$_POST['field_name']?>').show();
+
+        $("#search-<?=$_POST['field_name']?>").keyup(function(){
+            _this = this;
+
+            $("#table-<?=$_POST['field_name']?> div.line").each(function(){
+                if($(this).find('.ttl').text().toLowerCase().indexOf($(_this).val().toLowerCase()) === -1) {
+                    $(this).addClass('none');
+                } else {
+                    $(this).removeClass('none');
+                }
+            });
+        });
+
+        $(".pg-wrap-<?=$_POST['field_name']?> .r-categories_list button").click(function(){
+            //$('#products-search').val('');
+            if(!$(this).hasClass('active')) {
+                $(".pg-wrap-<?=$_POST['field_name']?> .r-categories_list button").removeClass('active');
+                $(this).addClass('active');
+                var category = '|'+$(this).data('id')+'|';
+
+            }else{
+                $(".pg-wrap-<?=$_POST['field_name']?> .r-categories_list button").removeClass('active');
+                var category = 0;
+            }
+            var line = $('#table-<?=$_POST["field_name"]?> .line')
+            //var tc_line = $('#table-<?=$_POST["field_name"]?> .line[data-category="'+category+'"]')
+            if(!category){
+                line.removeClass('hide');
+            }else{
+                line.addClass('hide');
+                line.each(function(){
+                    if($(this).data('category').indexOf(category)>=0){
+                        $(this).removeClass('hide');
+                    }
+                })
+                //tc_line.removeClass('hide');
+            }
+        });
+
+        $('#modal-<?=$_POST["field_name"]?>').on('hide.bs.modal', function () {
+            r_run_p_id_list_<?=$_POST['field_name']?>();
+        });
+    });
+
+    function pick_gift_<?=$_POST['field_name']?>(elem, id) {
+        var div = $(elem).closest('div');
+        var line = $(elem).closest('div.line');
+        var b_pick = $(elem).closest('.r-pick');
+        var b_del = line.find('.r-del');
+
+        line.addClass('r-picked');
+        //r_run_p_id_list_<?=$_POST['field_name']?>();
+    }
+
+    function del_gift_<?=$_POST['field_name']?>(elem, id) {
+        var wrap = $('.pg-wrap-<?=$_POST["field_name"]?>');
+        var line = $(elem).closest('div.line');
+        if(!line.length){
+            var line = wrap.find('.gp-line-'+id);
+        }
+        line.removeClass('r-picked');
+        r_run_p_id_list_<?=$_POST['field_name']?>();
+    }
+
+    function r_run_p_id_list_<?=$_POST['field_name']?>() {
+        var line_picks = $('#table-<?=$_POST["field_name"]?> .r-picked');
+        var p_list = '';
+        var id_list = '';
+        $(line_picks).each(function(){
+            p_list += '<li>'+$(this).find('.ttl span').text()+'<i title="Удалить" class="dgio mdi mdi-close-circle" onclick=\'del_gift_<?=$_POST["field_name"]?>(this, "'+$(this).data('id')+'");\'></i></li>';
+            if(id_list){
+                id_list += ',';
+            }
+            id_list += '|'+$(this).data('id')+'|';
+
+        });
+        $('#pgul-<?=$_POST["field_name"]?>').html(p_list);
+        $('input[name="data[<?=$_POST["field_name"]?>]"]').val(id_list);
+        console.log(id_list);
+    }
+</script>
+@endif;

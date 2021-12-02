@@ -1,0 +1,14 @@
+<div class="container page-container">
+    {{nav_tpl}}
+    <div class="page-wrap">
+        <h1>{.title} {{edit}}</h1>
+        <div class="page-content">
+            {.text}
+            <ul class="menu-icons">
+            <foreach categories_list>
+                <li><a href="/menu/{.url}/"><img src="{.image}" alt=""><span>{.title}</span></a></li>
+            </foreach>
+            </ul>
+        </div>
+    </div>
+</div>

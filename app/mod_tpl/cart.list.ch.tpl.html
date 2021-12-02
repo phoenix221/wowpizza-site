@@ -1,0 +1,45 @@
+@d()->ec_cp = '';
+<foreach cart_list>
+@d()->gift_cash = '';
+@if(d()->this->property == 'gift_cash'):
+@d()->gift_cash = 'gift-cash';
+@endif;
+<section class="ch-cart-block" id="ch_{.attr_id}" data-id="{.id}" data-property="{.property}" data-promo-count="{.promo_count}" data-promo-discount="{.promo_discount}" data-total-promo-discount="{.total_promo_discount}" data-promo-used="{.promo_used}" data-autoadd="{.autoadd}">
+    <div class="ch-c-img">
+        <img src="{.image}" alt="">
+    </div>
+    <div class="ch-c-ttl {gift_cash}">
+        <h4>{.title}</h4>
+        <span class="p_title">{.f_property_title}</span>
+        <ul class="p_title_ul">
+            {.f_property_title_ul}
+        </ul>
+    </div>
+    <div class="cart-cnt-line">
+        @if(d()->property=='promo' || d()->property=='gift_dr' || d()->property=='gift_pickup' || d()->property=='gift_cash' || d()->auto):
+        <i class="mdi mdi-minus disabled"></i>
+        <span>{.cnt}</span>
+        <i class="mdi mdi-plus disabled"></i>
+        @else:
+        <i class="mdi mdi-minus" onclick="minuscart(this);"></i>
+        <span>{.cnt}</span>
+        <i class="mdi mdi-plus" onclick="pluscart(this);"></i>
+        @endif;
+    </div>
+    <div class="ch-c-price">
+        <span class="price" data-price="{.price}" data-item-price="{.items_price}">
+            @d()->show_old_price = '';
+            @if(d()->this->total_promo_discount)d()->show_old_price = 'show';
+            <div class="old-price {show_old_price}"><span data-tp="{.total_price_nd}">{.total_price_nd}</span><i class="rub">q</i></div>
+            <b data-price="{.f_total_price}" data-tp-discount="{.total_promo_discount}" data-p-discount="{.promo_discount}">{.f_total_price}</b><i class="rub">q</i>
+        </span>
+        @if(d()->auto):
+        <i class="mdi mdi-trash-can-outline del-disabled" title="Удалить"></i>
+        @else:
+        <i class="mdi mdi-trash-can-outline" title="Удалить" onclick="removecart(this);"></i>
+        @endif;
+    </div>
+</section>
+<?d()->ec_cp .= "{'name': '".d()->nq(d()->this->title)."','id': '".d()->this->id."', 'price': '".d()->this->price."', 'brand': '', 'category': '', 'variant': '', 'quantity': ".d()->this->cnt."},";?>
+</foreach>
+

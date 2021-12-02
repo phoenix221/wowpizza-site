@@ -1,0 +1,150 @@
+<?
+if(url(4) && url(4)!='add'){
+    d()->city = d()->City(url(4));
+    d()->gift_dr = d()->city[d()->field_params[1]];
+    if(d()->gift_dr){
+        $gift = explode(',', d()->gift_dr);
+        d()->picked_id = Array();
+        d()->picked_pid = Array();
+        d()->picked_products = Array();
+        foreach($gift as $k=>$v){
+            $a = str_replace('|', '', $v);
+            $pid = explode('_', $a);
+            d()->picked_id[] = $pid[0];
+            d()->picked_pid[$pid[0]] = $pid[1];
+            d()->picked_products[$a[0]] = $a;
+        }
+        d()->pl = d()->Product(d()->picked_id);
+        d()->gift_list = '';
+        foreach(d()->pl as $v){
+            $dop_ttl = '';
+            $t_id = d()->pl->id.'_0';
+            if(d()->picked_pid[d()->pl->id]){
+                $dop_ttl = ', '.d()->Property(d()->picked_pid[d()->pl->id])->title;
+                $t_id = d()->pl->id.'_'.d()->picked_pid[d()->pl->id];
+            }
+            d()->gift_list .= '<li>'.d()->pl->title.$dop_ttl.' <i title="Удалить" class="dgio mdi mdi-close-circle" onclick=\'del_gift_'.d()->field_params[1].'(this, "'.$t_id.'");\'></i></li>';
+        }
+
+    }else{
+        d()->gift_list = '<li>Пусто</li>';
+    }
+}
+?>
+<style>
+    .mo-modal{
+        width:800px !important;
+        max-width:100% !important;
+        margin: 0 !important;
+        top: 80px !important;
+        max-height: 85% !important;
+        min-height: 85% !important;
+        left: 50% !important;
+        margin-left: -400px !important;
+        overflow-y: scroll;
+        border-radius: 0 !important;
+    }
+    .mo-modal .modal-body {
+        max-height: none !important;
+        margin-top: 50px;
+    }
+    .fmo-header{
+        position: fixed;
+        margin-top:-50px;
+        background: #fff;
+        z-index: 50;
+        width: 784px !important;
+        max-width: 100% !important;
+        box-sizing: border-box;
+        padding-right: 14px !important;
+    }
+    .fmo-footer{
+        position: fixed !important;
+        background: #fff !important;
+        z-index: 50 !important;
+        width: 800px !important;
+        max-width: 100% !important;
+        box-sizing: border-box;
+        padding-right: 30px !important;
+        bottom: 0;
+    }
+    .relative{
+        position: relative;
+    }
+    .glo{
+        list-style: disc;
+        margin-top: 10px;
+        margin-bottom: 0;
+    }
+    .dgio{
+        margin-left: 5px;
+        cursor: pointer;
+        color: #bd362f;
+    }
+</style>
+<div class="pg-wrap-<?=d()->field_params[1];?>">
+    <div class="control-group">
+        <label class="control-label"></label>
+        <div class="controls">
+            <em style="color:#777;">Выбрано:</em>
+            <img src="/images/loading.gif" alt="" style="width:20px;" id="pgul-<?=d()->field_params[1];?>-loading">
+            <ul class="gl dr-gift-list" style="display:none;" id="pgul-<?=d()->field_params[1];?>">
+                {gift_list}
+            </ul>
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label"></label>
+        <div class="controls"><a href="#modal-<?=d()->field_params[1];?>" data-toggle="modal" class="btn btn-default">Список подароков</a></div>
+    </div>
+    <input type="hidden" name="data[<?=d()->field_params[1];?>]" value="{gift_dr}">
+    <br>
+
+    <!-- Bootstrap -->
+    <script type="text/javascript" src="/vendors/bootstrap/js/bootstrap.js"></script>
+    <!-- MDI -->
+    <link rel="stylesheet" href="/vendors/mdi/css/materialdesignicons.min.css">
+    <script>
+        $(document).ready(function () {
+
+            var products = $('input[name="data[<?=d()->field_params[1];?>]"]').val();
+            console.log(products);
+            $.post('/ajax/ajax_get_gift_products_admin', {products:products, field_name:"<?=d()->field_params[1];?>", city_id:"<?=d()->city->id?>"}, function(data) {
+                var load = $('.required_loading_products');
+                load.hide();
+                $('#modal-<?=d()->field_params[1];?> .modal-body .modal-content').html(data);
+            });
+
+            //$('#modal-<?//=d()->field_params[1];?>//').on('show.bs.modal', function () {
+            //    var products = $('input[name="data[<?//=d()->field_params[1];?>//]"]').val();
+            //    var load = $('.required_loading_products');
+            //    $('#modal-<?//=d()->field_params[1];?>// .modal-body .modal-content').html('');
+            //    load.show();
+            //    console.log(products);
+            //    $.post('/ajax/ajax_get_gift_products_admin', {products:products, field_name:"<?//=d()->field_params[1];?>//"}, function(data) {
+            //        load.hide();
+            //        $('#modal-<?//=d()->field_params[1];?>// .modal-body .modal-content').html(data);
+            //    });
+            //});
+
+        });
+
+    </script>
+
+    <div id="modal-<?=d()->field_params[1];?>" class="modal ma-modal" tabindex="-1" role="dialog" style="display: none;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header fm-header">
+                    <img src="/images/close-modal.png" class="close" style="width: 15px;opacity: 1;" data-dismiss="modal" aria-hidden="true" alt="">
+                    <h4 class="modal-title">Список подарков</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="modal-content">
+
+                    </div>
+                    <img src="/images/loading.gif" alt="" style="width:35px;" class="required_loading_products">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

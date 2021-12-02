@@ -1,0 +1,24 @@
+<?
+if(($_GET['category_id'])){
+    d()->category = d()->Category($_GET['category_id']);
+}else{
+    if(d()->value){
+        d()->category = d()->Category(d()->value);
+    }else{
+        // для свойств блюд
+        if($_GET['product_id']){
+            d()->product = d()->Product($_GET['product_id']);
+            d()->category = d()->Category(d()->product->category_id);
+        }
+    }
+}
+?>
+<div class="control-group">
+  <label class="control-label"  >{title}</label>
+  <div class="controls">
+	<input type="text" value='<?=d()->category->title;?>' class="input-xlarge" readonly >
+	<input type="hidden"  name="{name}" value="<?=d()->category->id;?>">
+	<span class="help-inline"><?php print d()->field_params[3]; ?></span>
+  </div>
+</div>
+

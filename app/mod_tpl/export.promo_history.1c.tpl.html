@@ -1,0 +1,11 @@
+<?='<?xml version="1.0" encoding="windows-1251"?>';?>
+
+<КоммерческаяИнформация ДатаФормирования="<?=date('Y-m-d')?>">
+    <foreach promo_list>
+    @d()->promo = d()->Promocode->where('id = ?', d()->this->promocode_id);
+    <Документ>
+        <Промокод>{promo.name|strtoupper}</Промокод>
+        <Телефон>{.phone}</Телефон>
+    </Документ>
+    </foreach>
+</КоммерческаяИнформация>

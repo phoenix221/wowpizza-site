@@ -1,0 +1,17 @@
+<?php
+if(url(2)=='edit'){
+    d()->seothis = d()->Seoparam(url(4))->limit(0,1);
+}
+?>
+<div class="control-group">
+    <label class="control-label">Раздел</label>
+    <div class="controls">
+        <select name="data[razdel]"  class="input-xlarge">
+            <option value="categories" <?if(d()->seothis->razdel=='categories'):?>selected<?endif;?>>Разделы с товарами</option>
+            <option value="products" <?if(d()->seothis->razdel=='products'):?>selected<?endif;?>>Товары детально</option>
+            <option value="news" <?if(d()->seothis->razdel=='news'):?>selected<?endif;?>>Новости детально</option>
+            <option value="sales" <?if(d()->seothis->razdel=='sales'):?>selected<?endif;?>>Акции детально</option>
+        </select>
+    </div>
+</div>
+

@@ -1,0 +1,26 @@
+<?
+if(($_GET['city_id'])){
+    d()->city = d()->City($_GET['city_id']);
+}else{
+    if(d()->value){
+        d()->city = d()->City(d()->value);
+    }else{
+        if($_GET['product_id']){
+            d()->city = d()->City(d()->Product($_GET['product_id'])->city_id);
+        }
+        if($_GET['category_id']){
+            d()->city = d()->City(d()->Category($_GET['category_id'])->city_id);
+        }
+    }
+}
+d()->cityid = d()->city->id;
+?>
+<div class="control-group">
+  <label class="control-label"  >{title}</label>
+  <div class="controls">
+	<input type="text" value="<?=d()->city->title;?>" class="input-xlarge" readonly >
+	<input type="hidden"  name="{name}" value="<?=d()->city->id;?>">
+	<span class="help-inline"><?php print d()->field_params[3]; ?></span>
+  </div>
+</div>
+

@@ -1,0 +1,11 @@
+@if(d()->field_params[3]=='zonis'):
+<div class="control-group">
+    <a href="/admin/edit/add_zonis/city_id/<?print url(4);?>" class="btn btn-default">Обновить зоны</a>
+    <a href="/admin/list/zonis/city_id/<?print url(4);?>" class="btn btn-default">Текущий список зон</a>
+</div>
+@else:
+<div class="control-group">
+    <?$url = str_replace('--id', url(4), d()->field_params[3]);?>
+    <a href="/admin/<?php print $url; ?>" class="btn btn-default"><?php print d()->field_params[2]; ?></a>
+</div>
+@endif;

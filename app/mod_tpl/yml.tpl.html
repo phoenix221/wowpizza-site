@@ -1,0 +1,70 @@
+<<?php /* */ ?>?xml version="1.0" encoding="utf-8"?>
+<yml_catalog date="<?=date('Y-m-d H:i')?>">
+    <shop>
+        <name>{city.name}</name>
+        <company>{city.ur_name}</company>
+        <url>https://{site_url}</url>
+        <currencies>
+            <currency id="RUR" rate="1"/>
+        </currencies>
+        <categories>
+        <foreach categories_list>
+            <category id="{.id}">{.title}</category>
+        </foreach>
+        </categories>
+        <delivery-options>
+            <option cost="{delivery_cost}" days="0" />
+        </delivery-options>
+        <pickup-options>
+            <option cost="0" days="0" />
+        </pickup-options>
+        <offers>
+        <foreach products_list>
+            <?
+              $cat = array_values(array_filter(explode('|',d()->this->category_id)));
+              $ch = 0;
+              d()->cat = 0;
+              foreach($cat as $v){
+                  if(in_array($v, d()->check_list)){
+                    $ch = 1;
+                    d()->cat = $v;
+                    break;
+                  }
+              }
+
+            ?>
+            <?if(!$ch)continue;?>
+            <offer id="{.id}">
+                <name>{.title|yml}</name>
+                <url>https://{site_url}{.link}</url>
+                @if(!d()->this->p_list):
+                <price>{.price}</price>
+                @else:
+                <price>{product_price}</price>
+                @endif;
+                <currencyId>RUR</currencyId>
+                <categoryId>{cat}</categoryId>
+                <picture>https://{site_url}{.image}</picture>
+                <delivery>true</delivery>
+                <pickup>true</pickup>
+                <delivery-options>
+                    <option cost="{delivery_cost}" days="0"/>
+                </delivery-options>
+                <pickup-options>
+                    <option cost="0" days="0"/>
+                </pickup-options>
+                <store>true</store>
+                <description>{.yml_sostav}</description>
+                @if(d()->this->weight):
+                @d()->wt = d()->this->weight_type.'.';
+                @if(d()->wt=='г.')d()->wt='грамм';
+                <param name="Вес/Объем">{.weight} {wt}</param>
+                @endif;
+                @if(d()->this->number):
+                <param name="Количество">{.number} {.number_type}.</param>
+                @endif;
+            </offer>
+        </foreach>
+        </offers>
+    </shop>
+</yml_catalog>

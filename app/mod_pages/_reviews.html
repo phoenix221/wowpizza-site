@@ -1,0 +1,86 @@
+<div class="container page-container">
+    {{nav_tpl}}
+    <div class="page-wrap">
+        <h1>Отзывы</h1>
+        <div class="page-content">
+            <div class="row">
+                <div class="col-sm-6 col-xs-12 review-col"><a href="#" data-block-id="reviews" class="review-but {r_active}">Смогли удивить? Поделись со всеми!</a></div>
+                <div class="col-sm-6 col-xs-12 review-col"><a href="#" data-block-id="write_guide" class="review-but {g_active}">Допустили ошибку? Написать в службу заботы</a></div>
+<!--                <div class="col-sm-6 col-xs-12 review-col"><a href="#" data-block-id="write_guide" class="review-but {g_active}">Мы допустили ошибку? Сообщи руководству</a></div>-->
+            </div>
+            <div class="review_block {r_none}" id="reviews">
+                <!--<div class="reviews_warning">Для оперативной связи, пожалуйста, оставьте Вашу страничку Vk открытой или укажите контактный номер телефона.</div>-->
+                <!-- Put this script tag to the <head> of your page -->
+                <!--<script type="text/javascript" src="https://vk.com/js/api/openapi.js?156"></script>
+                <script type="text/javascript">
+                    VK.init({apiId: {city.vk_w_id}});
+                </script>-->
+                <!-- Put this div tag to the place, where the Comments block will be -->
+                <!--<div id="vk_comments"></div>
+                <script type="text/javascript">
+                    VK.Widgets.Comments("vk_comments", {limit: 10, attach: "*", pageUrl: "{city.vk_w_url}"});
+                    VK.Observer.subscribe("widgets.comments.new_comment", function(num,last_comment,date,sign)
+                    {
+                        $.post( "/ajax/vk_comment",{last_comment:last_comment,date:date}, function(data){
+                            console.log(data);
+                        });
+                    });
+                </script>-->
+                <div class="reviews-lnk">
+                    @if(d()->options->is_flamp == 1):
+                    <a class="reviews-items {flamp_active}" href="#" data-block-id="reviewsflamp">Flamp</a>
+                    @endif;
+                    @if(d()->options->is_ya_map == 1):
+                    <a class="reviews-items {yamap_active}" href="#" data-block-id="reviewsyamap">Яндекс Карты</a>
+                    @endif;
+                </div>
+                @if(d()->options->is_flamp == 1):
+                <div class="rev-sites {flamp_none}" id="reviewsflamp">
+                    {rewiews_flamp}
+                </div>
+                @endif;
+                @if(d()->options->is_ya_map == 1):
+                <div class="rev-sites {yamap_none}" id="reviewsyamap">
+                    {rewiews_ya_map}
+                </div>
+                @endif;
+            </div>
+            <div class="review_block {g_none}" id="write_guide">
+                <h3>Допустили ошибку? Написать в службу заботы</h3>
+                <small>Чтобы направить сообщение / обратную связь и получить максимально быстрый ответ, воспользуйтесь следующими мессенджерами:</small>
+
+                @if(d()->city->id == 3 && d()->reviews_vk):
+                <p>VK: <a href="https://{reviews_vk}">vk.me/appetit_kzn_help</a></p>
+                @elseif(d()->reviews_vk):
+                <p>VK: <a href="https://{reviews_vk}">{reviews_vk}</a></p>
+                @endif;
+                @if(d()->reviews_telegram):
+                <p>Telegram: <a href="http://{reviews_telegram}">{reviews_telegram}</a></p>
+                @endif;
+                @if(d()->reviews_viber):
+                <p>Viber: <a href="{reviews_viber}">{reviews_viber}</a></p>
+                @endif;
+                @if(d()->reviews_whatsapp):
+                <p>WhatsApp: <a href="http://{reviews_whatsapp}">{reviews_whatsapp}</a></p>
+                @endif;
+                <p>Позвонить на номер: <a href="tel:{reviews_tel}">{reviews_tel}</a></p>
+                <!--<h3>Нашли ошибку/хотите оставить отзыв? Сообщите напрямую руководству!</h3>
+                <small>Для получения быстрой обратной связи, пожалуйста укажите свой номер телефона</small>
+                <form method="POST" class="cf" id="write-guide">
+                    <div class="alert tex-left none" id="wg-alert"></div>
+                    <textarea id="wg-text" name="text" class="required" placeholder="Текст сообщения"></textarea>
+                    <input id="wg-contact" type="text" name="contact" class="required" placeholder="Контактный телефон" />
+                    <input id="wg-file" class="size-input-file" type="file" name="file" accept=".xls,.xlsx,.txt,.pdf,.zip,.rar,.png,.jpg,.jpeg,.bmp,.mp3,.wav,.doc,.docx,.pages" placeholder="Вложение" />
+                    <input id="wg-file2" class="size-input-file" type="file" name="file2" accept=".xls,.xlsx,.txt,.pdf,.zip,.rar,.png,.jpg,.jpeg,.bmp,.mp3,.wav,.doc,.docx,.pages" placeholder="Вложение" />
+                    <input id="wg-file3" class="size-input-file" type="file" name="file3" accept=".xls,.xlsx,.txt,.pdf,.zip,.rar,.png,.jpg,.jpeg,.bmp,.mp3,.wav,.doc,.docx,.pages" placeholder="Вложение" />
+                    <small class="size-file">Максимальный размер файла 100 МБ.</small>
+                    <div class="rules_line">
+                        <span>Нажимая кнопку "Отправить", Вы даете <a href="/personal/">согласие на обработку персональных данных</a></span>
+                        <button type="submit" id="wg-submit" class="btn btn-red-frm">Отправить</button>
+                        <img src="/images/loading.gif" alt="" class="load" id="wg-load">
+                    </div>
+                </form>-->
+            </div>
+        </div>
+    </div>
+</div>

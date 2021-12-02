@@ -1,0 +1,124 @@
+<div class="row other-row js-product">
+    <div class="col-md-6 col-sm-6">
+        <img id="image" src="{.image|preview 500, 385}" alt="{.image_alt}" class="other-img" />
+        <div class="tableware_p">
+            @if(d()->number_persons != 0 || d()->p_list[0]['number_persons']):
+            {{tableware_cart_tpl}}
+            @endif;
+        </div>
+        <span class="other-ttl">{.title}</span>
+        @d()->main_price = d()->product_price;
+        @if(d()->this->text):
+        <div class="other-text-div">
+        <p class="other-text">{.text}</p>
+        </div>
+        @endif;
+    </div>
+    <div class="col-md-6 col-sm-6 fnmt">
+        @if(d()->this->p_list && is_array(d()->this->p_list)):
+        <div class="property">
+            <span class="other-prop-ttl">{.property_header}</span>
+            <foreach p_list>
+                <div class="other_radio_style">
+                    <div>
+                        <input id="ppt_{.id}" type="radio" name="ppt_{.product_id}" value="{.id}" data-default="{.is_default}" data-price="{.price}" data-weight="{.weight}" data-weight-type="{.weight_type}" {.checked} />
+                        <label for="ppt_{.id}">{.title}</label>
+                    </div>
+                    <div class="other-price-wrap">
+                        <span class="other-price" data-price="{.price}">{.price}<i class="rub">q</i></span>
+                    </div>
+                </div>
+            </foreach>
+        </div>
+        @endif;
+
+        @d()->free_items = 0;
+        <foreach other_list as other>
+        <div class="other-cw" data-max="{other.max}" data-remove="{other.is_remove}">
+            <span class="other-prop-ttl">{other.title}</span>
+            <foreach items_list as item>
+            @if(!is_array(d()->items_array[d()->item->id])):
+            @d()->pid = d()->item->id.'_'.d()->items_array[d()->item->id];
+            @if(strpos(d()->other->text, d()->pid) === false)continue;
+            <div class="other_radio_style">
+                <div>
+                    <input id="item_{pid}" type="{other.type}" name="other_{other.id}" value="{pid}" />
+                    <label for="item_{pid}">{item.title}</label>
+                </div>
+                <div class="other-price-wrap">
+                    @if(d()->other->max > 1 || !d()->other->max):
+                    <div class="other-ccl">
+                        <i class="mdi mdi-minus" onclick="minusother(this);"></i>
+                        <span>1</span>
+                        <i class="mdi mdi-plus" onclick="plusother(this);"></i>
+                    </div>
+                    @endif;
+                    <span class="other-price" data-price="{item.price}">+ {item.price}<i class="rub">q</i></span>
+                    @if(d()->item->price == 0)d()->free_items = 1;
+                </div>
+            </div>
+            @else:
+            @foreach(d()->items_array[d()->item->id] as d()->item_prop):
+            @d()->prop = d()->Property(d()->item_prop);
+            @d()->pid = d()->item->id.'_'.d()->item_prop;
+            @if(strpos(d()->other->text, d()->pid) === false)continue;
+            <div class="other_radio_style">
+                <div>
+                    <input id="item_{pid}" type="{other.type}" name="other_{other.id}" value="{pid}" />
+                    <label for="item_{pid}">{item.title}, {prop.title}</label>
+                </div>
+                <div class="other-price-wrap">
+                    @if(d()->other->max > 1 || !d()->other->max):
+                    <div class="other-ccl">
+                        <i class="mdi mdi-minus" onclick="minusother(this);"></i>
+                        <span>1</span>
+                        <i class="mdi mdi-plus" onclick="plusother(this);"></i>
+                    </div>
+                    @endif;
+                    <span class="other-price" data-price="{prop.price}">+ {prop.price}<i class="rub">q</i></span>
+                </div>
+            </div>
+            @endforeach;
+            @endif;
+            </foreach>
+        </div>
+        </foreach>
+
+        <div class="other-acl">
+            <!--<div class="other-ccl">-->
+            <!--<i class="mdi mdi-minus" onclick="minusother(this);"></i>-->
+            <!--<span>1</span>-->
+            <!--<i class="mdi mdi-plus" onclick="plusother(this);"></i>-->
+            <!--</div>-->
+            <div class="other-tp"><span>{main_price}</span><i class="rub">q</i></div>
+            <input type="hidden" name="def_price" value="{main_price}" />
+            <input type="hidden" name="items" value="" />
+
+            <input type="hidden" name="id" value="{.id}">
+            <input type="hidden" name="title" value='{.title}'>
+            <input type="hidden" name="category" value='{.category_word}'>
+            <input type="hidden" name="list" value='{ec_list}'>
+            @if(d()->this->p_list && is_array(d()->this->p_list)):
+            <input type="hidden" name="property" value="{property_id}">
+            <input type="hidden" name="price" value="{main_price}">
+            @else:
+            <input type="hidden" name="property" value="0">
+            <input type="hidden" name="price" value="{main_price}">
+            @endif;
+            <input type="hidden" name="image" value="{.image|preview 370, 285}">
+            <input itemprop="priceCurrency" type="hidden" name="currency" value="RUB">
+
+
+            <button class="btn btn-red-auth" onclick="addcart(this);" data-freeitems="{free_items}" data-title="Обратите внимание, не выбраны или выбраны не полностью, бесплатные дополнительные товары.">В корзину</button>
+        </div>
+    </div>
+</div>
+<div class="text-center other-cancel"><button class="btn btn-default-auth" data-dismiss="modal">Отмена</button></div>
+<script>
+    $(document).ready(function () {
+        var input = $('input:checked');
+        if(input != ''){
+            change_image(input);
+        }
+    })
+</script>

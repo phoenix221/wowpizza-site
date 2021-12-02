@@ -1,0 +1,38 @@
+<script src="https://api-maps.yandex.ru/2.1/?apikey={key}&lang=ru_RU" type="text/javascript"></script>
+<div class="container page-container">
+    {{nav_tpl}}
+    <div class="page-wrap">
+        <h1>Узнай условия доставки</h1>
+        <div class="page-content">
+            <div class="delivery-terms">
+                <small class="hint">Чтобы узнать условия доставки, введите адрес в поле ниже</small>
+                <div id="address-loading" class="address-loading loading-hint-lk"><img src="/images/loading.gif" alt="" loading="lazy"></div>
+                <input name="address" id="address-street" placeholder="Улица и номер дома" class="yellow-focus required mb-10" autocomplete="off" autocorrect="off" autocapitalize="off">
+                <div class="answer-block-terms">
+                    <p id="address-hint"></p>
+                    <p id="t_address"></p>
+                    <p id="t_title"></p>
+                    <p id="t_price"></p>
+                    <p id="t_min"></p>
+                    <p id="t_free"></p>
+                    <p id="t_time"></p>
+                </div>
+                <button class="btn btn-default" onclick="javascript:history.back();">Назад</button>
+            </div>
+        </div>
+    </div>
+</div>
+<input type="hidden" id="address-street2" name="address-street2" value>
+<div type="hidden" id="map" name="map"></div>
+<input type="hidden" id="delivery-terms" name="delivery-terms" value="1">
+<script>
+    window.onload = function(){
+        if($('#check_hints').val() == 1){
+            // dadata
+            address_sug();
+        }else{
+            // yandex suggest
+            yandex_sug();
+        }
+    };
+</script>

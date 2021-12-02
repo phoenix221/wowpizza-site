@@ -1,0 +1,18 @@
+<div class="container page-container">
+    {{nav_tpl}}
+    <div class="page-wrap">
+        <h1>Новости {{add 'news', 'city_id'=>d()->city->id}}</h1>
+        <div class="page-content">
+            <div id="news-block" class="nb-wrap">
+            {{news_line_tpl}}
+            </div>
+            @if(d()->news_list->is_empty):
+            <p class="mt-0">Новости отсутствуют...</p>
+            @endif;
+
+        </div>
+    </div>
+</div>
+{load_more}
+
+

@@ -1,0 +1,9 @@
+<?$city = d()->City->where('code=?',d()->value)->title;?>
+<div class="control-group">
+  <label class="control-label"  >{title}</label>
+  <div class="controls">
+	<input type="text"  name="{name}" value="<?=$city;?>" class="input-xlarge" readonly >
+	<span class="help-inline"><?php print d()->field_params[3]; ?></span>
+  </div>
+</div>
+

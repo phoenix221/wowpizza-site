@@ -1,0 +1,23 @@
+<?
+if(!d()->value) {
+    d()->value = '';
+}else{
+    if(url(3)!='sales'){
+        d()->value = date('d.m.Y', d()->value);
+    }
+}
+?>
+<div class="control-group" style="float:left;">
+    <?if(d()->title=='-'):?>
+    <label class="control-label" style="float:left;position:relative;left:-13px;width:8px;" >{title}</label>
+    <div class="controls" style="margin-left:0;width:150px;">
+    <?elseif(d()->title):?>
+  <label class="control-label"  >{title}</label>
+  <div class="controls" style="width:150px;">
+      <?else:?>
+    <div class="controls" style="margin-left:0;width:150px;">
+        <?endif;?>
+      <input type="text" name="{name}" value="{value|h}" class="admin_date" autocomplete="off" style="width: 115px">
+      <span class="help-inline" style="float:right;margin-top:6px;"><?php print d()->field_params[3]; ?></span>
+    </div>
+  </div>

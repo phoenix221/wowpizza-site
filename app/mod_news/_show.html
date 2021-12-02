@@ -1,0 +1,14 @@
+<div class="container page-container">
+    {{nav_tpl}}
+    <div class="page-wrap">
+        <h1>{.title} {{edit}}</h1>
+        <div class="page-content">
+            {.text}
+        </div>
+        @if(d()->this->image && d()->this->is_imgshow):
+        <div class="news-s-img"><img src="{.image}" alt="{.image_alt}" title="{.image_title}"></div>
+        @endif;
+    </div>
+</div>
+
+

@@ -1,0 +1,32 @@
+@if(!d()->city){get_city();d()->city_list = d()->City->where('id != ?', d()->city->id);get_dates(d()->city);d()->categories_list = d()->Category->where('city_id=? AND is_active=1', d()->city->id);get_cart();}
+@d()->show_textback = 0;
+@d()->nav = '<li><span class="mdi mdi-chevron-right"></span>Ошибка 404</li>';
+<div class="container page-container">
+    {{nav_tpl}}
+    <div class="page-wrap">
+    <h1>404</h1>
+    Страница не существует. {{add 'pages', 'url'=>url(), 'city_id'=>d()->city->id}}
+    <p>Вы будете перенаправлены на новую страницу через <span id="clock"></span></p>
+    @if(url(1) == 'sales'):
+    @d()->actual = d()->Sale->where('is_actual = 1 AND city_id = ?', d()->city->id)->limit(0,1);
+    @if(!d()->actual->is_empty):
+    Хотите наши лучшие блюда со скидкой - переходите в <a href="/sales/{actual.url}/">Актуальные акции</a>.
+    @endif;
+    @endif;
+    </div>
+</div>
+<script type="text/javascript">
+    var sec = 6, int;
+    int = setInterval(function() {
+        if (sec > 0) {
+            sec--;
+            $('#clock').text(sec);
+        } else {
+            var url = window.location.pathname.split('/');
+            var len = url.length - 2;
+            url.splice(len,1);
+            var str = url.join('/');
+            window.location = str;
+        }
+    }, 1000);
+</script>

@@ -1,0 +1,45 @@
+<?php
+d()->sections_list = d()->Section->where('crmparentid="000000001"')->group_by('crmid');
+if(url(2)=='edit'){
+    d()->seothis = d()->Seocontent(url(4))->limit(0,1);
+}
+?>
+<div class="control-group">
+    <label class="control-label">Раздел</label>
+    <div class="controls">
+        <select name="data[razdel]"  class="input-xlarge">
+            <foreach sections_list>
+                <option value="{.crmid}" <?if(d()->seothis->razdel==d()->this->crmid):?>selected<?endif;?>>{.title}</option>
+            </foreach>
+        </select>
+    </div>
+</div>
+<legend>Переменные в тексте </legend>
+<div class="control-group" style="margin:2px 0;">
+    <label class="control-label"><strong>`phone`</strong></label>
+    <div class="controls" style="margin-top:6px;">телефон филиала</div>
+</div>
+<div class="control-group" style="margin:2px 0;">
+    <label class="control-label"><strong>`city`</strong></label>
+    <div class="controls" style="margin-top:6px;">город (Именительный - "Москва")</div>
+</div>
+<div class="control-group" style="margin:2px 0;">
+    <label class="control-label"><strong>`city_r`</strong></label>
+    <div class="controls" style="margin-top:6px;">город (Родительный - "Москвы")</div>
+</div>
+<div class="control-group" style="margin:2px 0;">
+    <label class="control-label"><strong>`city_d`</strong></label>
+    <div class="controls" style="margin-top:6px;">город (Дательный - "Москве")</div>
+</div>
+<div class="control-group" style="margin:2px 0;">
+    <label class="control-label"><strong>`city_v`</strong></label>
+    <div class="controls" style="margin-top:6px;">город (Винительный - "Москву")</div>
+</div>
+<div class="control-group" style="margin:2px 0;">
+    <label class="control-label"><strong>`city_t`</strong></label>
+    <div class="controls" style="margin-top:6px;">город (Творительный - "Москвой")</div>
+</div>
+<div class="control-group" style="margin:2px 0;">
+    <label class="control-label"><strong>`city_p`</strong></label>
+    <div class="controls" style="margin-top:6px;">город (Предложный - "Москве")</div>
+</div>

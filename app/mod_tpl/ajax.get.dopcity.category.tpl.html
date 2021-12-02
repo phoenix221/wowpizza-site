@@ -1,0 +1,57 @@
+<div style="display: flex;flex-wrap:wrap;" class="dopcity_category_wrap">
+    <foreach categories_list>
+    <div style="width:50%;">
+        <label class="checkbox">
+            <input type="checkbox" style="float: left;" data-id="{.id}"><span class="ttl">{.title}</span>
+        </label>
+    </div>
+    </foreach>
+    <input type="hidden" name="dopcity_category_id" value="" />
+    <input type="hidden" name="dopcity_category_ttl" value="" />
+</div>
+<div style="display: flex;flex-wrap:wrap;" class="dopcity_subcategory_wrap">
+    @if(d()->subcategories_list->count):
+    <h4 style="width:100%;margin-bottom: 0;margin-top: 25px;">Выбор подкатегории города</h4>
+    <hr style="width:100%;margin-top: 10px;">
+    <foreach subcategories_list>
+        <div style="width:50%;">
+            <label class="checkbox">
+                <input type="checkbox" style="float: left;" data-id="{.id}"><span class="ttl">{.title}</span>
+            </label>
+        </div>
+    </foreach>
+    <input type="hidden" name="dopcity_subcategory_id" value="" />
+    <input type="hidden" name="dopcity_subcategory_ttl" value="" />
+    @endif;
+</div>
+<script>
+    $('.dopcity_category_wrap input').change(function() {
+        var line = '';
+        var ttl = '';
+        $('.dopcity_category_wrap input[type=checkbox]').each(function(){
+            if($(this).is(':checked')){
+                line += $(this).data('id')+',';
+                ttl += $(this).closest('label').find('span').html()+', ';
+            }
+        });
+        line = line.substring(0, line.length - 1);
+        ttl = ttl.substring(0, ttl.length - 2);
+        $('.dopcity_category_wrap input[name="dopcity_category_id"]').val(line);
+        $('.dopcity_category_wrap input[name="dopcity_category_ttl"]').val(ttl);
+    });
+
+    $('.dopcity_subcategory_wrap input').change(function() {
+        var line = '';
+        var ttl = '';
+        $('.dopcity_subcategory_wrap input[type=checkbox]').each(function(){
+            if($(this).is(':checked')){
+                line += $(this).data('id')+',';
+                ttl += $(this).closest('label').find('span').html()+', ';
+            }
+        });
+        line = line.substring(0, line.length - 1);
+        ttl = ttl.substring(0, ttl.length - 2);
+        $('.dopcity_subcategory_wrap input[name="dopcity_subcategory_id"]').val(line);
+        $('.dopcity_subcategory_wrap input[name="dopcity_subcategory_ttl"]').val(ttl);
+    });
+</script>

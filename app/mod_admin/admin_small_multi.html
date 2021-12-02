@@ -1,0 +1,42 @@
+<?
+    d()->f_name = str_replace(']', '', str_replace('data[', '', d()->name));
+?>
+<div class="control-group">
+    <label class="control-label" >{title}</label>
+    <div class="controls">
+        <div style="float:left;" id="multi_inputs_{f_name}">
+        </div>
+        <input type="hidden" name="{name}" value="{value|h}" />
+        <button type="button" onclick="add_input()" id="add_input_btn" data-index="0" class="btn btn-default"style="font-size: 20px;">+</button>
+    </div>
+</div>
+<script>
+$(function(){
+    var ar = $('input[name="{name}"]').val().split('|')
+    var inputs_block = $('#multi_inputs_{f_name}');
+    for(key in ar){
+        if(ar[key]!=''){
+            inputs_block.append('<input type="text" value="'+ar[key]+'" style="margin-right:5px;" class="input-small">');
+        }
+    }
+    $(document).on("#multi_inputs_{f_name} input",function(ev){
+        var val = "|";
+        var inputs = $("#multi_inputs_{f_name} input");
+        $(inputs).each(function(index) {
+            if($(this).val()!=''){
+                val += $(this).val()+"|";
+            }
+        });
+        if(val=='|'){
+            val = '';
+        }
+        $('input[name="{name}"]').val(val);
+    });
+});
+function add_input(){
+    var add = $('#add_input_btn');
+    var inputs_block = $('#multi_inputs_{f_name}');
+    var input = '<input type="text" value="" style="margin-right:5px;" class="input-small">';
+    inputs_block.append(input);
+}
+</script>

@@ -1,0 +1,123 @@
+<div class="container page-container">
+    {{nav_tpl}}
+    <div class="page-wrap" id="quiz-history-rolls">
+        <h1 class="text-center">Как хорошо ты знаешь историю роллов?</h1>
+        <div class="page-content">
+            <p class="quiz-small-p"><em>5 вопросов</em></p>
+            <p class="quiz-small-h">Пройди тест и узнай, насколько ты хорош в истории роллов! =)</p>
+            <hr class="quiz-hr">
+            <div style="" id="test-block">
+                <p class="quiz-cnt" id="quiz-cnt"></p>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Как и где появились первые роллы?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="0">На севере Японии благодаря императору Нарухито</span>
+                        <span class="quiz-btn" data-value="2">В Южной Азии, рис использовался как дешевый способ хранения и обработки рыбы</span>
+                        <span class="quiz-btn" data-value="1">Это блюдо привезли из Азии и передали рецепт «Аппетиту»</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Чем отличаются суши от роллов?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="2">Способом приготовления и внешним видом</span>
+                        <span class="quiz-btn" data-value="0">В Китае эти блюда готовят разные повара</span>
+                        <span class="quiz-btn" data-value="1">Ничем</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Какие роллы самые популярные в России?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="2">Филадельфия</span>
+                        <span class="quiz-btn" data-value="0">Калифорния</span>
+                        <span class="quiz-btn" data-value="1">Шеф ролл Кунсан от «Аппетита»</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>В течение какого времени нужно съесть роллы?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="0">24 часа</span>
+                        <span class="quiz-btn" data-value="2">6 часов</span>
+                        <span class="quiz-btn" data-value="1">Во время приготовления</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Какие блюда можно брать руками?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="0">Все</span>
+                        <span class="quiz-btn" data-value="2">Только суши</span>
+                        <span class="quiz-btn" data-value="1">Настоящие ценители могут позволить себе нанизывать всё на вилку</span>
+                    </div>
+                </div>
+                <div class="quiz-finish">
+                    <p>Результат:</p>
+                    <div class="quiz-res" data-s-value="0" data-f-value="4">
+                        <h3>Ты начинающий студент на факультете Истории роллов!</h3>
+                        <p>Тебе стоит подтянуть знания, но не расстраивайся! Получи наш утешительный сет:)</p>
+                    </div>
+                    <div class="quiz-res" data-s-value="4" data-f-value="8">
+                        <h3>Почти получил 5!</h3>
+                        <p>Историю роллов ты знаешь не так хорошо, но с чувством юмора у тебя всё в порядке! Отпразднуй этот день супер сетом!</p>
+                    </div>
+                    <div class="quiz-res" data-s-value="8" data-f-value="99">
+                        <h3>Ты отличник!</h3>
+                        <p>Ты справился практически со всеми заданиями и за это мы награждаем тебя сетом! Так держать!</p>
+                    </div>
+                    <hr class="quiz-hr">
+                    <img src="/images/quiz-roll.jpg?2" alt="" class="quiz-last-img"/>
+                    <img src="/images/quiz-gift.png" alt="" style="margin:25px 15px;" />
+                    <img src="/images/quiz-pizza.jpg?2" alt="" class="quiz-last-img" />
+                    @if(d()->city->id == 1):
+                    <h2 class="quiz-final-h2">Получи ПОДАРКИ на выбор!</h2>
+                    <p class="quiz-final-p">*Подпишись на один из мессенджеров и получи промокод с условиями на шеф-ролл или пиццу в Подарок.</p>
+                    <script src="//unpkg.com/@textback/notification-widget@latest/build/index.js"></script>
+                    <tb-notification-widget  widget-id="0e17f103-1251-ef8e-b0ef-016dc97212df"></tb-notification-widget>
+                    @endif;
+                    @if(d()->city->id == 2):
+                    <h2 class="quiz-final-h2">Получи ПОДАРКИ на выбор!</h2>
+                    <p class="quiz-final-p">*Подпишись на один из мессенджеров и получи промокод с условиями на шеф-ролл или пиццу в Подарок.</p>
+                    <script src="//unpkg.com/@textback/notification-widget@latest/build/index.js"></script>
+                    <tb-notification-widget  widget-id="d86798a6-75d6-6a8e-bd17-016e6a5afeee">
+                    </tb-notification-widget>
+                    @endif;
+                    @if(d()->city->id == 3):
+                    <h2 class="quiz-final-h2">Получи ПОДАРКИ на выбор!</h2>
+                    <p class="quiz-final-p">*Подпишись на один из мессенджеров и получи промокод с условиями на шеф-ролл или пиццу в Подарок.</p>
+                    <script src="//unpkg.com/@textback/notification-widget@latest/build/index.js"></script>
+                    <tb-notification-widget  widget-id="e1982030-2087-79df-b208-016e4059e7cc">
+                    </tb-notification-widget>
+                    @endif;
+                    @if(d()->city->id == 5):
+                    <h2 class="quiz-final-h2">Получи ПОДАРКИ на выбор!</h2>
+                    <p class="quiz-final-p">*Подпишись на один из мессенджеров и получи промокод с условиями на шеф-ролл или пиццу в Подарок.</p>
+                    <script src="//unpkg.com/@textback/notification-widget@latest/build/index.js"></script>
+                    <tb-notification-widget  widget-id="938df45a-464d-55af-49e1-0172662b58cd">
+                    </tb-notification-widget>
+                    @endif;
+                    @if(d()->city->id == 6):
+                    <h2 class="quiz-final-h2">Получи ПОДАРКИ на выбор!</h2>
+                    <p class="quiz-final-p">*Подпишись на один из мессенджеров и получи промокод с условиями на шеф-ролл или пиццу в Подарок.</p>
+                    <script src="//unpkg.com/@textback/notification-widget@latest/build/index.js"></script>
+                    <tb-notification-widget  widget-id="964fe921-7c8d-ac77-715c-016e97b01440">
+                    </tb-notification-widget>
+                    @endif;
+                    @if(d()->city->id == 7):
+                    <h2 class="quiz-final-h2">Получи ПОДАРКИ на выбор!</h2>
+                    <p class="quiz-final-p">*Подпишись на один из мессенджеров и получи промокод с условиями на шеф-ролл или пиццу в Подарок.</p>
+                    <script src="//unpkg.com/@textback/notification-widget@latest/build/index.js"></script>
+                    <tb-notification-widget  widget-id="a09eb4cd-a488-d76b-5249-017502ab0cdf">
+                    </tb-notification-widget>
+                    @endif;
+                    @if(d()->city->id == 8):
+                    <h2 class="quiz-final-h2">Получи ПОДАРКИ на выбор!</h2>
+                    <p class="quiz-final-p">*Подпишись на один из мессенджеров и получи промокод с условиями на шеф-ролл или пиццу в Подарок.</p>
+                    <script src="//unpkg.com/@textback/notification-widget@latest/build/index.js"></script>
+                    <tb-notification-widget  widget-id="b267f623-1e00-5394-34c6-017b390b47b8">
+                    </tb-notification-widget>
+                    @endif;
+                </div>
+                <input type="hidden" id="quiz-result" value="0" />
+            </div>
+            <hr class="quiz-hr">
+        </div>
+    </div>
+</div>

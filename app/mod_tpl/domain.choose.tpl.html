@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>{Seo.title}</title>
+    <meta name="description" content='{Seo.description}'/>
+    <meta name="keywords" content='{Seo.keywords}'/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="/favicon.ico">
+    <link rel="stylesheet" type="text/css"  href="/vendors/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css"  href="/vendors/mdi/css/materialdesignicons.min.css">
+    <style>
+        @font-face{font-display: swap;font-family: 'Acrom';src: url('/images/fonts/Acrom-Medium.woff2') format('woff2'),url('/images/fonts/Acrom-Medium.woff') format('woff');font-weight: 500;font-style: normal;  }
+        @font-face{font-display: swap;font-family: 'Acrom';src: url('/images/fonts/Acrom-Bold.woff2') format('woff2'),url('/images/fonts/Acrom-Bold.woff') format('woff');font-weight: bold;font-style: normal;}
+        html{width: 100%;height: 100%;}
+        body{min-height: 100%;background-color: #fff;background-image: url('/images/fp-scrin.jpg');background-size: 100% auto;background-repeat: no-repeat;}
+        .body{font-family:'Acrom';display: flex;align-items: center;justify-content: center;position: absolute;top:0;left:0;right:0;bottom:0;}
+        .logo{margin-bottom:25px;text-align: center;}
+        .logo img{width: 290px;}
+        .body span{display: block;font-size: 32px;color: #333;margin-bottom:25px;text-align: center;}
+        ul{list-style: none;margin: 0 auto;padding: 0;width: 560px;display: flex;flex-wrap:wrap;justify-content: space-around;}
+        ul:after{content: '';display: block;width: 50%;}
+        ul li{display:block;box-sizing:border-box;width: 50%;padding-left: 70px;margin:10px 0;}
+        ul li i{color:#ED1C24;margin-right: 8px}
+        ul li a{color:#777 !important;font-size: 18px;text-decoration: none !important;border-bottom: 1px dashed #777;}
+        ul li a:hover{color:#333 !important;border-bottom: 1px dashed #333;}
+        .modal-backdrop.in {opacity: .4;}
+        .modal-backdrop {background-color: #000;}
+        .modal {outline: none !important;align-items: center;justify-content: center;display: none;}
+        body.modal-open .modal{display: flex !important;}
+        .modal-content {width: 800px;margin: 0 auto;padding: 35px;}
+        .modal-content {border: 0;background: #fff;}
+        .modal-header, .modal-footer {border: 0;}
+        .modal-title {display: block;font-size: 32px;color: #333;margin-bottom:25px;text-align: center;font-weight: normal;font-family: 'Acrom';}
+        .modal-dialog { width: 90%;}
+        .modal-body {padding: 0;}
+        .modal-header {padding: 0;}
+        .modal-600w {max-width: 600px;margin: 0 auto;}
+        @media (max-width: 991px) {
+            .modal-content {max-width: 100%;}
+            .modal-dialog {margin: 10px auto;!important;}
+        }
+        @media (max-width: 767px) {
+            body{background-image: url('/images/fp-scrin2.jpg')}
+            .body{position: static;display: block;text-align: center;padding: 15px 0;}
+            .logo img{max-width: 90%;}
+            .modal-title{font-size: 24px;}
+            ul{width: 100%;display: block;}
+            ul li{display:block;width: 97%;padding-left: 0; text-align: center;margin: 20px 0}
+        }
+    </style>
+</head>
+<body>
+    <div id="city-modal" class="modal modal-bottom-hint in" data-easein="fadeIn" role="dialog" aria-hidden="false" data-backdrop="static" data-change-phone="0" data-change-password="0">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="logo"><img src="/images/logo.svg" alt=""></div>
+                    <span class="modal-title">Пожалуйста, укажите Ваш город:</span>
+                </div>
+                <div class="modal-body">
+                    <ul>
+                        <foreach city_list>
+                            @if(d()->this->code == 'ufa'):
+                            <li><i class="mdi mdi-city-variant-outline"></i><a href="https://radugavkusaufa.ru/{url}">{.title}</a></li>
+                            @else:
+                            @if(d()->this->code != 'okt'):
+                            <li><i class="mdi mdi-city-variant-outline"></i><a href="https://{.code}.{domain}/{url}">{.title}</a></li>
+                            @endif;
+                            @endif;
+                        </foreach>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="/js/jquery-3.4.1.min.js"></script>
+<script type="text/javascript" src="/vendors/bootstrap/js/bootstrap.js"></script>
+<script>
+    $(document).ready(function () {
+        setTimeout(function() {
+            $('#city-modal').modal('show');
+        }, 200);
+    });
+</script>
+</html>

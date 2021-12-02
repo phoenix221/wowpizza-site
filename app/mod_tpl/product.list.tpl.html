@@ -1,0 +1,83 @@
+<div class="row products">
+    @d()->ecv = '';
+    <foreach products_list>
+        @if(d()->subcat_flag):
+        @d()->subcat_pids[] = d()->this->id;
+        @endif;
+        @if(url(1) == 'search'):
+        @if(!count(d()->cat_list[d()->this->f_category_id]))continue;
+        @endif;
+        @d()->chck = 1;
+        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12 product js-product" id="product_{.id}" itemscope itemtype="http://schema.org/Product">
+            <div>
+                <div class="p-img">
+                    <a href="{.link}" onclick="ec_click('{.title|nq}','{.id}','{.price}','{ec_list}','{.category_word}'); product_cart(this, '{.id}');">
+                    @if(url(1)=='ajax'):
+                    <img src="{.image|preview 370, 285}" alt="{.image_alt}" itemprop="image" title="{.image_title}">
+                    @else:
+                    <img src="/images/img-template.png" alt="{.image_alt}" itemprop="image" title="{.image_title}" class="lazyload" data-original="{.image|preview 370, 285}">
+                    @endif;
+                    </a>
+                    <div class="p-cb-wrap">
+                        <div class="p-composition-block">
+                            <span class="h4">Состав:</span>
+                            <i class="mdi mdi-close" title="Закрыть" onclick="close_composition(this);"></i>
+                            <span itemprop="description">{.sostav_original}</span>
+                        </div>
+                    </div>
+                    {{stickers_tpl}}
+                    {{likes_tpl}}
+                    @if(d()->number_persons != 0 || d()->p_list[0]['number_persons'] != 0):
+                    {{tableware_tpl}}
+                    @endif;
+                </div>
+                <div class="p-title">
+                    <a href="{.link}" onclick="ec_click('{.title|nq}','{.id}','{.price}','{ec_list}','{.category_word}'); product_cart(this, '{.id}');"><span itemprop="name">{.title}</span> {{edit}}{{delete}}</a>
+                </div>
+            </div>
+            <div class="p-info" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
+                <ul class="p-options">
+                @d()->p_check = 0;
+                @foreach(d()->this->p_list as d()->p):
+                    @if(d()->p['checked'] && d()->p['weight']):
+                    <li class="product-weight"><i class="mdi mdi-weight-gram"></i> {p.weight} {p.weight_type}.</li>
+                    @d()->p_check = 1;
+                    @endif;
+                @endforeach;
+
+                @if(d()->this->weight && !d()->p_check):
+                <li class="product-weight"><i class="mdi mdi-weight-gram"></i> {.weight} {.weight_type}.</li>
+                @endif;
+                @if(d()->this->number):
+                <li><i class="mdi mdi-gamepad-circle-outline"></i> {.number} {.number_type}.</li>
+                @endif;
+                @if(d()->this->sostav):
+                <li class="p-composition" onclick="tgl_composition(this);"><i class="mdi mdi-leaf"></i> Состав</li>
+                @endif;
+                </ul>
+                {{product_btn_line_tpl}}
+            </div>
+        </div>
+    @d()->ecv .= d()->this->ec_view;
+    </foreach>
+    @if(!d()->products_list->count && !d()->chck):
+    <div class="noresults">Блюда не найдены...</div>
+    @endif;
+</div>
+
+<script>
+    window.dataLayer = window.dataLayer || [];
+    dataLayer.push({
+        'ecommerce': {
+            'currencyCode': 'RUB',
+            'impressions': [<?=d()->ecv?>]
+
+        },
+        'event': 'gtm-ee-event',
+        'gtm-ee-event-category': 'Enhanced Ecommerce',
+        'gtm-ee-event-action': 'Product Impressions',
+        'gtm-ee-event-non-interaction': 'False',
+    });
+</script>
+<!-- метка для события для пикселя -->
+@d()->show_pixel_vc = 1;

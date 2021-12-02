@@ -1,0 +1,23 @@
+<div class="container page-container">
+    {{nav_tpl}}
+    <div class="page-wrap">
+        <h1>{.title} {{edit}}</h1>
+        <div class="page-content">
+            {.text}
+            <form method="GET" class="search-form">
+                <div class="search-input">
+                    <input type="search" placeholder="Поиск блюда" name="query" value='{ecr_query}' class="form-control" maxlength="64" required="">
+                    <div class="speller">
+                        {speller}
+                    </div>
+                </div>
+                <button class="auth-btn">Поиск</button>
+            </form>
+            @if($_GET['query']):
+            <div class="search-result {mnmp}">
+                {{product_list_tpl}}
+            </div>
+            @endif;
+        </div>
+    </div>
+</div>

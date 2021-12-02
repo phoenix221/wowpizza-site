@@ -1,0 +1,662 @@
+<!-- авторизация -->
+<div id="auth-modal" class="modal modal-bottom-hint" tabindex="-1" data-easein="fadeIn" role="dialog" aria-hidden="false" data-backdrop="static" data-change-phone="0" data-change-password="0">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <img src="/images/close-modal.png" class="close" data-dismiss="modal" aria-hidden="true" alt="" loading="lazy">
+                <span class="modal-title">Личный кабинет</span>
+            </div>
+            <div class="modal-body">
+                <div class="modal-600w text-center">
+                    <input id="auth-phone" class="auth-phone" placeholder="+7 (___) ___-__-__" name="login" type="tel">
+                    <small class="auth-hint" id="auth-hint">пожалуйста введите свой номер телефона, что-бы авторизоваться или зарегистрироваться</small>
+                    <div id="auth-block" class="auth-block">
+                        <form id="auth-form">
+                            <input type="hidden" name="hidden_login" value="">
+                            <input type="password" id="auth-password" placeholder="Пароль" class="auth-password required" name="password"><br>
+                            <button class="auth-btn" type="submit">Войти</button>
+                            <div class="forgot_password"><a href="#" onclick="forgot_password();">Забыли пароль?</a></div>
+                        </form>
+                    </div>
+                    <div id="reg-block" class="reg-block">
+                        <button class="btn btn-red-auth" id="confirm-phone" onclick="confirm_phone(1)">Подтвердить</button>
+                        <div class="confirm-phone-block" id="confirm-phone-block">
+                            <input id="conf-code" class="conf-code" placeholder="_ _ _ _" name="conf-code" type="tel">
+                            <div onclick="confirm_phone()" class="resend-link" id="other-conf-link"><span class="btn btn-default btn-sm">получить код другим способом</span></div>
+                            <div onclick="resend_code();" class="resend-link none" id="resend-link"><span class="btn btn-default btn-sm">отправить повторно</span></div>
+                            <div id="resend-hint" class="resend-hint"></div>
+                        </div>
+                        <div class="reg-password-block" id="reg-password-block">
+                            <form id="reg-form" method="POST">
+                                <input id="reg-password" placeholder="Пароль" class="reg-password required" name="reg-password" type="password">
+                                <input id="reg-confirm-password" placeholder="Подтвердите пароль" class="reg-confirm-password required" name="reg-confirm-password" type="password">
+                                <input id="forgot-password" type="hidden" name="forgot-password" value="0" />
+                                <small class="auth-hint reg-oferta-info" id="ofertaline">нажимая кнопку "Зарегистрироваться" вы соглашаетесь с <a href="#" onclick="modal_page('publichnaya-oferta', 1);">условиями договора оферты</a> и <a href="#" onclick="modal_page('personal', 1);">политикой конфиденциальности</a></small>
+                                <button class="btn btn-red-auth" id="registration">Зарегистрироваться</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="auth-error" id="auth-error"></div>
+                <div class="auth-loading" id="auth-loading"><img src="/images/loading.gif" alt="" loading="lazy"></div>
+            </div>
+        </div>
+    </div>
+    <!--noindex-->
+    <div class="recaptha_rules">
+        Этот сайт защищен reCAPTCHA, и применяются
+        <a href="https://policies.google.com/privacy" target="_blank" rel="nofollow">Политика конфиденциальности</a> и
+        <a href="https://policies.google.com/terms" target="_blank" rel="nofollow">Условия использования</a> Google.
+    </div>
+    <!--/noindex-->
+</div>
+
+@if(url(1)=='cabinet'):
+<!-- подтверждение E-mail -->
+<div id="conf-email-modal" class="modal" tabindex="-1" data-easein="fadeIn" role="dialog" aria-hidden="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <img src="/images/close-modal.png" class="close" data-dismiss="modal" aria-hidden="true" alt="" loading="lazy">
+                <span class="modal-title">Подтвердите подписку на свой E-mail</span>
+            </div>
+            <div class="modal-body">
+                <div class="conf-email-mb modal-800w text-center">
+                    <ol>
+                        <li>Загляните в ваш электронный почтовый ящик и найдите там специальное письмо, для подтверждения подписки;</li>
+                        <li>Нажмите в этом письме на специальную ссылку, для подтверждения подписки. Только после этого вы активируете подписку на данную рассылку.</li>
+                    </ol>
+                    <p class="conf-email-mbp">Для проверки E-mail Вы можете использовать эти ссылки:</p>
+                    <p class="mail-links">
+                        <a href="//www.google.ru/" rel="nofollow" target="_blank"><img src="/images/google.png" loading="lazy"></a>
+                        <a href="//www.yandex.ru/" rel="nofollow" target="_blank"><img src="/images/yandex.png" loading="lazy"></a>
+                        <a href="//mail.ru/" rel="nofollow" target="_blank"><img src="/images/mailru.png" loading="lazy"></a>
+                        <a href="//www.rambler.ru/" rel="nofollow" target="_blank"><img src="/images/rambler.png" loading="lazy"></a>
+                    </p>
+                    <p class="conf-email-mbp2">Если в течение 5-10 минут письмо не пришло, <u>проверьте папку спам</u>.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- подтверждение E-mail -->
+<!-- добавить адрес -->
+<div id="add-address-modal" class="modal" tabindex="-1" data-easein="fadeIn" role="dialog" aria-hidden="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <img src="/images/close-modal.png" class="close" data-dismiss="modal" aria-hidden="true" alt="" loading="lazy">
+                <span class="modal-title">Добавить адрес доставки</span>
+            </div>
+            <div class="modal-body">
+                <div class="conf-email-mb modal-600w text-center">
+                    <form id="add-address-form" class="modal-form address-form dadata-wrap" method="POST">
+                        <small class="hint" id="address-hint">для добавления адреса, заполните поля ниже</small>
+                        <div id="address-loading" class="address-loading loading-hint-lk"><img src="/images/loading.gif" alt="" loading="lazy"></div>
+                        <input name="address" id="address-street" placeholder="Улица и номер дома" class="yellow-focus required" autocomplete="off" autocorrect="off" autocapitalize="off">
+                        <div class="address-small-inputs non_private_cab">
+                            <input type="number" name="room-number" id="address-room-number" placeholder="Квартира" value="" class="required">
+                            <input type="number" name="entrance" id="address-entrance" placeholder="Подъезд" value="" class="required">
+                            <input type="number" name="floor" id="address-floor" placeholder="Этаж" value="" class="required">
+                        </div>
+                        <div class="radio_style _is_private">
+                            <input id="is_private_cab" type="checkbox" name="is_private_cab" value="1">
+                            <label for="is_private_cab" class="checkbox mt-0">Частный дом</label>
+                        </div>
+                        <input name="title" id="address-title" placeholder="Название адреса" class="required">
+                        <input name="address2" id="address-street2" type="hidden" val>
+                        <input name="edit" type="hidden">
+                        <input name="lat" type="hidden">
+                        <input name="lon" type="hidden">
+                        <button type="submit" class="btn btn-red-auth" id="address-submit" disabled>Сохранить</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- добавить адрес -->
+@endif;
+
+<!--noindex-->
+<!-- подтверждение смены доставки -->
+<div id="change_delivery" class="modal" tabindex="-1" data-easein="fadeIn" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <img src="/images/close-modal.png" class="close" data-dismiss="modal" aria-hidden="true" alt="" loading="lazy">
+                <span class="modal-title">Изменение цен в корзине</span>
+            </div>
+            <div class="modal-body">
+                <div class="modal-content modal-600w text-center">
+                  <div class="mctxctx">
+                  <p>Внимание, на самовывоз действует скидка в размере {city.discount_delivery}%.<br>Изменение способа доставки, повлечет за собой изменение цен в корзине.</p>
+                  {clear_promo_text}
+                  </div>
+                  <div class="btn-flex-line mt-45">
+                    <button class="btn btn-default-auth" data-dismiss="modal">Отмена</button>
+                    <button class="btn btn btn-red-auth" id="conf-change-delivery" data-type="" onclick="delivery_change('', this, 1)">Подтвердить</button>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- подтверждение смены доставки -->
+<!--/noindex-->
+
+<!-- ошибка выбора подарка -->
+@if(url(1)=='checkout'):
+<div id="notdr-modal" class="modal" tabindex="-1" data-easein="fadeIn" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <!--<img src="/images/close-modal.png" class="close" data-dismiss="modal" aria-hidden="true" alt="" loading="lazy">-->
+                <span class="modal-title">Выбор подарка</span>
+            </div>
+            <div class="modal-body">
+                <div class="modal-content modal-600w text-center">
+                    @if(d()->city->gift_dr_do && d()->city->gift_dr_posle):
+                    <p>Акция «Дарим подарки на день рождения» действует за {city.gift_dr_posle} {city.gift_dr_posle_word} до, во время, и {city.gift_dr_do} {city.gift_dr_do_word} после дня рождения.</p>
+                    @elseif(d()->city->gift_dr_posle && !d()->city->gift_dr_do):
+                    <p>Акция «Дарим подарки на день рождения» действует за {city.gift_dr_posle} {city.gift_dr_posle_word} до и во время дня рождения.</p>
+                    @elseif(!d()->city->gift_dr_posle && d()->city->gift_dr_do):
+                    <p>Акция «Дарим подарки на день рождения» действует во время и {city.gift_dr_do} {city.gift_dr_do_word} после дня рождения дня рождения.</p>
+                    @else:
+                    <p>Акция «Дарим подарки на день рождения» действует только в день рождения.</p>
+                    @endif;
+                    <p class="mt-40" style="color:#777;font-size: 14px;margin-bottom:10px;">Пожалуйста выберите день и месяц рождения:</p>
+                    <div class="pick-client-dr mb-40">
+                        <select name="client-dr" id="client-dr">
+                        @foreach(d()->dates as d()->dat):
+                            <option value="{dat}">{dat}</option>
+                        @endforeach;
+                        </select>
+                    </div>
+                    <p>
+                        <strong style="color: #ff5500;">Внимание!</strong><br>
+                        При получении заказа необходимо показать паспорт курьеру/администратору.
+                        <u>Акция не суммируется</u> с акцией «Бонусные баллы».
+                        @if(d()->city->gift_dr_minsum):
+                        <br>Минимальная сумма заказа с учетом скидок: {city.gift_dr_minsum} руб.
+                        @endif;
+                    </p>
+                    <div class="btn-flex-line mt-45">
+                        <!--<button class="btn btn-default-auth" data-dismiss="modal">Отмена</button>-->
+                        <button class="btn btn btn-red-auth" onclick='show_gifts("dr");' data-dismiss="modal">Подтвердить</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endif;
+<!-- ошибка выбора подарка -->
+
+<!--noindex-->
+<div id="del-promo-modal" class="modal" tabindex="-1" data-easein="fadeIn" role="dialog" aria-hidden="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <img src="/images/close-modal.png" class="close" data-dismiss="modal" aria-hidden="true" alt="" loading="lazy">
+                <span class="modal-title">Удаление промокода</span>
+            </div>
+            <div class="modal-body">
+                <div class="conf-email-mb modal-800w text-center">
+                    <div class="modal-content modal-600w text-center">
+                        <!-- <p class="dpm-classic-text"><span id="del-promo-action-name">Изменение корзины</span> повлечет за собой удаление промокода <strong class="text-uppercase modal-title-promo">{promo.title}</strong>. Минимальная сумма заказа: <span id="modal-minsum-promo">{promo.min_sum}</span> руб. <span id="del-promo-dop-text" class="none"></span></p> -->
+                        <p class="dpm-classic-text"><span id="del-promo-action-name">Изменение корзины</span> повлечет за собой удаление промокода <strong class="text-uppercase modal-title-promo">{promo.title}</strong>. Очень маленькая сумма заказа. <span id="del-promo-dop-text" class="none"></span></p>
+                        <p class="dpm-text2 none">Изменение корзины повлечет за собой удаление промокода <strong class="text-uppercase modal-title-promo">{promo.title}</strong>.<br>Это блюдо является обязательным, по условиям промокода.</p>
+                        <div class="btn-flex-line mt-45" id="del-promo-btns">
+                            <button class="btn btn-default-auth" data-dismiss="modal">Отмена</button>
+                            <button class="btn btn btn-red-auth" onclick='minuscart("#tempid")'>Подтвердить</button>
+                        </div>
+                        <div class="btn-flex-line mt-45 none" id="del-promo-btns2">
+                            <button class="btn btn-default-auth small-promo-btn" data-dismiss="modal">Отмена</button>
+                            <button class="btn btn btn-red-auth small-promo-btn" onclick="run_points(this, 1);">Использовать <span class="recomended"></span></button>
+                            <button class="btn btn btn-red-auth small-promo-btn" onclick="run_points(this, 1);">Использовать <span class="fact"></span></button>
+                        </div>
+                        <div class="btn-flex-line mt-45 none" id="del-promo-btns3">
+                            <button class="btn btn-default-auth" data-dismiss="modal">Отмена</button>
+                            <button class="btn btn btn-red-auth" onclick='removecart("#tempid")'>Подтвердить</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--/noindex-->
+@if(url()=='checkout/order' || url()=='cabinet'):
+<div id="address-instruction" class="modal {m_cabinet}" tabindex="-1" data-easein="fadeIn" role="dialog" aria-hidden="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <img src="/images/close-modal.png" class="close" data-dismiss="modal" aria-hidden="true" alt="" loading="lazy">
+                <span class="modal-title">Система не может определить ваш адрес?</span>
+            </div>
+            <div class="modal-body">
+                <div class="conf-email-mb modal-800w text-center">
+                    <p>
+                    <ol>
+                        <li>Убедитесь, что ваш адрес входит в зону доставки. Для этого откройте страницу <a
+                                href="/delivery" target="_blank">Доставка и оплата</a> и найдите свой адрес на карте. Он обязательно должен входить в одну из зон (веделены цветом);</li>
+                        <li>При оформлении заказа укажите ближайший соседний дом, который входит в ту же зону, что и ваш (это нужно для корректного определения стоимости и условий доставки);</li>
+                        <li>В комментирии к заказу укажите ваш фактический адрес, с пометкой "Система не определила мой фактический адрес";</li>
+                        <li>В ближайшем будущем мы внесем ваш адрес в зону доставки.</li>
+                    </ol>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endif;
+<!--noindex-->
+<div id="del-gifts-info" class="modal" tabindex="-1" data-easein="fadeIn" role="dialog" aria-hidden="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <img src="/images/close-modal.png" class="close" data-dismiss="modal" aria-hidden="true" alt="" loading="lazy">
+                <span class="modal-title">Удаление подарков</span>
+            </div>
+            <div class="modal-body">
+                <div class="modal-800w text-center">
+                    <p id="p-pickup-gifts">Подарки <strong>за самовывоз</strong> удалены из корзины.<br>Минимальная сумма заказа с учетом скидок, для этой акции: <strong>{city.dd_gifts_ms} руб.</strong></p>
+                    <!--<p id="p-dr-gifts">Подарки <strong>на День рождения</strong> удалены из корзины.<br>Минимальная сумма заказа с учетом скидок, для этой акции: <strong>{city.gift_dr_minsum} руб.</strong></p>-->
+                    <div class="btn-flex-line mt-45">
+                        <button class="btn btn-red-auth" data-dismiss="modal">Принять</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="del-dr-gifts-info" class="modal" tabindex="-1" data-easein="fadeIn" role="dialog" aria-hidden="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <img src="/images/close-modal.png" class="close" data-dismiss="modal" aria-hidden="true" alt="" loading="lazy">
+                <span class="modal-title">Удаление подарков</span>
+            </div>
+            <div class="modal-body">
+                <div class="modal-800w text-center">
+                    <p>При использовании баллов, подарки на День Рождения будут удалены из корзины.<br>Акция «Дарим подарки на день рождения» <u>не суммируется</u> с акцией «Бонусные баллы».</p>
+                    <div class="btn-flex-line mt-45">
+                        <button class="btn btn-default-auth" data-dismiss="modal">Отмена</button>
+                        <button class="btn btn-red-auth" onclick="run_points(this, 1);">Принять <span class="none"></span></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- информационная модалка -->
+<div id="info-modal" class="modal" tabindex="-1" data-easein="fadeIn" role="dialog" aria-hidden="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <img src="/images/close-modal.png" class="close" data-dismiss="modal" aria-hidden="true" alt="" loading="lazy">
+                <span class="modal-title">{im_title}</span>
+            </div>
+            <div class="modal-body">
+                <div class="conf-email-mb modal-800w text-center">
+                    {im_text}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- информационная модалка -->
+
+<div id="dr-gift-er" class="modal" tabindex="-1" data-easein="fadeIn" role="dialog" aria-hidden="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <img src="/images/close-modal.png" class="close" data-dismiss="modal" aria-hidden="true" alt="" loading="lazy">
+                <span class="modal-title">Подарки на день рождения</span>
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+                    <p class="clserr">Условия акции не выполнены.<br>Минимальная сумма заказа с учетом скидок, для этой акции: <strong>{city.gift_dr_minsum} руб.</strong></p>
+                    <p class="temperr none"></p>
+                </div>
+                <div class="text-center mt-45">
+                    <button class="btn btn-red-auth" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="wt-modal" class="modal" tabindex="-1" data-easein="fadeIn" role="dialog" aria-hidden="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <img src="/images/close-modal.png" class="close" data-dismiss="modal" aria-hidden="true" alt="" loading="lazy">
+                <span class="modal-title"></span>
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+                    <div class="bg-wt" style="{close_style}"></div>
+<!--                    <div class="bg-wt" style="{close_style}">Мы пока закрыты.<br>Откроемся в{bukva} {f_week_day} в {f_worktime}</div>-->
+                    <div class="text-wt">
+                        @if(!d()->city->is_error_wt):
+                        Вы можете оставить предварительный заказ на утро, он попадет на кухню автоматически.
+                        @endif;
+                        <p class="flex-wt mt-40">С любовью ваш{close_were} <img src="/images/{close_img}" class="logo-wt" alt="" loading="lazy"></p>
+                    </div>
+                </div>
+                <div class="text-center mt-45">
+                    <button class="btn btn-default-auth" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="wt-pickup-modal" class="modal" tabindex="-1" data-easein="fadeIn" role="dialog" aria-hidden="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <img src="/images/close-modal.png" class="close" data-dismiss="modal" aria-hidden="true" alt="" loading="lazy">
+                <span class="modal-title">Внимание!</span>
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+                    <div class="bg-wt-pickup">В связи с повышением мер безопасности по нераспространению коронавирусной инфекции, заказы на самовывоз принимаются до {city.wt_pickup}. Самовывоз осуществляется до {wt_pickup_hour}.</div>
+                    <div class="text-wt">
+                        Но мы с радостью примем ваш заказ на доставку! :)
+                        <p class="flex-wt mt-40">С любовью ваш <img src="/images/logo_red.svg" class="logo-wt" alt="" loading="lazy"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--/noindex-->
+@if(url(1)=='checkout' && url(2)=='order'):
+<div id="gift-notification-modal" class="modal" tabindex="-1" data-easein="fadeIn" role="dialog" aria-hidden="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <img src="/images/close-modal.png" class="close" data-dismiss="modal" aria-hidden="true" alt="" loading="lazy">
+                <span class="modal-title">Для вас доступны подарки :)</span>
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+                    <p>По акции «Подарки за Самовывоз» Вы можете выбрать подарок</p>
+                </div>
+                <div class="text-center mt-45">
+                    <a href="/checkout" class="btn btn-red-auth">Выбрать подарок</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="del-deliv-gift" class="modal" tabindex="-1" data-easein="fadeIn" role="dialog" aria-hidden="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <img src="/images/close-modal.png" class="close" data-dismiss="modal" aria-hidden="true" alt="" loading="lazy">
+                <span class="modal-title">Подарки удалены из корзины</span>
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+                    <p>Акции «Подарки за Самовывоз» не доступна для доставки. Подарки за самовывоз удалены из корзины.</p>
+                </div>
+                <div class="text-center mt-45">
+                    <button class="btn btn-default-auth" data-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="del-cash-gift" class="modal" tabindex="-1" data-easein="fadeIn" role="dialog" aria-hidden="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title">Подарок будет удален из корзины</span>
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+                    <p>За оплату наличными добавлен подарок к вашему заказу. При изменении способа оплаты подарок будет удален.</p>
+                </div>
+                <div class="text-center mt-45">
+                    <button class="btn btn-default-auth btn-gift-cash" data-dismiss="modal" id="gift-cash" onclick="del_gift_cash(this);">Оставить</button>
+                    <button class="btn btn-red-auth btn-gift-cash" data-dismiss="modal" id="del-gift-cash" onclick="del_gift_cash(this);">Продолжить без подарка</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endif;
+@if(d()->city->id == 3 && url(1)=='sales' && $_GET['categoria'] == 77 || d()->city->id == 3 && url(2)=='pizza' || d()->city->id == 1 && url(1)=='sales' && $_GET['categoria'] == 11 || d()->city->id == 1 && url(2)=='pitstsy'):
+<!--noindex-->
+<div class="tbm-wrap none">
+    <div class="tbm-modal">
+        <img src="/images/tbm-close.png" alt="" class="tbm-close">
+        <img src="/images/close-modal.png" alt="" class="tbm-close2">
+        <div class="tb-row">
+            @if(d()->city->text_textback_2):
+            <div class="tbm-block2">
+                {city.text_textback_2}
+            </div>
+            @endif;
+            <div class="tbm-block2 tbm-block-2">
+                <img src="{city.img_textback_2}" alt="" class="tbm-img tbm2-img"/>
+                <img src="{city.img_textback_2}" alt="" class="tbm-img2 tbm2-img2"/>
+            </div>
+        </div>
+        <div class="tbl-buttons">
+            {city.textback_2}
+        </div>
+    </div>
+</div>
+<!--/noindex-->
+@else:
+@$_SESSION['dbg1'] = url();
+@if(url(1) != 'pizza' || url() != 'tm/index' || url() != 'tm2/index' || url() != 'messengers/index' || url() != 'quiz/index' || url(1) != 'history_rolls' || url(1) != 'quarantine' || url(1) != 'city_history' || url(1) != 'erudition'):
+<!--noindex-->
+<div class="tbm-wrap none">
+    <div class="tbm-modal">
+        <img src="/images/tbm-close.png" alt="" class="tbm-close">
+        <img src="/images/close-modal.png" alt="" class="tbm-close2">
+        <div class="tb-row">
+            @if(d()->city->text_textback):
+            <div class="tbm-block">
+                {city.text_textback}
+            </div>
+            @endif;
+            <div class="tbm-block">
+                <img src="{city.img_textback}" alt="" class="tbm-img"/>
+                <img src="{city.img_textback}" alt="" class="tbm-img2"/>
+            </div>
+        </div>
+        <div class="tbl-buttons">
+            {city.textback}
+        </div>
+    </div>
+</div>
+<!--/noindex-->
+@endif;
+@endif;
+<div id="other-modal" class="modal" tabindex="-1" data-easein="fadeIn" role="dialog" aria-hidden="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <img src="/images/close-modal.png" class="close" data-dismiss="modal" aria-hidden="true" alt="" loading="lazy">
+            </div>
+            <div class="modal-body other-mb">
+                <img src="/images/loading.gif" alt="" class="other-loading" />
+            </div>
+        </div>
+    </div>
+</div>
+@if(url(1)=='checkout' && url(2)=='order'):
+<div id="order-confirmation-modal" class="modal" tabindex="-1" data-easein="fadeIn" role="dialog" aria-hidden="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <img src="/images/close-modal.png" class="close" data-dismiss="modal" aria-hidden="true" alt="" loading="lazy">
+                <span class="modal-title">Подтверждение телефона</span>
+            </div>
+            <div class="modal-body pt-0">
+                <div class="modal-600w text-center">
+                    <div class="reg-block block">
+                        <div class="confirm-phone-block block">
+                            <small class="auth-hint" id="co-tg-hint">
+                                Что-бы получить "Код подтверждения" пожалуйста запустите нашего бота в Telegram и следуйте дальнейшим инструкциям<br><br><a href="https://t.me/appetitfood_bot" target="_blank" class="btn btn-tg">Telegram-бот "Аппетит"</a>
+                            </small>
+                            <small class="auth-hint none" id="co-hint">
+                                @if(d()->city->send_code_type==1):
+                                на указанный номер отправлено смс с кодом подтверждения
+                                @else:
+                                <em style="color: #ff5500;font-style: normal;">Внимание!</em> На Ваш телефон поступит авто-звонок с неизвестного номера. <em style="color: #ff5500;font-style: normal;">Последние 4 цифры номера - это Код подтверждения.</em>
+                                @endif;
+                            </small>
+                            <input class="conf-code mt-15" id="conf-code-order" placeholder="_ _ _ _" name="conf-code" type="tel">
+                            <div onclick="resend_code_order();" class="resend-link none" id="order-conf-link"><span class="btn btn-default btn-sm">отправить повторно</span></div>
+                            <div onclick="run_order('#order-finish-btn');" class="resend-link" id="order-other-conf-link"><span class="btn btn-default btn-sm">получить код другим способом</span></div>
+                            <div id="co-resend-hint" class="resend-hint"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="auth-error" id="co-error"></div>
+                <div class="auth-loading" id="co-loading"><img src="/images/loading.gif" alt="" loading="lazy"></div>
+            </div>
+        </div>
+    </div>
+</div>
+@endif;
+@if(url(1)=='cabinet'):
+<div id="points-info-modal" class="modal" tabindex="-1" data-easein="fadeIn" role="dialog" aria-hidden="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <img src="/images/close-modal.png" class="close" data-dismiss="modal" aria-hidden="true" alt="" loading="lazy">
+                <span class="modal-title">Условия использования<br>бонусных баллов</span>
+            </div>
+            <div class="modal-body">
+                <div class="conf-email-mb modal-800w text-center">
+                    <p>Нам очень нравится, когда вы заказываете у нас. Поэтому с ЛЮБОЙ покупки, с КАЖДОЙ покупки в мобильном приложении (даже товаров по акции!) мы возвращаем минимум 10%! А если вы привыкли радовать себя Аппетитными блюдами хотя бы 1 раз месяц - 30% с каждого заказа!</p>
+                    <p><strong>Как получить кэшбэк:</strong></p>
+                    <ul>
+                        <li>скачать мобильное приложение в <a href="https://play.google.com/store/apps/details?id=appetit.app" target="_blank">Play Market</a> или в <a href="https://apps.apple.com/ru/app/аппетит-доставка-роллов-пиццы/id1558072639" target="_blank">AppStore</a>;</li>
+                        <li>авторизоваться в личном кабинете;</li>
+                        <li>оформить заказ.</li>
+                    </ul>
+                    <p>С первой же покупки в мобильном приложении, с момента начала действия акции “получи кэшбэк“, создается бонусный счет в личном кабинете и на нем появятся 30% за первую покупку.</p>
+                    <p>Если за текущий месяц - 30 дней, вам еще раз захотелось роллов и пиццы - вам опять вернутся 30% стоимости заказа. Если же вы перестали заказывать в период более 30 дней, то начинать придется с 10%.</p>
+                    <p><strong>Как использовать баллы:</strong></p>
+                    <ul>
+                        <li>бонусными баллами, полученными в качестве кэшбэка в мобильном приложении, вы можете оплачивать до 25% своего заказа;</li>
+                        <li>баллы можно использовать только при онлайн заказе, либо через мобильное приложение, либо на сайте.</li>
+                    </ul>
+
+                    <p>А также, Вы можете дополнительно получить баллы за отзывы <a href="/sales/darim-ball-za-otz-v-MP/" target="_blank">в мобильном приложении</a>, <a href="/sales/darim-bally-za-vashi-otzyvy/" target="_blank">на отзовиках</a>, <a href="/sales/200-ballov-za-fotootzyv/" target="_blank">фотоотзывы</a>.</p>
+
+                    <p>При оплате баллами условия для минимальной суммы заказа и бесплатной доставки исчисляются после применения баллов. Применяются от итоговый суммы заказа.</p>
+                    <p>Например, при бесплатной доставке от 500 руб, вы сделали заказ на 600. Если спишите 100 баллов, итоговая сумма заказа станет 500 руб. Условия заказа будут соответствовать бесплатной доставке.</p>
+                    <p>Если же решите списывать 150 баллов, то сумма к оплате станет у Вас уже 450 руб. Таким образом, условия для бесплатной доставки не выполнятся. К Вашей сумме прибавится и оплата за доставку. Чтобы применить 150 баллов и бесплатную доставку, нужно сделать заказ на 650 руб.</p>
+                    <p>Баллы не суммируются с акциями и промокодами, кроме акции "Дарим подарки за самовывоз" (исходя из условий акций).</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endif;
+<!--noindex-->
+<div id="okt-modal" class="modal" tabindex="-1" data-easein="fadeIn" role="dialog" aria-hidden="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title">Временно не принимаем заказы</span>
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+                    <div class="bg-wt okt_close" style="{close_style}">Друзья, пока наш филиал закрыт по техническим причинам! Поэтому заказы не принимаются (ни через сайт, ни по телефону)</div>
+                    <div class="text-wt">
+                        <p class="flex-wt mt-40">С любовью ваш{close_were} <img src="/images/{close_img}" class="logo-wt" alt="" loading="lazy"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="new-city-modal" class="modal" tabindex="-1" data-easein="fadeIn" role="dialog" aria-hidden="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title">Привет :)</span>
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+                    <div class="bg-wt" style="{close_style}">Открытие точки в Вашем городе состоится<br> 3 сентября в 12.00</div>
+                    <div class="text-wt">
+                        Мы тоже ждём с нетерпением!
+                        <p class="flex-wt mt-40">С любовью ваш{close_were} <img src="/images/{close_img}" class="logo-wt" alt="" loading="lazy"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="stop-order-modal" class="modal" tabindex="-1" data-easein="fadeIn" role="dialog" aria-hidden="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title"></span>
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+                    <div class="bg-wt" style="{close_style}"></div>
+                    <div class="text-wt">
+                        <p class="flex-wt mt-40">С любовью ваш{close_were} <img src="/images/{close_img}" class="logo-wt" alt="" loading="lazy"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--/noindex-->
+<!--noindex-->
+<div id="cansel-order" class="modal" tabindex="-1" data-easein="fadeIn" role="dialog" aria-hidden="false" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <img src="/images/close-modal.png" class="close" data-dismiss="modal" aria-hidden="true" alt="" loading="lazy">
+                <span class="modal-title">Точно хотите отменить заказ?</span>
+                <small class="auth-hint" id="cancel-hint"></small>
+            </div>
+            <div class="modal-body">
+                <div class="modal-800w text-center">
+                    <div id="page-danget-hint"></div>
+                    <div class="btn-cansel">
+                        <button class="btn btn-red-auth btn-st-order" id="cansel_yes">Да</button>
+                        <button class="btn btn-red-auth btn-st-order" id="cansel_not" data-dismiss="modal">Нет</button>
+                    </div>
+                    <div class="form-cancel">
+                        <textarea id="rejection_reason" class="rejection_reason" type="text" name="rejection_reason" value=""></textarea>
+                        <button class="btn btn-red-auth" id="cansel_send">Отправить</button>
+                    </div>
+                    <div class="confirm-cancel">
+                        <p>Для отмены заказа, подтверидете номер телефона*<br><small>*Номер телефона который указан в заказе</small></p>
+                        <button class="btn btn-red-auth" id="confirm-cancel" onclick="confirm_cancel_order(1);">Подтвердить</button>
+                    </div>
+                    <div class="confirm-phone-block" id="confirm-cancel-block">
+                        <small>Что-бы получить "Код подтверждения" пожалуйста запустите нашего бота в Telegram и следуйте дальнейшим инструкциям<br><br><a href="https://t.me/appetitfood_bot" target="_blank" class="btn btn-tg">Telegram-бот "Аппетит"</a></small>
+                        <input id="conf-code-cansel-order" class="conf-code" placeholder="_ _ _ _" name="conf-code-details-order" type="tel">
+                        <div onclick="confirm_cancel_order()" class="resend-link" id="other-conf-link-2"><span class="btn btn-default btn-sm">получить код другим способом</span></div>
+                        <div onclick="resend_code();" class="resend-link none" id="resend-link-2"><span class="btn btn-default btn-sm">отправить повторно</span></div>
+                        <div id="resend-hint-2" class="resend-hint"></div>
+                    </div>
+                </div>
+                <div class="auth-error" id="cancels-error"></div>
+                <div class="auth-loading" id="cancels-loading"><img src="/images/loading.gif" alt="" loading="lazy"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--/noindex-->

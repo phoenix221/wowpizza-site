@@ -1,0 +1,58 @@
+<div class="pv-wrap js-product" id="product_{.id}">
+    <div class="fl-rel">
+        <div class="relative">
+            <img itemprop="image" src="{.image|preview 380, 293}" alt="{.image_alt}" title="{.image_title}" class="pv-img">
+            {{likes_tpl}}
+        </div>
+    </div>
+    <div class="pv-info">
+        <div class="js-pv-info">
+        @if(d()->this->text):
+        <div itemprop="description">{.text}</div>
+        @else:
+        <div><!--Описание отсутствует...--></div>
+        @endif;
+        <div class="pv-btn-line" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
+            <ul class="pv-options">
+                @if(d()->this->weight):
+                <li><i class="mdi mdi-weight-gram"></i> {.weight} {.weight_type}.</li>
+                @endif;
+                @if(d()->this->number):
+                <li><i class="mdi mdi-gamepad-circle-outline"></i> {.number} {.number_type}.</li>
+                @endif;
+            </ul>
+            {{product_btn_line_tpl}}
+        </div>
+        </div>
+
+        @if(d()->this->p_list):
+        <div class="p-ps-wrap">
+            <div class="p-ps-block">
+                <h4>Выбрать свойства:</h4>
+                <i class="mdi mdi-close" title="Закрыть" onclick="close_ps(this);"></i>
+                <form autocomplete="off">
+                    <div class="radio_style property_list">
+                        <foreach p_list>
+                            <div class="radio-line">
+                                <input id="property_{.id}" type="radio" name="property_{.product_id}" value="{.id}" {.checked} data-default="{.is_default}" data-price="{.price}" >
+                                <label for="property_{.id}">{.title}</label>
+                            </div>
+                        </foreach>
+                    </div>
+                </form>
+                <div class="ac-wrap">
+                    <span class="ac-price"><span>{product_price}</span><i class="rub">q</i></span>
+                    <button class="btn btn-big-red" onclick="addcart(this);">В корзину</button>
+                </div>
+            </div>
+        </div>
+        @endif;
+
+    </div>
+</div>
+@if(d()->this->is_recommended && d()->rec_show):
+<div class="pv-reccomended">
+    <h2>С этим блюдом рекомендуем:</h2>
+    {{product_slider_list_tpl}}
+</div>
+@endif;

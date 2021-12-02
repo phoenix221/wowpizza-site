@@ -1,0 +1,46 @@
+<style>
+    .promo-load{
+        width: 18px;
+        margin-left: 5px;
+        display: none;
+    }
+</style>
+<div class="control-group">
+  <label class="control-label"  >{title}</label>
+  <div class="controls">
+	<input type="text"  name="{name}" value="{value|h}" class="input-xlarge" id="promo-input">
+      <img src="/images/loading.gif" class="promo-load" alt="">
+	<span class="help-inline" id="promo-hint"></span>
+  </div>
+</div>
+<script>
+    $(document).ready(function () {
+        var arr = window.location.href.split('/');
+        if(arr[4]=='edit'){
+            var promo_id = arr[6];
+        }
+
+        var hint = $('#promo-hint');
+        var load = $('.promo-load');
+        var input = $('#promo-input');
+        var btn = $('input[type=submit]');
+        if(!input.val()){
+            btn.prop('disabled', true);
+        }
+        $(input).on('input keyup', function(e) {
+            var val = input.val();
+            hint.html('');
+            btn.prop('disabled', true);
+            if(val){
+                load.show();
+                $.post('/ajax/check_uniq_promo', {promo:val, id:promo_id, city_id:<?=d()->city->id;?>}, function(data) {
+                    if(data.result=='success'){
+                        btn.prop('disabled', false);
+                    }
+                    hint.html(data.text);
+                    load.hide();
+                }, "JSON");
+            }
+        });
+    });
+</script>

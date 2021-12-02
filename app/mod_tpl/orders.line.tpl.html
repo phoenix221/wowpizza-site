@@ -1,0 +1,63 @@
+<foreach orders_list>
+<div class="lk-bh-row">
+    <div>
+        <strong>№</strong>{.id}
+    </div>
+    <div>
+        <strong>Дата:</strong>{.f_date}
+    </div>
+    <div>
+        <strong class="lk-lft">Заказ:</strong><section class="lk-o-lnk"><span class="ttl" onclick="shlk_cart_detail(this);">{.products_total_count}</span>
+            <section class="lk-cart-detail">
+                <section class="lk-cart-detail-scr">
+                @foreach(d()->fcart as d()->kk => d()->cc):
+                    <section class="proinfo">
+                        <p class="blc-l">
+                            <img src="{cc.image}" alt="">
+                            @d()->pt = d()->cc['property_title'];
+                            @if(d()->cc['property_title'] && isset(d()->cc['promo_title']))d()->pt .= ', '.d()->cc['promo_title'];
+                            @if(!d()->cc['property_title'] && isset(d()->cc['promo_title']))d()->pt .= d()->cc['promo_title'];
+
+                            @if(d()->cc['items_title'])d()->pt .= ' + '.d()->cc['items_title'];
+                            <span>{cc.title}<small>{pt}</small></span>
+                        </p>
+                        <p class="blc-r">
+                            <span>{cc.count} шт.</span>
+                            @d()->ttlprice = d()->cc['total_price'] + d()->cc['items_price'] - d()->cc['total_promo_discount'];
+                            <span>{ttlprice} руб.</span>
+                        </p>
+                    </section>
+                @endforeach;
+                @if(d()->this->points || d()->this->delivery_price):
+                    <hr class="mb-0">
+                @endif;
+                @if(d()->this->points):
+                    <section class="point-cash-lkd">Оплата баллами: <span class="green">{.points} руб.</span></section>
+                @endif;
+                @if(d()->this->delivery_price):
+                    <section class="point-cash-lkd">Стоимость доставки: <span class="green">{.delivery_price} руб.</span></section>
+                @endif;
+                </section>
+            </section>
+        </section>
+        <div class="clear"></div>
+    </div>
+    <div>
+        <strong>Сумма:</strong><span class="lk-bh-title">{.finish_price} руб.</span>
+    </div>
+    <div>
+        <p class="lkstatusp">
+            <strong>Статус:</strong><span id="status-sticker{.id}" class="status-sticker b-{.status_color}">{.status_word}</span>
+            @if(d()->status_word == 'Отказ' || d()->status_word == 'Доставлен'):
+            @d()->dis = 'disabled';
+            @else:
+            @d()->dis = '';
+            @endif;
+            <button class="btn btn-link btn-history-cancel" onclick="cancel_orders({.id}, 0);" title="Отказаться" {dis}><i class="mdi mdi-close"></i></button>
+            @if(d()->this->status != 2 && d()->office[d()->this->office_id]):
+            <br><a href="<?=d()->office[d()->this->office_id]?>" target="_blank" class="tea-link"><i class="mdi mdi-cash-multiple"></i>оставить чаевые</a>
+            @endif;
+        </p>
+    </div>
+</div>
+</foreach>

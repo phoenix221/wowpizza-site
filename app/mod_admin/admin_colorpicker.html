@@ -1,0 +1,37 @@
+<!-- MiniColors -->
+<script src="/vendors/jquery.minicolors.min.js"></script>
+<link rel="stylesheet" href="/vendors/jquery.minicolors.css">
+
+<script>
+    $(document).ready( function() {
+
+            $('.colorpicker').minicolors({
+                control: $(this).attr('data-control') || 'hue',
+                defaultValue: $(this).attr('data-defaultValue') || '',
+                format: $(this).attr('data-format') || 'hex',
+                keywords: $(this).attr('data-keywords') || '',
+                inline: $(this).attr('data-inline') === 'true',
+                letterCase: $(this).attr('data-letterCase') || 'lowercase',
+                opacity: $(this).attr('data-opacity'),
+                position: $(this).attr('data-position') || 'bottom',
+                swatches: $(this).attr('data-swatches') ? $(this).attr('data-swatches').split('|') : [],
+                change: function(value, opacity) {
+                    if( !value ) return;
+                    if( opacity ) value += ', ' + opacity;
+                    if( typeof console === 'object' ) {
+                        console.log(value);
+                    }
+                },
+                theme: 'bootstrap'
+            });
+
+    });
+</script>
+
+<div class="control-group">
+    <label class="control-label"  >{title}</label>
+    <div class="controls">
+        <input type="text"  name="{name}" value="{value|h}" class="colorpicker" data-position="top right" >
+        <em style="color:#888;" class="help-inline"><?php print d()->field_params[3]; ?></em>
+    </div>
+</div>

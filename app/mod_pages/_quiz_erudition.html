@@ -1,0 +1,159 @@
+<div class="container page-container">
+    {{nav_tpl}}
+    <div class="page-wrap" id="quiz-history-rolls">
+        <h1 class="text-center">Достаточно ли вы эрудированы?</h1>
+        <p class="quiz-small-h">Еще никто не ответил правильно на все вопросы! =)</p>
+        <div class="page-content">
+            <hr class="quiz-hr">
+            <div style="" id="test-block">
+                <p class="quiz-cnt" id="quiz-cnt"></p>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>В какой стране пользуются валютой под названием вона?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="1">Китай</span>
+                        <span class="quiz-btn" data-value="2">Вондонезия</span>
+                        <span class="quiz-btn" data-value="3">Южная корея</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Какая самая маленькая кость в скелете человека?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="3">Стремя</span>
+                        <span class="quiz-btn" data-value="2">Сесамовидная косточка</span>
+                        <span class="quiz-btn" data-value="1">Сошник</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Из чего делают стекло?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="2">Из стекла</span>
+                        <span class="quiz-btn" data-value="3">Из песка</span>
+                        <span class="quiz-btn" data-value="1">Из камня</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Какая кость - самая длинная в вашем теле?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="1">Берцева кость</span>
+                        <span class="quiz-btn" data-value="3">Бедренная кость</span>
+                        <span class="quiz-btn" data-value="2">Плечевая кость</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Как звали Египетского Бога знаний и мудрости?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="1">Озирис</span>
+                        <span class="quiz-btn" data-value="2">Му</span>
+                        <span class="quiz-btn" data-value="3">Тот</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Сколько океанов на Земле?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="3">4</span>
+                        <span class="quiz-btn" data-value="4">5</span>
+                        <span class="quiz-btn" data-value="1">7</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Кто стал автором книжной серии "Гарри Поттер"?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="1">Стивен Кинг</span>
+                        <span class="quiz-btn" data-value="3">Джоан Роулинг</span>
+                        <span class="quiz-btn" data-value="2">Северус Снегг</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Если бы в Кока-Колу не добавляли краситель, какого бы цвета она была?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="3">Зеленого</span>
+                        <span class="quiz-btn" data-value="1">Красного</span>
+                        <span class="quiz-btn" data-value="2">Там нет красителей</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Какую причёску носит Джек Воробей в "Пиратах Карибского моря"?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="3">Дреды</span>
+                        <span class="quiz-btn" data-value="1">Конский хвост</span>
+                        <span class="quiz-btn" data-value="2">Лысый</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Какое число в русском лото прозвали "стульчиками"?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="2">22</span>
+                        <span class="quiz-btn" data-value="1">55</span>
+                        <span class="quiz-btn" data-value="3">44</span>
+                    </div>
+                </div>
+                <div class="quiz-finish">
+                    <p>Результат:</p>
+                    <div class="quiz-res" data-s-value="0" data-f-value="14">
+                        <h3>Пришло время кое-что изучить...</h3>
+                    </div>
+                    <div class="quiz-res" data-s-value="14" data-f-value="22">
+                        <h3>Неплохо, но можно и лучше!</h3>
+                    </div>
+                    <div class="quiz-res" data-s-value="22" data-f-value="99">
+                        <h3>Вашей эрудиции нет предела!</h3>
+                    </div>
+                    <hr class="quiz-hr">
+                    <img src="/images/quiz-roll.jpg?2" alt="" class="quiz-last-img"/>
+                    <img src="/images/quiz-gift.png" alt="" style="margin:25px 15px;" />
+                    <img src="/images/quiz-pizza.jpg?2" alt="" class="quiz-last-img" />
+                    @if(d()->city->id == 1):
+                    <h2 class="quiz-final-h2">Получи ПОДАРКИ на выбор!</h2>
+                    <p class="quiz-final-p">*Подпишись на один из мессенджеров и получи промокод с условиями на шеф-ролл или пиццу в Подарок.</p>
+                    <script src="//unpkg.com/@textback/notification-widget@latest/build/index.js"></script>
+                    <tb-notification-widget  widget-id="0e17f103-1251-ef8e-b0ef-016dc97212df"></tb-notification-widget>
+                    @endif;
+                    @if(d()->city->id == 2):
+                    <h2 class="quiz-final-h2">Получи ПОДАРКИ на выбор!</h2>
+                    <p class="quiz-final-p">*Подпишись на один из мессенджеров и получи промокод с условиями на шеф-ролл или пиццу в Подарок.</p>
+                    <script src="//unpkg.com/@textback/notification-widget@latest/build/index.js"></script>
+                    <tb-notification-widget  widget-id="d86798a6-75d6-6a8e-bd17-016e6a5afeee">
+                    </tb-notification-widget>
+                    @endif;
+                    @if(d()->city->id == 3):
+                    <h2 class="quiz-final-h2">Получи ПОДАРКИ на выбор!</h2>
+                    <p class="quiz-final-p">*Подпишись на один из мессенджеров и получи промокод с условиями на шеф-ролл или пиццу в Подарок.</p>
+                    <script src="//unpkg.com/@textback/notification-widget@latest/build/index.js"></script>
+                    <tb-notification-widget  widget-id="e1982030-2087-79df-b208-016e4059e7cc">
+                    </tb-notification-widget>
+                    @endif;
+                    @if(d()->city->id == 5):
+                    <h2 class="quiz-final-h2">Получи ПОДАРКИ на выбор!</h2>
+                    <p class="quiz-final-p">*Подпишись на один из мессенджеров и получи промокод с условиями на шеф-ролл или пиццу в Подарок.</p>
+                    <script src="//unpkg.com/@textback/notification-widget@latest/build/index.js"></script>
+                    <tb-notification-widget  widget-id="938df45a-464d-55af-49e1-0172662b58cd">
+                    </tb-notification-widget>
+                    @endif;
+                    @if(d()->city->id == 6):
+                    <h2 class="quiz-final-h2">Получи ПОДАРКИ на выбор!</h2>
+                    <p class="quiz-final-p">*Подпишись на один из мессенджеров и получи промокод с условиями на шеф-ролл или пиццу в Подарок.</p>
+                    <script src="//unpkg.com/@textback/notification-widget@latest/build/index.js"></script>
+                    <tb-notification-widget  widget-id="964fe921-7c8d-ac77-715c-016e97b01440">
+                    </tb-notification-widget>
+                    @endif;
+                    @if(d()->city->id == 7):
+                    <h2 class="quiz-final-h2">Получи ПОДАРКИ на выбор!</h2>
+                    <p class="quiz-final-p">*Подпишись на один из мессенджеров и получи промокод с условиями на шеф-ролл или пиццу в Подарок.</p>
+                    <script src="//unpkg.com/@textback/notification-widget@latest/build/index.js"></script>
+                    <tb-notification-widget  widget-id="a09eb4cd-a488-d76b-5249-017502ab0cdf">
+                    </tb-notification-widget>
+                    @endif;
+                    @if(d()->city->id == 8):
+                    <h2 class="quiz-final-h2">Получи ПОДАРКИ на выбор!</h2>
+                    <p class="quiz-final-p">*Подпишись на один из мессенджеров и получи промокод с условиями на шеф-ролл или пиццу в Подарок.</p>
+                    <script src="//unpkg.com/@textback/notification-widget@latest/build/index.js"></script>
+                    <tb-notification-widget  widget-id="b267f623-1e00-5394-34c6-017b390b47b8">
+                    </tb-notification-widget>
+                    @endif;
+                </div>
+                <input type="hidden" id="quiz-result" value="0" />
+            </div>
+            <hr class="quiz-hr">
+        </div>
+    </div>
+</div>

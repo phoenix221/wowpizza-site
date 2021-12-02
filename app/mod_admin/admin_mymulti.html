@@ -1,0 +1,62 @@
+<div class="control-group">
+    <label class="control-label"  >Мультисайтовость</label>
+    <div class="controls">
+        <label class="radio">
+            <input type="radio"  name="multi" value="1" <?php
+            if(!d()->seothis->multi_domain){
+                print ' checked ';
+            }
+            ?> onclick="$('#admin_potential_multi_domain').val('')">Параметры для всех поддоменов
+        </label>
+        <label class="radio">
+            <input type="radio"  name="multi" value="0"  <?php
+            if(d()->seothis->multi_domain){
+                print ' checked ';
+            }
+            ?>  onclick="$('#admin_potential_multi_domain').val('{admin_potential_multi_domain}')">Параметры для текущего поддомена <?php if(d()->seothis->multi_domain) { ?>(<b>{seothis.multi_domain}</b>)<?php } ?>
+        </label>
+    </div>
+</div>
+<?if(!d()->seothis->multi_domain):?>
+    <input type="hidden" id="admin_potential_multi_domain" name="data[multi_domain]" value="">
+<?else:?>
+    <input type="hidden" id="admin_potential_multi_domain" name="data[multi_domain]" value="{seothis.multi_domain}">
+<?endif;?>
+
+
+<script>
+    $(document).ready(function(){
+        var type = $('select[name="data[type]"]');
+        var url = $('input[name="data[page_url]"]');
+        var razdel = $('select[name="data[razdel]"]');
+        var url_wrap = url.closest('div.control-group');
+        var razdel_wrap = razdel.closest('div.control-group');
+        // первое состояние раздела
+        if(type.val()==1){
+            url.prop('disabled', false);
+            url_wrap.show();
+            razdel.prop('disabled', true);
+            razdel_wrap.hide();
+        }else{
+            url.prop('disabled', true);
+            url_wrap.hide();
+            razdel.prop('disabled', false);
+            razdel_wrap.show();
+        }
+        // изменение раздела
+        type.change(function(){
+            if(type.val()==1){
+                url.prop('disabled', false);
+                url_wrap.show();
+                razdel.prop('disabled', true);
+                razdel_wrap.hide();
+            }else{
+                url.prop('disabled', true);
+                url_wrap.hide();
+                razdel.prop('disabled', false);
+                razdel_wrap.show();
+            }
+        });
+    });
+
+</script>

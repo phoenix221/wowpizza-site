@@ -1,0 +1,66 @@
+<div class="container page-container">
+    <div class="all-nav">
+        {{nav_tpl}}
+        <div class="checkout-nav">
+            <ul>
+                <li><a href="/checkout/"><span><i>1</i></span><br>Корзина</a></li>
+                <li><a href="/checkout/"><span><i>2</i></span><br>Оформление заказа</a></li>
+                <li><a href="#"><span><i>3</i></span><br>Заказ принят</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="page-wrap checkout-wrap text-center mt-60">
+        <span class="finish-heart"><i class="mdi mdi-heart"></i></span>
+        @if(!$_GET['ac']):
+        <h1>Спасибо за заказ!</h1>
+        <p>В ближайшее время с Вами свяжется оператор, для подтверждения заказа.</p>
+        <p>Заказ №{order_id}</p>
+        @else:
+            @if(d()->this->cook_time == 'now'):
+                <h1 class="fnshttl">Ваш заказ принят, и мы начинаем готовить</h1>
+                <p>Заказ №{order_id}</p>
+                @if(d()->this->delivery == 2):
+                <p><strong>Ожидаемое время доставки {tm}* по адресу: {street}</strong></p>
+                <p class="weather">*Время доставки может быть увеличено в зависимости от погодных условий и ситуаций на дороге</p>
+                @else:
+                <p>Заказ будет готов примерно в {tm}</p>
+                @endif;
+            @else:
+                <h1 class="fnshttl">Спасибо, Ваш заказ принят</h1>
+                <p>Заказ №{order_id}</p>
+                <p>Заказ будет выполнен {tm}</p>
+            @endif;
+            <p class="weather">Внимание! Ваш заказ принят автоматически без подтверждения по смс или звонком.</p>
+        @endif;
+        <a href="/" class="btn btn-red mt-20">Вернуться на главную</a>
+    </div>
+</div>
+
+@if($_SESSION['ec_send'] != d()->this->id):
+<script>
+    window.dataLayer = window.dataLayer || [];
+    dataLayer.push({
+        'ecommerce': {
+            'currencyCode': 'RUB',
+            'purchase': {
+                'actionField': {
+                    'id': '<?=d()->this->id?>',
+                    'affiliation': '',
+                    'revenue': '<?=d()->this->finish_price?>',
+                    'tax': '',
+                    'shipping': '<?=d()->this->delivery_price?>',
+                    'coupon': '<?=d()->promo->name?>'
+                },
+                'products': [<?=d()->ec_products?>]
+            }
+        },
+        'event': 'gtm-ee-event',
+        'gtm-ee-event-category': 'Enhanced Ecommerce',
+        'gtm-ee-event-action': 'Purchase',
+        'gtm-ee-event-non-interaction': 'False',
+    });
+</script>
+@$_SESSION['ec_send'] = d()->this->id;
+@endif;
+<!-- метка для события для пикселя -->
+@d()->show_pixel_pur = 1;

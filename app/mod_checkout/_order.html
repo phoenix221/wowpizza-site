@@ -1,0 +1,221 @@
+<script src="https://api-maps.yandex.ru/2.1/?apikey={key}&lang=ru_RU" type="text/javascript"></script>
+@if(url(1)!='ajax'):
+<style>.xs-cart-btn{display: none !important;}.cart{display: none !important;}</style>
+<div class="container page-container">
+    <div class="all-nav">
+        {{nav_tpl}}
+        <div class="checkout-nav">
+            <ul id="scroll">
+                <li><a href="/checkout/"><span><i>1</i></span><br>Корзина</a></li>
+                <li><a href="/checkout/order"><span><i>2</i></span><br>Оформление заказа</a></li>
+                <li><span><i>3</i></span><br>Заказ принят</li>
+            </ul>
+        </div>
+    </div>
+    <div class="page-wrap order-wrap">
+        <div class="h-line">
+            <h1 class="xs-center"><span>Оформление заказа</span></h1>
+            {{delivery_btn_tpl}}
+        </div>
+@endif;
+        <div class="page-content cho-wrap" id="cho-wrap" data-min-sum="{check_min_sum}" data-zone="{check_zone}" data-rules="1" data-url="{url}">
+            <div class="alert alert-danger {order_error_show}" id="order-error">{order_error}</div>
+            <!--{order_warning}-->
+            <div class="row cho-row">
+                <div class="col-lg-7 col-xs-12 static">
+                    <div class="order-fio-inputs frm">
+                        <input class="save_info" name="order_n" id="order-name" placeholder="Как к Вам обращаться?" value="{user_name}" autocomplete="off">
+                        <div>
+                            <input class="save_info" name="order_ph" id="order-phone" placeholder="Контактный телефон" value="{user_phone}" autocomplete="off">
+                            <img src="/images/loading.gif" alt="" class="ofi-loading" id="ofi-loading">
+                            <span class="ofi-hint" id="ofi-hint"></span>
+                        </div>
+
+                    </div>
+                    @if($_SESSION['delivery']==2):
+                    <h2>Куда доставить?</h2>
+                    @if(d()->adresses_list->count):
+                    <div class="adresses_list">
+                    <div class="address-loading"><img src="/images/loading.gif" alt=""></div>
+                    <small class="hint">{address_hint}</small>
+                    <ul class="addresses-list radio_style change-order-address">
+                        <foreach adresses_list>
+                        @if(d()->fcheck == '' && d()->slcid == d()->adresses_list->id):
+                        @d()->fcheck = 'checked';
+                        @else:
+                        @d()->fcheck = '';
+                        @endif;
+                        <li>
+                            <h4><input id="adress_{.id}" type="radio" onchange='change_func_hint("{.id}");' name="adress" value="{.id}" {fcheck}> <label for="adress_{.id}">{.title}</label></h4>
+                            <p><i class="mdi mdi-map-marker-outline"></i> {.street}</p>
+                        </li>
+                        </foreach>
+                    </ul>
+                    <button class="btn btn-red mt-20" onclick="other_address(this);">Другой адрес</button>
+                    </div>
+                    @endif;
+                    <div class="cho-aform frm dadata-wrap {aform}">
+                        <small class="hint" id="address-hint">{address_hint}</small>
+                        <div id="address-loading" class="address-loading loading-hint"><img src="/images/loading.gif" alt=""></div>
+                        <input name="order_adrs" value="{address}" id="address-street" placeholder="Улица и номер дома" class="yellow-focus required {address_success} mb-10" autocomplete="off" autocorrect="off" autocapitalize="off">
+                        <div class="address-small-inputs non_private">
+                            <input class="save_info" type="text" name="house-marker" id="address-house-marker" placeholder="Корпус" value="{house_marker}" maxlength="10">
+                            <input class="save_info" type="number" name="room-number" id="address-room-number" placeholder="Квартира/офис" value="{room_number}">
+                            <input class="save_info" type="number" name="entrance" id="address-entrance" placeholder="Подъезд" value="{entrance}">
+                            <input class="save_info" type="number" name="floor" id="address-floor" placeholder="Этаж" value="{floor}">
+                        </div>
+
+                        <div class="radio_style _is_private non_private">
+                            <input id="is_not_intercom" type="checkbox" name="is_not_intercom" value="1">
+                            <label for="is_not_intercom" class="checkbox mt-0">Домофон не работает</label>
+                        </div>
+                        <div class="radio_style _is_private">
+                            <input id="is_private" type="checkbox" name="is_private" value="1">
+                            <label for="is_private" class="checkbox mt-0">Частный дом</label>
+                        </div>
+
+                        @if(!d()->Auth->is_guest()):
+                        <input class="save_info" name="title" id="address-title" placeholder="Название адреса (для использования в будущем)" value="{address_title}" class="required">
+                        @endif;
+                        <input name="edit" type="hidden">
+                    </div>
+                    @else:
+                    <h2>Откуда забрать?</h2>
+                    <ul class="addresses-list offices-list radio_style">
+                        <foreach offices_list>
+                            <li>
+                                <h4><input id="office_{.id}" type="radio" name="office" value="{.id}" {fcheck}> <label for="office_{.id}">{.title}</label></h4>
+                                <p>{.address}</p>
+                            </li>
+                        </foreach>
+                    </ul>
+                    @endif;
+                    <div class="cho-pay {opacity}" id="cho-pay">
+                        <div class="h-line">
+                            <h2>Оплата</h2>
+                            <div class="hl-prices">
+                                <ul>
+                                    <li id="pay_1" class="{ap1}">Наличные</li>
+                                    <li id="pay_2" class="{ap2}">Банковская карта</li>
+                                    @if(d()->city->is_online_pay):
+                                    <li id="pay_3" class="{ap3}" data-pay="online">Онлайн оплата</li>
+                                    @endif;
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="cho-inp-line" id="banknote-block">
+                            <label for="banknote">Нужна сдача с</label>
+                            <div class="wrap">
+                                <input class="save_info" onkeypress="numbers_input(event)" type="number" name="banknote" value="{banknote}">
+                                <br><small class="only-number">нужно ввести только цифры</small>
+                            </div>
+                        </div>
+                        <div class="cho-inp-line {scttime}">
+                            <label>Начать готовить</label>
+                            <div class="wrap">
+                                <ul class="cho-ul-select cook_time">
+                                    <li id="now" data-id="now" class="{actnow}" onclick="clear_time();">Сейчас</li>
+                                    <li id="in_time" data-id="in_time" data-show="1" class="{acttime}" onclick="select_time();">Ко времени</li>
+                                </ul>
+                            </div>
+                            <div class="wrap-hidden">
+                                <!--<div class="zebra-wrap">
+                                    <input placeholder="Укажите дату и время" type="text" name="cook_time_value" class="save_info" value="{cook_time_value}" id="zebra-cho">
+                                </div>-->
+                                <div class="in_time">
+                                    <select name="days" class="days" onchange="time_in_time(this);"></select>
+                                    <select name="clock" class="clock" onchange="select_time();"></select>
+                                </div>
+                            </div>
+                        </div>
+                        @if(d()->total_tableware):
+                        <div class="cho-inp-line">
+                            <label for="persons">Количество приборов</label>
+                            <div class="wrap">
+                                <div class="plus-minus-icons">
+                                    <i class="mdi mdi-minus" title="Уменьшить количество" onclick="change_cnt(this, 'minus');"></i>
+                                    <i class="mdi mdi-plus" title="Увеличить количество" onclick="change_cnt(this, 'plus', {total_tableware});"></i>
+                                </div>
+                                <input class="save_info text-center persons" name="persons" value="{persons}" readonly>
+                                <span class="oehint oe-person"></span>
+                            </div>
+                        </div>
+                        @endif;
+                        <div class="cho-options radio_style">
+                            <div class="add-comment">
+                                <span>Комментарий к заказу:</span>
+                                <textarea name="comment" id="cho-comment" class="save_info">{comment}</textarea>
+                            </div>
+                            <span class="cho-rules radio-line">
+                                <input id="cho-rules" checked type="checkbox" name="cho-rules" value="1">
+                                <label for="cho-rules" class="checkbox mt-0">Согласен <a href="#" onclick="modal_page('personal');">с условиями обработки персональных данных</a> и <a href="#" onclick="modal_page('publichnaya-oferta');">условиям договора оферты</a></label>
+                                <button class="btn btn-red-auth btn-order" {btn_disabled} onclick="run_order(this, 1);" id="order-finish-btn">Заказать</button>
+                                <div class="cho-loading"><img src="/images/loading.gif" alt=""></div>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-lg-push-1 col-xs-12 cho-receipt {opacity}" id="cho-receipt">
+                    <ul>
+                        <li><span>Общая сумма</span><span class="sum"><em>{cart_total_price_nd}</em><i class="rub">q</i></span></li>
+                        <li><span>Оплата баллами</span><span class="sum"><em>{points_pay}</em><i class="rub">q</i></span></li>
+                        <li><span>Скидка по акции</span><span class="sum"><em>{discount_sum}</em><i class="rub">q</i></span></li>
+                        <li><span>Сумма заказа с учетом скидок и акций </span><span class="sum"><em>{cart_discount_price}</em><i class="rub">q</i></span></li>
+                        @if($_SESSION['delivery']==2):
+                        <li><span>Стоимость доставки </span><span class="sum" id="cho-delivery-price" data-delivery-price="{delivery_price}">{delivery_price_word}</span></li>
+                        @endif;
+                    </ul>
+                    <div class="cho-receipt-info">
+                        @if(d()->delivery_time):
+                        <small id="delivery-time"><span>Время доставки:</span><em>{delivery_time}</em></small>
+                        @endif;
+                        <hr>
+                        <p class="cho-receipt-itogo">
+                            <span>Итого:</span>
+                            <span class="sum" id="price-total" data-discount-price="{cart_discount_price}" data-order-price="{order_price}"><em>{order_price}</em><i class="rub">q</i></span>
+                        </p>
+                        @if(!d()->Auth->is_guest() && d()->cashback_points && !$_SESSION['points']):
+                        <small><span>Вы заработаете:</span><em>{cashback_points} {points_word}</em></small>
+                        @endif;
+                    </div>
+                </div>
+            </div>
+        </div>
+@if(url(1)!='ajax'):
+    </div>
+</div>
+<input type="hidden" id="dopolnitelno-lnk" name="dopolnitelno-lnk" value="{dopolnitelno}">
+<input type="hidden" id="dopdate-in-cook" name="dopdate-in-cook" value="{city.date_in_cook}">
+<input type="hidden" id="select_cook_time" name="select_cook_time" value>
+<input type="hidden" id="this-time" name="this-time" value="{this_time}">
+<input type="hidden" id="next-time" name="next-time" value="{next_time}">
+@endif;
+<input type="hidden" id="time-limit" name="time-limit" value="{city.wtjsline4}">
+<input type="hidden" id="time-limit2" name="time-limit2" value="{city.wtjsline5}">
+<input type="hidden" id="time-limit3" name="time-limit3" value="{city.wtjsline6}">
+<input type="hidden" id="address-street2" name="address-street2" value>
+<div type="hidden" id="map" name="map"></div>
+@if(url(1)=='ajax'):
+<script>
+    // скрипты, которые нужно обновить
+    if($(".change-order-address").length) {
+        // страница с выбором адреса из добавленных
+        change_func_hint($(".change-order-address input[name=adress]:checked").val());
+    }
+    $('#order-phone').inputmask({
+        mask: "+7 (999) 999-99-99",
+        oncomplete: function(){
+            order_phone_complete();
+        },
+        onincomplete: function(){
+            order_phone_incomplete();
+        },
+    });
+    if($('select[name=days]').length){
+        in_time();
+    }
+    if($('#in_time').hasClass('active')){
+        select_time();
+    }
+</script>
+@endif;

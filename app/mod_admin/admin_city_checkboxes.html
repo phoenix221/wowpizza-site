@@ -1,0 +1,134 @@
+<?php
+    if(url(4) == 'add'):
+
+    $table = (substr(d()->field_params[1],3));
+
+
+	if(isset(d()->field_params[3])){
+		$table = d()->field_params[3];
+	}
+
+
+	$_modelname=ActiveRecord::plural_to_one(strtolower($table));
+
+	$_first_letter=strtoupper(substr($_modelname,0,1));
+
+	$_modelname = $_first_letter.substr($_modelname,1);
+	d()->list_of_rows =  new $_modelname ();
+
+	if(isset(d()->field_params[4])){
+		d()->list_of_rows = d()->list_of_rows[d()->field_params[4]];
+	}
+
+	if(d()->field_params[3] == 'cities' && d()->cityid){
+        d()->list_of_rows->where('id != ?', d()->cityid);
+    }
+  ?>
+
+<script>
+//if(!CHECKBOXES_INITIALIZED){
+	var CHECKBOXES_INITIALIZED=true;
+	$(function(){
+		$('.<?=$table;?>_checkboxes_result').each(function(){
+			var ar=$(this).val().split('|')
+			for( key in ar){
+				$(this).parent().find('.<?=$table;?>_checkboxes_onecheckbox[data-id='+ar[key]+']').attr('checked', true);
+			}
+		})
+
+		$('.<?=$table;?>_checkboxes_onecheckbox').on('click',function(){
+			var ids=[]
+			$(this).parent().parent().parent().find('.<?=$table;?>_checkboxes_onecheckbox:checked').each(function(){
+				ids.push($(this).data('id'))
+			})
+			$(this).parent().parent().parent().find('.<?=$table;?>_checkboxes_result').val('|'+ids.join('|')+'|');
+		})
+	})
+//}
+</script>
+<legend>Дополнительно добавить в </legend>
+<style>
+    .controls>.radio:first-child, .controls>.checkbox:first-child {
+        padding-top: 0;
+    }
+    .loading_products{
+        display: block;
+        margin-top: 20px;
+    }
+</style>
+<div class="control-group" style="margin-bottom:0;padding:0;">
+	<div class="controls" style="margin-left: 40px;float:left;" id="dopcitycheckboxes">
+		<foreach list_of_rows>
+			<label class="checkbox ci_{.id}" style="margin-bottom:4px; float: left;width:300px;">
+                <input type="checkbox" class="<?=$table;?>_checkboxes_onecheckbox" data-id="{.id}">{.title}
+                <small class="cat" style="display: block;position: relative;left:-18px;color: #999;"></small>
+                <small class="subcat" style="display: block;position: relative;left:-18px;color: #999;"></small>
+            </label>
+            <input type="hidden" name="dopcity[{.id}][id]" value="{.id}">
+            <input type="hidden" name="dopcity[{.id}][category]" id="cat_city_hidden_{.id}" class="city_hidden" data-id="{.id}" value="" />
+            <input type="hidden" name="dopcity[{.id}][subcategory]" id="subcat_city_hidden_{.id}" class="city_hidden" data-id="{.id}" value="" />
+		</foreach>
+	</div>
+</div>
+
+    <div class="controls" style="margin-left: 0;margin-top: 30px">
+        <p style="color:#666;"><em>Авто-товары, не учавствуют в дополнительном добавлении блюда в города </em></p>
+    </div>
+
+
+<div id="dopcity-category" class="modal" tabindex="-1" role="dialog" style="display: none;" data-id="">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <img src="/images/close-modal.png" class="close" style="width: 15px;opacity: 1;" data-dismiss="modal" aria-hidden="true" alt="">
+                <h4 class="modal-title">Выбор категории города</h4>
+            </div>
+            <div class="modal-body">
+                <div class="modal-cnt">
+
+                </div>
+                <img src="/images/loading.gif" alt="" style="width:35px;" class="loading_products">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $('#dopcitycheckboxes input').change(function() {
+        if(this.checked) {
+            $('#dopcity-category').data('id', $(this).data('id')).attr('data-id', $(this).data('id'));
+            $('#dopcity-category').modal('show');
+        }else{
+            $(this).closest('label').find('small').html('');
+            $('#cat_city_hidden_'+$(this).data('id')).val('');
+            $('#subcat_city_hidden_'+$(this).data('id')).val('');
+        }
+    });
+    $('#dopcity-category').on('shown.bs.modal', function(){
+        var city_id = $(this).data('id');
+        var load = $(this).find('.loading_products');
+        var content = $(this).find('.modal-cnt');
+
+        load.show();
+        content.html('');
+        $.post('/ajax/get_dopcity_category', {city_id:city_id}, function(data) {
+            content.html(data);
+            load.hide();
+        });
+    });
+    $('#dopcity-category').on('hidden.bs.modal', function(){
+        var city_id = $(this).data('id');
+        var ids = $(this).find('input[name="dopcity_category_id"]').val();
+        var ttl = $(this).find('input[name="dopcity_category_ttl"]').val();
+
+        $('#cat_city_hidden_'+city_id).val(ids);
+        $('.ci_'+city_id+' small.cat').html(ttl);
+
+        var subids = $(this).find('input[name="dopcity_subcategory_id"]').val();
+        var subttl = $(this).find('input[name="dopcity_subcategory_ttl"]').val();
+
+        $('#subcat_city_hidden_'+city_id).val(subids);
+        $('.ci_'+city_id+' small.subcat').html(subttl);
+    });
+</script>
+<?endif;?>

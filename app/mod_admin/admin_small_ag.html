@@ -1,0 +1,34 @@
+<div class="control-group">
+    <label class="control-label"  >{title}</label>
+    <div class="controls">
+        <input type="text"  name="{name}" value="{value|h}" class="input-xlarge" >
+        <span class="help-inline"><a href="#" onclick="generator(this);">сгенерировать из названия</a></span>
+    </div>
+</div>
+<?php
+get_city();
+?>
+<script>
+    function generator(elem){
+        var r = urlLit($('input[name="data[title]"]').val());
+        var input = $(elem).closest('.controls').find('input');
+
+        $.post("/ajax/check_url_genereator", {url: r, table: "<?=url(3)?>", id: "<?=url(4)?>", city: <?=d()->city->id;?>}, function(data){
+            input.val(data);
+            //console.log(data);
+        });
+
+
+        event.preventDefault();
+    }
+    function urlLit(w,v) {
+        var tr='a b v g d e zh z i y k l m n o p r s t u f h c ch sh sch shh ~ y ~ e yu ya ~ jo'.split(' ');
+        var ww=''; w=w.toLowerCase();
+        for(i=0; i<w.length; ++i) {
+            cc=w.charCodeAt(i); ch=(cc>=1072?tr[cc-1072]:w[i]);
+            console.log(cc);
+            console.log(ch);
+            if(ch.length<=3) ww+=ch; else ww+=eval(ch)[v];}
+        return(ww.replace(/[^a-zA-Z0-9\-]/g,'-').replace(/[-]{2,}/gim, '-').replace( /^\-+/g, '').replace( /\-+$/g, ''));
+    }
+</script>

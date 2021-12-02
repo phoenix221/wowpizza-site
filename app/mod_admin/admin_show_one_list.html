@@ -1,0 +1,493 @@
+<style>
+    .mfrm input[type=text] {
+        width: 150px;
+        margin-bottom: 0;
+    }
+
+    .mfrm select {
+        width: 180px;
+        position: relative;
+        border: 1px solid #ccc;
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+        margin-bottom: 0;
+    }
+
+    .mfrm label {
+        display: inline-block;
+        margin-right: 16px;
+        font-weight: normal;
+        margin-bottom: 10px;
+        margin-bottom: 0;
+    }
+
+    .mfrm label input[type=checkbox] {
+        position: relative;
+        top: -1px;
+        margin-right: 1px;
+        margin-bottom: 0;
+    }
+    .table td, .table th{
+        vertical-align: middle;
+    }
+    .none{
+        display: none !important;
+    }
+</style>
+
+<?
+if (url(3) == 'users') {
+    d()->c_city = d()->City->where('code=? OR code=? OR id=?', url(5), $_GET['city'], $_GET['city_id'])->limit(0,1);
+    if(not_boss() && strpos($_SESSION['admin_cities'], '|'.d()->c_city->id.'|') === false || not_boss() && !url(5)){
+        d()->objectrow = '';
+        d()->no_access = 'У вас нет доступа к этому разделу';
+    }else{
+        if (!$_GET) {
+            if(url(5)){
+                d()->ob_cnt = '(' . d()->User->where('city=?', url(5))->count . ')';
+            }else{
+                d()->ob_cnt = '(' . d()->User->sql("SELECT id FROM users")->count . ')';
+            }
+        } else {
+            $c = 0;
+            foreach ($_GET as $k => $v) {
+                if ($k == 'page') continue;
+                if ($c) $query .= 'AND ';
+                $query .= '`' . $k . '` = "' . $v . '"';
+                $c++;
+            }
+            if(url(5)){
+                if ($c) $query .= 'AND ';
+                $query .= '`city` = "' . url(5) . '"';
+            }
+            if ($c) {
+                d()->ob_cnt = '(' . d()->User->where($query)->count . ')';
+            } else {
+                d()->ob_cnt = '(' . d()->User->sql("SELECT id FROM users WHERE city='".url(5)."'")->count . ')';
+            }
+        }
+    }
+}
+if (url(3) == 'sales') {
+    if($_GET['title']){
+        //d()->objectrow = d()->objectrow->search('title', $_GET['title']);
+        d()->objectrow = d()->Sale->where('city_id=?', url(5))->search('title', $_GET['title']);
+    }
+}
+if (url(3) == 'promocodes') {
+    if($_GET['name']){
+        //d()->objectrow = d()->objectrow->search('title', $_GET['title']);
+        d()->objectrow = d()->Promocode->where('city_id=?', url(5))->search('name', $_GET['name']);
+    }
+}
+if (url(3) == 'categories') {
+    if($_GET['title']){
+        //d()->objectrow = d()->objectrow->search('title', $_GET['title']);
+        d()->objectrow = d()->Category->where('city_id=?', url(5))->search('title', $_GET['title']);
+    }
+}
+if (url(3) == 'news') {
+    if($_GET['title']){
+        //d()->objectrow = d()->objectrow->search('title', $_GET['title']);
+        d()->objectrow = d()->News->where('city_id=?', url(5))->search('title', $_GET['title']);
+    }
+}
+if (url(3) == 'products' && url(4) == 'category_id' && url(5)) {
+    d()->category = d()->Category(url(5));
+    d()->curr_title = d()->category->title.' / '.d()->City(d()->category->city_id)->title;
+    if($_GET['tableware']){
+        $tw = 'AND is_active = 1 AND tableware=0';
+    }
+    d()->objectrow = d()->Product->where('category_id LIKE ? '.$tw.' OR category_id=? '.$tw, '%|'.url(5).'|%', url(5))->search('title', $_GET['title']);
+    //d()->objectrow = d()->Product->search('category_id', '|'.url(5).'|');
+}
+?>
+
+<h1>{curr_title} {ob_cnt}</h1>
+{curr_content}
+
+@if(!d()->no_access):
+
+<? if($_SESSION['check_zone'] && url(3) == 'zonis'): ?>
+<div class="alert alert-info">Зоны обновлены. Пожалуйста проверьте, верно ли заполнены все поля.</div>
+<?
+$_SESSION['check_zone'] = 0;
+endif;
+?>
+
+<? if (url(3) == 'categories' && url(5)): ?>
+  <div style="margin-top:15px;" class="mfrm">
+    <a href="/admin/list/filters/" class="btn btn-default">Ингридиенты (фильтр меню)</a>
+    <a href="/admin/list/stickers/" class="btn btn-default">Стикеры</a>
+  </div>
+  <hr style="margin:15px 0;">
+<? endif; ?>
+
+<? if (url(3) == 'users'): ?>
+    <?d()->cities = d()->City;?>
+    <form method="GET" style="margin-top:15px;" class="mfrm">
+        <input type="text" id="id" placeholder="ID пользователя" class="form-control" value="<? print $_GET['id'] ?>"/>
+        <input type="hidden" name="id" value="<? print $_GET['id'] ?>"/>
+
+        <input type="text" id="phone" placeholder="Телефон" class="form-control" value="<? print substr($_GET['phone'], 1) ?>"/>
+        <input type="hidden" name="phone" value="<? print $_GET['phone'] ?>"/>
+
+        <!--
+        <select id="city">
+            <option value="">Все города</option>
+            <foreach cities>
+                <option value="{.code}" <?if($_GET['city']==d()->this->code)print 'selected';?>>{.title}</option>
+            </foreach>
+        </select>
+        <input type="hidden" name="city" value="<?print $_GET['city']?>" />
+        -->
+
+
+        <button class="btn btn-primary">Найти</button>
+        <a href="/admin/list/users/city/<?=url(5)?>" class="btn btn-default">Сбросить</a>
+    </form>
+    <hr style="margin:15px 0;">
+<? endif; ?>
+
+
+<? if (url(3) == 'promocodes'): ?>
+    <form method="GET" style="margin-top:15px;" class="mfrm">
+        <input type="text" id="name" placeholder="Название" class="form-control" value="<?=$_GET['name'];?>"/>
+        <input type="hidden" name="name" value="<? print $_GET['name'] ?>"/>
+
+        <button class="btn btn-primary">Найти</button>
+        <a href="/admin/list/promocodes/city_id/<? print url(5) ?>" class="btn btn-default">Сбросить</a>
+    </form>
+    <hr style="margin:15px 0;">
+<? endif; ?>
+
+
+<? if (url(3) == 'categories'): ?>
+    <form method="GET" style="margin-top:15px;" class="mfrm">
+        <input type="text" id="title" placeholder="Название" class="form-control" value="<?=$_GET['title'];?>"/>
+        <input type="hidden" name="title" value="<? print $_GET['title'] ?>"/>
+
+        <button class="btn btn-primary">Найти</button>
+        <a href="/<?=url();?>" class="btn btn-default">Сбросить</a>
+
+        <a href="/export/products?city=<?=url(5)?>" class="btn btn-default pull-right">Выгрузка Excel</a>
+    </form>
+    <hr style="margin:15px 0;">
+<? endif; ?>
+
+
+<? if (url(3) == 'products'): ?>
+    <form method="GET" style="margin-top:15px;" class="mfrm">
+        <input type="text" id="title" placeholder="Название" class="form-control" value="<?=$_GET['title'];?>"/>
+        <input type="hidden" name="title" value="<? print $_GET['title'] ?>"/>
+        <button class="btn btn-primary">Найти</button>
+        <a href="/<?=url();?>" class="btn btn-default">Сбросить</a>
+
+        <a href="/export/products?category=<?=url(5)?>" class="btn btn-default pull-right">Выгрузка Excel</a>
+    </form>
+    <hr style="margin:15px 0;">
+    <?
+    d()->categories_list = d()->Category->where('city_id = ?', d()->category->city_id);
+    ?>
+    <foreach categories_list>
+        <a class="btn" href="/admin/list/products/category_id/{.id}" style="margin: 2px 0px">{.title}</a>
+    </foreach>
+    <hr style="margin:15px 0;">
+    <?
+        if(url(4) == 'category_id' && url(5)){
+            if(d()->category->is_tableqware){
+                $p = d()->Product->where('tableware = 0 AND category_id LIKE ? AND is_active=1', '%|'.url(5).'|%')->count;
+                if($p){
+                    $twrwrd = declOfNum($p, 'блюда', 'блюд', 'блюд');
+                    print '<div class="alert alert-danger">Не заполнено количество приборов у <a href="/admin/list/products/category_id/'.url(5).'?tableware=1">'.$p.' '.$twrwrd.'</a> (активных)</div>';
+                }
+            }
+        }
+    ?>
+<? endif; ?>
+
+
+<? if (url(3) == 'sales'): ?>
+    <form method="GET" style="margin-top:15px;" class="mfrm">
+        <input type="text" id="title" placeholder="Название" class="form-control" value="<?=$_GET['title'];?>"/>
+        <input type="hidden" name="title" value="<? print $_GET['title'] ?>"/>
+
+        <button class="btn btn-primary">Найти</button>
+        <a href="/<?=url();?>" class="btn btn-default">Сбросить</a>
+    </form>
+    <hr style="margin:15px 0;">
+<? endif; ?>
+
+<? if (url(3) == 'news'): ?>
+    <form method="GET" style="margin-top:15px;" class="mfrm">
+        <input type="text" id="title" placeholder="Название" class="form-control" value="<?=$_GET['title'];?>"/>
+        <input type="hidden" name="title" value="<? print $_GET['title'] ?>"/>
+
+        <button class="btn btn-primary">Найти</button>
+        <a href="/<?=url();?>" class="btn btn-default">Сбросить</a>
+    </form>
+    <hr style="margin:15px 0;">
+<? endif; ?>
+
+<? if (url(3) == 'seoparams'): ?>
+    <div style="margin-top:15px;" class="mfrm">
+        <a href="/admin/edit/robots/all" target="_blank" class="btn btn-default">Robots.txt (настройки)</a>
+        <!--раскомментировать в роутере-->
+        <!--<a href="/admin/edit/htacces/all" target="_blank" class="btn btn-default">.htaccess (настройки)</a>-->
+        <a href="/sitemap.xml" target="_blank" class="btn btn-default">Sitemap.xml</a>
+        <a href="/yandex_yml" target="_blank" class="btn btn-default">YML фид (турбо-страницы)</a>
+        <a href="/admin/list/redirects/" target="_blank" class="btn btn-default">Редиректы</a>
+    </div>
+    <hr style="margin:15px 0;">
+<? endif; ?>
+
+
+<div class="form-actions" style="boder:0;">
+@if(admin_access_edit()): /* доступ к редактированию */
+    @if(url(3)!='addresses' && url(3)!='users'):
+    {list_addbutton}
+    @endif;
+    @if(url(3)!='users'):
+    <?php if (!isset(d()->admin['use_model']['source'])) { ?>
+        <a href="?sort=yes<?php if (isset($_GET['page'])) {
+            print '&page=' . h($_GET['page']);
+        } ?>" class="btn"><i class=" icon-random"></i> Сортировать порядок</a>
+
+    <?php } ?>
+    @endif;
+@endif;
+@if(url(3)=='cities' && in_array('pages', $_SESSION['whitelist']) || url(3)=='cities' && !not_boss()):
+    <a href="/admin/edit/documents/1" class="btn">Публичная оферта</a>
+    <a href="/admin/edit/documents/2" class="btn">Политика конфиденциальности</a>
+    <a href="/admin/list/abouts/" class="btn">О нас</a>
+    <a href="/admin/list/faqs/" class="btn">FAQ</a>
+@endif;
+</div>
+
+<?php if (d()->paginator) { ?>
+    {paginator}
+<?php } ?>
+<table class="table table-striped table-bordered table-condensed" width=100%>
+    <thead>
+    <tr>
+        <th width=50><a href="?sort_field=id<?php
+            if (!isset($_GET['sort_direction']) || $_GET['sort_direction'] == 'asc') {
+                print '&sort_direction=desc';
+            }
+            ?>">ID </a><?php
+
+            if (isset($_GET['sort_field']) && $_GET['sort_field'] == 'id') {
+                if (!isset($_GET['sort_direction']) || $_GET['sort_direction'] == 'asc') {
+                    print ' ▲';
+                } else {
+                    print ' ▼';
+                }
+
+            }
+            ?></th>
+        <?php foreach (d()->datapool['admin']['columns'] as $col_name => $col_title) {
+
+            if($col_name=='admin_image'){
+                print '<th style="width:120px;text-align: center">';
+            }else{
+                print '<th>';
+            }
+
+            $as_substr = strpos($col_name, '_as_');
+            if ($as_substr !== false) {
+                $col_name = substr($col_name, 0, $as_substr);
+
+            }
+            if (in_array($col_name, d()->available_columns)) {
+                print  '<a href="?sort_field=' . h($col_name);
+                if (!isset($_GET['sort_direction']) || $_GET['sort_direction'] == 'asc') {
+                    print '&sort_direction=desc';
+                }
+                print '">';
+
+                print $col_title;
+
+                print '</a>';
+
+                if (isset($_GET['sort_field']) && $_GET['sort_field'] == $col_name) {
+                    if (!isset($_GET['sort_direction']) || $_GET['sort_direction'] == 'asc') {
+                        print ' ▲';
+                    } else {
+                        print ' ▼';
+                    }
+
+                }
+            } else {
+                print $col_title;
+            }
+            print  '</th>';
+        } ?>
+
+        @if(url(3)!='points'):
+        <th>Действие</th>
+        @endif;
+    </tr>
+    </thead>
+    <?foreach(d()->objectrow as d()->this):?>
+        <?
+            // система ораничений для доп админов
+            if(url(3)=='cities' && not_boss()){
+                $id = '|'.d()->this->id.'|';
+                if(strpos($_SESSION['admin_cities'], $id) === false) continue;
+            }
+        ?>
+        <tr>
+            <td>{.id}</td>
+
+            <?php foreach (d()->datapool['admin']['columns'] as $col_name => $col_title) {
+                if($col_name=='admin_image'){
+                    print '<td style="width:120px;text-align: center">';
+                }else{
+                    print '<td>';
+                }
+                if (d()->_list_safe_data) {
+                    print h(d()->this[$col_name]);
+                } else {
+                    print d()->this[$col_name];
+                }
+                print '</td>';
+            } ?>
+
+            @if(url(3)!='points'):
+            <td>
+                <?$edit_word = 'Править';?>
+                <?if(url(3)=='cities')$edit_word = 'Настройки';?>
+                <?if(url(3)=='ts_histories')$edit_word = 'Просмотр';?>
+                <?if(!admin_access_edit())$edit_word = 'Просмотр';?>
+                @if(url(3)=='cities'):
+                @if(!admin_access_edit())$edit_word = 'Просмотр настроек';
+                @if(not_boss() && !in_array('cities_view', $_SESSION['d_whitelist']) && !in_array('cities_edit', $_SESSION['d_whitelist']) )d()->none_city = 'none';
+                @if(not_boss() && !in_array('cities_wt_edit', $_SESSION['d_whitelist']))d()->none_wt_city = 'none';
+                @if(not_boss() && !in_array('products', $_SESSION['whitelist']))d()->none_products = 'none';
+                @if(not_boss() && !in_array('users', $_SESSION['whitelist']))d()->none_users = 'none';
+                @if(not_boss() && !in_array('promocodes', $_SESSION['whitelist']))d()->none_promocodes = 'none';
+                @if(not_boss() && !in_array('sales', $_SESSION['whitelist']))d()->none_sales = 'none';
+                @if(not_boss() && !in_array('slides', $_SESSION['whitelist']))d()->none_slides = 'none';
+                @if(not_boss() && !in_array('news', $_SESSION['whitelist']))d()->none_news = 'none';
+                @if(not_boss() && !in_array('pages', $_SESSION['whitelist']))d()->none_pages = 'none';
+                @if(not_boss() && !in_array('vacancies', $_SESSION['whitelist']))d()->none_vacancies = 'none';
+
+                <a href="/admin/edit/cities/{.id}" class="btn btn-mini {none_city}"><?print $edit_word;?></a>
+                <a href="/admin/edit/cities_wt/{.id}" class="btn btn-mini {none_wt_city}">Режим работы</a>
+                <a href="/admin/list/categories/city_id/{.id}" class="btn btn-mini {none_products}">Меню</a>
+                <a href="/admin/list/users/city/{.code}" class="btn btn-mini {none_users}">Пользователи</a>
+                <a href="/admin/list/promocodes/city_id/{.id}" class="btn btn-mini {none_promocodes}">Промокоды</a>
+                <a href="/admin/list/sales/city_id/{.id}" class="btn btn-mini {none_sales}">Акции</a>
+                <a href="/admin/list/slides/city_id/{.id}" class="btn btn-mini {none_slides}">Слайды</a>
+                <a href="/admin/list/news/city_id/{.id}" class="btn btn-mini {none_news}">Новости</a>
+                <a href="/admin/list/pages/city_id/{.id}" class="btn btn-mini {none_pages}">Текстовые страницы</a>
+                <a href="/admin/list/vacancies/city_id/{.id}" class="btn btn-mini {none_vacancies}">Вакансии</a>
+                @else:
+                <a href="/admin/edit/{curr_table}/{.id}?<?=rand()?>" onclick="window.open(this.href);return false;" class="btn btn-mini"><?print $edit_word;?></a>
+                @endif;
+
+                {.addbuttons}
+                
+                @if(url(3)=='products'):
+                <a href="/admin/list/properties/product_id/{.id}" target="_blank" class="btn btn-mini">Свойства</a>
+                <a href="/admin/list/others/product_id/{.id}" target="_blank" class="btn btn-mini">Допы</a>
+                @endif;
+
+                @if(url(3)=='subcategories'):
+                @d()->subcategory = d()->Subcategory->where('category_id=? AND id=?', url(5), d()->this->id);
+                <a href="/menu/{category.url}/{subcategory.url}/" class="btn btn-mini" target="_blank">Просмотр</a>
+                @endif;
+
+                @if(url(3)=='users'):
+                <a href="/admin/action?auth={.id}" target="_blank" class="btn btn-mini">Авторизоваться</a>
+                @endif;
+
+                @if(url(3)=='ts_histories'):
+                <a href="/ts-creator/?action=history_edit&id={.id}" target="_blank" class="btn btn-mini">Изменить</a>
+                <a href="/ts-creator/?action=history_in_crm&id={.id}" target="_blank" class="btn btn-mini">Выгрузить в CRM</a>
+                @endif;
+                
+                @if(admin_access_edit()): // доступ к редактированию
+                <a href="/admin/delete/{curr_table}/{.id}" onclick="window.open(this.href);return false;" target="_blank" class="btn btn-danger btn-mini"><i
+                            class="icon-remove icon-white"></i></a>
+                @endif;
+            </td>
+            @endif;
+        </tr>
+    <?endforeach;?>
+
+
+</table>
+
+<?php if (d()->paginator) { ?>
+    {paginator}
+<?php } ?>
+
+@if(admin_access_edit()): /* доступ к редактированию */
+<div class="form-actions">
+    @if(url(3)!='addresses' && url(3)!='users'):
+    {list_addbutton}
+    @endif;
+    @if(url(3)!='users'):
+    <?php if (!isset(d()->admin['use_model']['source'])) { ?>
+        <a href="?sort=yes<?php if (isset($_GET['page'])) {
+            print '&page=' . h($_GET['page']);
+        } ?>" class="btn"><i class=" icon-random"></i> Сортировать порядок</a>
+
+    <?php } ?>
+    @endif;
+</div>
+@endif;
+
+<script src='/vendors/inputmask/jquery.inputmask.min.js'></script>
+<script>
+
+    // маска для телефона
+    $('#phone').inputmask({
+        mask: "+7 (999) 999-99-99",
+        placeholder: "+7 (___) ___-__-__",
+        showMaskOnHover: true,
+        showMaskOnFocus: true
+    });
+
+    $('form').submit(function (event) {
+        var inputs = $(this).find('input');
+        $(inputs).each(function (index) {
+            var id = $(this).attr('id');
+            var val = $(this).val();
+            if (id) {
+                var inp = $('input[name="' + id + '"]');
+                if (val) {
+                    if(id=='phone'){
+                        val = val.replace(/[^0-9]/g, '');
+                    }
+                    inp.val(val);
+                } else {
+                    inp.prop('disabled', true);
+                }
+            }
+        });
+
+        var selects = $(this).find('select');
+        $(selects).each(function (index) {
+            var id = $(this).attr('id');
+            var val = $(this).val();
+            if (id) {
+                var inp = $('input[name="' + id + '"]');
+                if (val) {
+                    inp.val(val);
+                } else {
+                    inp.prop('disabled', true);
+                }
+            }
+        });
+
+        // if(!$('input[name="category_id"]').val()){
+        //     $('input[name="category_id"]').prop('disabled', true);
+        // }
+    });
+</script>
+
+@else:
+<br>
+<p>{no_access}</p>
+@endif;

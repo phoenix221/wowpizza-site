@@ -1,0 +1,472 @@
+<div class="container page-container">
+    {{nav_tpl}}
+    <div class="page-wrap" id="quiz-history-rolls">
+        <h1 class="text-center">Как хорошо ты знаешь историю города?</h1>
+        <p class="quiz-small-h">Пройди тест и узнай, насколько ты силен в истории города! =)</p>
+        <hr class="quiz-hr">
+        @if(d()->city->id == 1):
+        <div class="page-content">
+            <div style="" id="test-block">
+                <p class="quiz-cnt" id="quiz-cnt"></p>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Какого числа проходит день города в Ижевске?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="2">В новый год</span>
+                        <span class="quiz-btn" data-value="3">12 июня</span>
+                        <span class="quiz-btn" data-value="1">1 сентября</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Сколько в Ижевске внутригородских районов?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="3">5</span>
+                        <span class="quiz-btn" data-value="1">12</span>
+                        <span class="quiz-btn" data-value="2">3</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Золотого орла с заводской башни...</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="1">Перевезли в Москву</span>
+                        <span class="quiz-btn" data-value="3">Утопили</span>
+                        <span class="quiz-btn" data-value="2">Продали</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Шекера – это?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="2">Певица</span>
+                        <span class="quiz-btn" data-value="1">Гостиница</span>
+                        <span class="quiz-btn" data-value="3">Печенье</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Дарт – это?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="2">Дарт Вейдер</span>
+                        <span class="quiz-btn" data-value="3">Задор</span>
+                        <span class="quiz-btn" data-value="1">Пирожки</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Гербер – это?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="2">Детское питание</span>
+                        <span class="quiz-btn" data-value="1">Цветок</span>
+                        <span class="quiz-btn" data-value="3">Праздник</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Нянь – это?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="2">Няня</span>
+                        <span class="quiz-btn" data-value="1">Звук отрывающейся подошвы</span>
+                        <span class="quiz-btn" data-value="3">Хлеб</span>
+                    </div>
+                </div>
+                <div class="quiz-finish">
+                    <p>Результат:</p>
+                    <div class="quiz-res" data-s-value="0" data-f-value="9">
+                        <h3>НЕ МЕСТНЫЙ</h3>
+                        <!--<p></p>-->
+                    </div>
+                    <div class="quiz-res" data-s-value="9" data-f-value="17">
+                        <h3>ДАВНО ЖИВУЩИЙ В ИЖЕВСКЕ</h3>
+                        <!--<p></p>-->
+                    </div>
+                    <div class="quiz-res" data-s-value="17" data-f-value="99">
+                        <h3>НАСТОЯЩИЙ УДМУРТ</h3>
+                        <!--<p></p>-->
+                    </div>
+                    <hr class="quiz-hr">
+                    <img src="/images/quiz-roll.jpg?2" alt="" class="quiz-last-img"/>
+                    <img src="/images/quiz-gift.png" alt="" style="margin:25px 15px;" />
+                    <img src="/images/quiz-pizza.jpg?2" alt="" class="quiz-last-img" />
+
+                    <h2 class="quiz-final-h2">Получи ПОДАРКИ на выбор!</h2>
+                    <p class="quiz-final-p">*Подпишись на один из мессенджеров и получи промокод с условиями на шеф-ролл или пиццу в Подарок.</p>
+                    <script src="//unpkg.com/@textback/notification-widget@latest/build/index.js"></script>
+                    <tb-notification-widget  widget-id="0e17f103-1251-ef8e-b0ef-016dc97212df"></tb-notification-widget>
+                </div>
+                <input type="hidden" id="quiz-result" value="0" />
+            </div>
+            <hr class="quiz-hr">
+        </div>
+        @endif;
+        @if(d()->city->id == 2 && d()->city->code):
+        <div class="page-content">
+            <div style="" id="test-block">
+                <p class="quiz-cnt" id="quiz-cnt"></p>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Какое животное изображено на гербе города Самара?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="2">Рогатый козёл</span>
+                        <span class="quiz-btn" data-value="1">Большой олень</span>
+                        <span class="quiz-btn" data-value="3">Дикая белая коза</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Какое здание является самой высокой постройкой среди подобных во всей Европе?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="2">Канатный пер. дом 9</span>
+                        <span class="quiz-btn" data-value="1">Здание Самарского театра</span>
+                        <span class="quiz-btn" data-value="3">Здание Самарского вокзала</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Какие сверх важные объекты конструировали в городе Самара?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="1">Танки</span>
+                        <span class="quiz-btn" data-value="3">Ракеты</span>
+                        <span class="quiz-btn" data-value="2">Гоночные машины</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>От названия чего город получил своё название?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="1">От названия предыдущего поселения</span>
+                        <span class="quiz-btn" data-value="2">От названия птицы</span>
+                        <span class="quiz-btn" data-value="3">От названия реки</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Что из перечисленного находится в Самаре?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="3">«Бункер Сталина»</span>
+                        <span class="quiz-btn" data-value="1">Молодежный театр «Глобус»</span>
+                        <span class="quiz-btn" data-value="2">Петра</span>
+                    </div>
+                </div>
+                <div class="quiz-finish">
+                    <p>Результат:</p>
+                    <div class="quiz-res" data-s-value="0" data-f-value="9">
+                        <h3>НЕ МЕСТНЫЙ</h3>
+                        <!--<p></p>-->
+                    </div>
+                    <div class="quiz-res" data-s-value="9" data-f-value="10">
+                        <h3>ПРИЕХАЛ УЧИТЬСЯ</h3>
+                        <!--<p></p>-->
+                    </div>
+                    <div class="quiz-res" data-s-value="10" data-f-value="99">
+                        <h3>РОДИЛСЯ И ВЫРОС В САМАРЕ</h3>
+                        <!--<p></p>-->
+                    </div>
+                    <hr class="quiz-hr">
+                    <img src="/images/quiz-roll.jpg?2" alt="" class="quiz-last-img"/>
+                    <img src="/images/quiz-gift.png" alt="" style="margin:25px 15px;" />
+                    <img src="/images/quiz-pizza.jpg?2" alt="" class="quiz-last-img" />
+
+                    <h2 class="quiz-final-h2">Получи ПОДАРКИ на выбор!</h2>
+                    <p class="quiz-final-p">*Подпишись на один из мессенджеров и получи промокод с условиями на шеф-ролл или пиццу в Подарок.</p>
+                    <script src="//unpkg.com/@textback/notification-widget@latest/build/index.js"></script>
+                    <tb-notification-widget  widget-id="d86798a6-75d6-6a8e-bd17-016e6a5afeee">
+                    </tb-notification-widget>
+                </div>
+                <input type="hidden" id="quiz-result" value="0" />
+            </div>
+            <hr class="quiz-hr">
+        </div>
+        @endif;
+        @if(d()->city->id == 3 && d()->city->code):
+        <div class="page-content">
+            <div style="" id="test-block">
+                <p class="quiz-cnt" id="quiz-cnt"></p>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>В Татарстане очень много камер на дорогах. Возможно, даже больше, чем где бы то ни было в России. У местных жителей даже есть ответ на вопрос, почему это так...</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="1">Да просто эти камеры производят в Казани</span>
+                        <span class="quiz-btn" data-value="3">Дело в том, что главный гаишник — родной брат президента Татарстана</span>
+                        <span class="quiz-btn" data-value="2">В Татарстане очень хорошие дороги, поэтому велик соблазн нарушить скоростной режим</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Какого памятника нет в Татарстане?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="3">Пожарному</span>
+                        <span class="quiz-btn" data-value="2">Пивовару</span>
+                        <span class="quiz-btn" data-value="1">Благотворителю</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>В Ленинском садике Казани есть общественный туалет, построенный в 1935 году. Чем он знаменит?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="2">Во время торжественного открытия прорвало канализацию и затопило весь садик</span>
+                        <span class="quiz-btn" data-value="3">Его построили по указанию отца Василия Аксенова</span>
+                        <span class="quiz-btn" data-value="1">Его посещал сам Иосиф Сталин</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>По какой причине метро Казани занесено в Книгу рекордов Гиннеса?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="3">Самое короткое в мире</span>
+                        <span class="quiz-btn" data-value="2">Самое длинное в мире</span>
+                        <span class="quiz-btn" data-value="1">Самое старое в мире</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Как правильно называть жителей Казани?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="3">Казанцы</span>
+                        <span class="quiz-btn" data-value="1">Казахи</span>
+                        <span class="quiz-btn" data-value="2">Татары</span>
+                    </div>
+                </div>
+                <div class="quiz-finish">
+                    <p>Результат:</p>
+                    <div class="quiz-res" data-s-value="0" data-f-value="7">
+                        <h3>НЕ МЕСТНЫЙ</h3>
+                        <!--<p></p>-->
+                    </div>
+                    <div class="quiz-res" data-s-value="7" data-f-value="10">
+                        <h3>НЕДАВНО ПЕРЕЕХАЛ</h3>
+                        <!--<p></p>-->
+                    </div>
+                    <div class="quiz-res" data-s-value="10" data-f-value="99">
+                        <h3>РОДИЛСЯ И ВЫРОС В КАЗАНИ</h3>
+                        <!--<p></p>-->
+                    </div>
+                    <hr class="quiz-hr">
+                    <img src="/images/quiz-roll.jpg?2" alt="" class="quiz-last-img"/>
+                    <img src="/images/quiz-gift.png" alt="" style="margin:25px 15px;" />
+                    <img src="/images/quiz-pizza.jpg?2" alt="" class="quiz-last-img" />
+
+                    <h2 class="quiz-final-h2">Получи ПОДАРКИ на выбор!</h2>
+                    <p class="quiz-final-p">*Подпишись на один из мессенджеров и получи промокод с условиями на шеф-ролл или пиццу в Подарок.</p>
+                    <script src="//unpkg.com/@textback/notification-widget@latest/build/index.js"></script>
+                    <tb-notification-widget  widget-id="e1982030-2087-79df-b208-016e4059e7cc">
+                    </tb-notification-widget>
+                </div>
+                <input type="hidden" id="quiz-result" value="0" />
+            </div>
+            <hr class="quiz-hr">
+        </div>
+        @endif;
+        @if(d()->city->id == 5 && d()->city->code):
+        <div class="page-content">
+            <div style="" id="test-block">
+                <p class="quiz-cnt" id="quiz-cnt"></p>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Как называется водопад расположенный в семи км от села Макарово?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="0">Саблинский водопад</span>
+                        <span class="quiz-btn" data-value="1">Кук-Караул</span>
+                        <span class="quiz-btn" data-value="0">Водопад Гадельша</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Какой музей пользуется популярностью в Октябрьском?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="0">Музей земледелия</span>
+                        <span class="quiz-btn" data-value="1">Музей пчеловодства</span>
+                        <span class="quiz-btn" data-value="0">Музей садоводства</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Площадь города составляет:</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="1">105 кв.км.</span>
+                        <span class="quiz-btn" data-value="0">200 кв.км.</span>
+                        <span class="quiz-btn" data-value="0">289 кв.км.</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Сколько людей живет в нашем городе?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="0">260 тыс. человек</span>
+                        <span class="quiz-btn" data-value="1">111 тыс. человек</span>
+                        <span class="quiz-btn" data-value="0">96 тыс. человек</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>По какому адресу располагается администрация города:</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="0">Ленина</span>
+                        <span class="quiz-btn" data-value="1">Чапаева</span>
+                        <span class="quiz-btn" data-value="0">Ново-Садовая</span>
+                    </div>
+                </div>
+                <div class="quiz-finish">
+                    <p>Результат:</p>
+                    <div class="quiz-res" data-s-value="0" data-f-value="2">
+                        <h3>ПОЧТИ...</h3>
+                        <p>Друг, свой город ты знаешь не так хорошо, но подарок ты заслужил в любом случае!</p>
+                    </div>
+                    <div class="quiz-res" data-s-value="2" data-f-value="5">
+                        <h3>ПОЗДРАВЛЯЕМ!</h3>
+                        <p>Ты неплохо знаешь город! Полакомись вкусным сетом и почитай историю своего города:)</p>
+                    </div>
+                    <div class="quiz-res" data-s-value="5" data-f-value="99">
+                        <h3>ВАУ!</h3>
+                        <p>Ты это действительно заслужил! Ты очень хорошо знаешь свой город и в честь этого мы дарим тебе сет! Скорее выбирай удобный мессенджер и получай свой ПРИЗ!</p>
+                    </div>
+                    <hr class="quiz-hr">
+                    <img src="/images/quiz-roll.jpg?2" alt="" class="quiz-last-img"/>
+                    <img src="/images/quiz-gift.png" alt="" style="margin:25px 15px;" />
+                    <img src="/images/quiz-pizza.jpg?2" alt="" class="quiz-last-img" />
+
+                    <h2 class="quiz-final-h2">Получи ПОДАРКИ на выбор!</h2>
+                    <p class="quiz-final-p">*Подпишись на один из мессенджеров и получи промокод с условиями на шеф-ролл или пиццу в Подарок.</p>
+                    <script src="//unpkg.com/@textback/notification-widget@latest/build/index.js"></script>
+                    <tb-notification-widget  widget-id="938df45a-464d-55af-49e1-0172662b58cd">
+                    </tb-notification-widget>
+                </div>
+                <input type="hidden" id="quiz-result" value="0" />
+            </div>
+            <hr class="quiz-hr">
+        </div>
+        @endif;
+        @if(d()->city->id == 6):
+        <div class="page-content">
+            <div style="" id="test-block">
+                <p class="quiz-cnt" id="quiz-cnt"></p>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Самое старое сохранившееся здание в Уфе?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="3">Папа Карло с Буратино</span>
+                        <span class="quiz-btn" data-value="3">Дом известного горнозаводчика Демидова</span>
+                        <span class="quiz-btn" data-value="1">Башкирский государственный медицинский университет</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Какое из утверждений об Уфе является правильным?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="3">Уфа — один из крупнейших городов Российской Федерации</span>
+                        <span class="quiz-btn" data-value="1">Город Уфа расположен на берегу реки Иртыш</span>
+                        <span class="quiz-btn" data-value="2">Основу экономики Уфы составляет фармацевтические предприятия</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Сколько всего проспектов в городе Уфа?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="3">Три</span>
+                        <span class="quiz-btn" data-value="1">Восемь</span>
+                        <span class="quiz-btn" data-value="2">Слишком много, чтобы сосчитать</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Где находится улица Северная?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="2">В северной части Уфы</span>
+                        <span class="quiz-btn" data-value="3">Чуть южнее улицы Южной города Уфа</span>
+                        <span class="quiz-btn" data-value="1">В центре Уфы</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Чего в Уфе меньше всего среди российских городов-миллионников?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="2">Людей</span>
+                        <span class="quiz-btn" data-value="1">Фонтанов</span>
+                        <span class="quiz-btn" data-value="3">Улиц</span>
+                    </div>
+                </div>
+                <div class="quiz-finish">
+                    <p>Результат:</p>
+                    <div class="quiz-res" data-s-value="0" data-f-value="7">
+                        <h3>ПРОСТО ПРОЕЗДОМ</h3>
+                        <!--<p></p>-->
+                    </div>
+                    <div class="quiz-res" data-s-value="7" data-f-value="10">
+                        <h3>ПРИЕЗЖИЙ</h3>
+                        <!--<p></p>-->
+                    </div>
+                    <div class="quiz-res" data-s-value="10" data-f-value="99">
+                        <h3>ИСТИННЫЙ УФИМЕЦ</h3>
+                        <!--<p></p>-->
+                    </div>
+                    <hr class="quiz-hr">
+                    <img src="/images/quiz-roll.jpg?2" alt="" class="quiz-last-img"/>
+                    <img src="/images/quiz-gift.png" alt="" style="margin:25px 15px;" />
+                    <img src="/images/quiz-pizza.jpg?2" alt="" class="quiz-last-img" />
+
+                    <h2 class="quiz-final-h2">Получи ПОДАРКИ на выбор!</h2>
+                    <p class="quiz-final-p">*Подпишись на один из мессенджеров и получи промокод с условиями на шеф-ролл или пиццу в Подарок.</p>
+                    <script src="//unpkg.com/@textback/notification-widget@latest/build/index.js"></script>
+                    <tb-notification-widget  widget-id="964fe921-7c8d-ac77-715c-016e97b01440">
+                    </tb-notification-widget>
+                </div>
+                <input type="hidden" id="quiz-result" value="0" />
+            </div>
+            <hr class="quiz-hr">
+        </div>
+        @endif;
+        @if(d()->city->id == 7):
+        <div class="page-content">
+            <div style="" id="test-block">
+                <p class="quiz-cnt" id="quiz-cnt"></p>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Челябинск был основан?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="0">в 1760 году</span>
+                        <span class="quiz-btn" data-value="1">в 1736 году</span>
+                        <span class="quiz-btn" data-value="0">в 1780 году</span>
+                        <span class="quiz-btn" data-value="0">в 1540 году</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Население нашего города?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="1">1 196 680 человек</span>
+                        <span class="quiz-btn" data-value="0">1 128 787 человек</span>
+                        <span class="quiz-btn" data-value="0">1 354 113 человек</span>
+                        <span class="quiz-btn" data-value="0">1 449 976 человек</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Предвестником Челябинской области была:</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="0">Витебская провинция</span>
+                        <span class="quiz-btn" data-value="0">Екатерининская провинция</span>
+                        <span class="quiz-btn" data-value="1">Исетская провинция</span>
+                        <span class="quiz-btn" data-value="0">Мстиславская провинция</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>На гербе города изображен:</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="0">Дикая белая коза</span>
+                        <span class="quiz-btn" data-value="1">Верблюд</span>
+                        <span class="quiz-btn" data-value="0">Серебряный олень</span>
+                        <span class="quiz-btn" data-value="0">Белый лось</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>В каком году на наш город упал метеорит?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="0">2011</span>
+                        <span class="quiz-btn" data-value="0">2012</span>
+                        <span class="quiz-btn" data-value="1">2013</span>
+                        <span class="quiz-btn" data-value="0">2014</span>
+                    </div>
+                </div>
+                <div class="quiz-finish">
+                    <p>Результат:</p>
+                    <div class="quiz-res" data-s-value="0" data-f-value="2">
+                        <h3>ПРОСТО ПРОЕЗДОМ</h3>
+                        <!--<p></p>-->
+                    </div>
+                    <div class="quiz-res" data-s-value="2" data-f-value="4">
+                        <h3>ПРИЕЗЖИЙ</h3>
+                        <!--<p></p>-->
+                    </div>
+                    <div class="quiz-res" data-s-value="4" data-f-value="99">
+                        <h3>ИСТИННЫЙ ЧЕЛЯБИНЕЦ</h3>
+                        <!--<p></p>-->
+                    </div>
+                    <hr class="quiz-hr">
+                    <img src="/images/quiz-roll.jpg?2" alt="" class="quiz-last-img"/>
+                    <img src="/images/quiz-gift.png" alt="" style="margin:25px 15px;" />
+                    <img src="/images/quiz-pizza.jpg?2" alt="" class="quiz-last-img" />
+
+                    <h2 class="quiz-final-h2">Получи ПОДАРКИ на выбор!</h2>
+                    <p class="quiz-final-p">*Подпишись на один из мессенджеров и получи промокод с условиями на шеф-ролл или пиццу в Подарок.</p>
+                    <script src="//unpkg.com/@textback/notification-widget@latest/build/index.js"></script>
+                    <tb-notification-widget  widget-id="a09eb4cd-a488-d76b-5249-017502ab0cdf">
+                    </tb-notification-widget>
+                </div>
+                <input type="hidden" id="quiz-result" value="0" />
+            </div>
+            <hr class="quiz-hr">
+        </div>
+        @endif;
+    </div>
+</div>

@@ -1,0 +1,18 @@
+<?php
+    $value = file_get_contents($_SERVER['DOCUMENT_ROOT'].'/.htaccess', true);
+    $seo = preg_split('/#!for_seo|#for_seo!/', $value);
+    d()->value = $seo[1];
+
+?>
+<div><label class="control-label" style="float: none;margin-bottom: 10px;width:100%;text-align: left;">{title}</label></div>
+<div class="control-group">
+  <div class="">
+	<textarea  name="{name}" class="ui-widget-content ui-corner-all span3 js-admin-big" data-type="<?php print h(d()->field_params[3]); ?>" style="height:500px;width:98.8%;">{value}</textarea>
+	<div   class="form-control input-md js-aceeditor"  style="height: 300px;display:none;" ></div>
+	
+  </div>
+</div>
+<br>
+<p style="color:#666;"><em>Примеры 301 редиректов:</em></p>
+<br>
+ 

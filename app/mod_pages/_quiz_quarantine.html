@@ -1,0 +1,127 @@
+<div class="container page-container">
+    {{nav_tpl}}
+    <div class="page-wrap" id="quiz-history-rolls">
+        <h1 class="text-center">Кто ты на карантине?</h1>
+        <div class="page-content">
+            <p class="quiz-small-p"><em>5 вопросов</em></p>
+            <p class="quiz-small-h">Пройди тест и узнай, кто ты на карантине! =)</p>
+            <hr class="quiz-hr">
+            <div style="" id="test-block">
+                <p class="quiz-cnt" id="quiz-cnt"></p>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Запасался ли ты гречкой/консервами?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="6">Конечно, еды много не бывает</span>
+                        <span class="quiz-btn" data-value="4">Нет, а зачем?</span>
+                        <span class="quiz-btn" data-value="2">Не успел, работал</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Чем занимаешься на самоизоляции?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="6">Смотрю сериальчики и ем</span>
+                        <span class="quiz-btn" data-value="4">Строю планы на отпуск/каникулы</span>
+                        <span class="quiz-btn" data-value="2">Работаю/учусь</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Пользуешься доставкой еды?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="6">Да, люблю себя побаловать</span>
+                        <span class="quiz-btn" data-value="4">Нет, люблю готовить сам(-а)</span>
+                        <span class="quiz-btn" data-value="2">Да, кто меня еще покормит?</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Следишь ли ты за новостями по обстановке с вирусом?</h3>
+                    <div class="quiz-answer-block">
+                        @if(d()->city->title == 'Уфа'):
+                        <span class="quiz-btn" data-value="6">Слежу только за скидками в Радуге Вкуса-для Уфы!</span>
+                        @else:
+                        <span class="quiz-btn" data-value="6">Слежу только за скидками в Аппетит!</span>
+                        @endif;
+                        <span class="quiz-btn" data-value="4">Нет, но думаю, скоро все закончится!</span>
+                        <span class="quiz-btn" data-value="2">Некогда, есть другие дела</span>
+                    </div>
+                </div>
+                <div class="quiz-quest" data-complete="0">
+                    <h3>Что ты сделаешь после окончания карантина?</h3>
+                    <div class="quiz-answer-block">
+                        <span class="quiz-btn" data-value="6">Продолжу смотреть сериалы и есть вкусняшки</span>
+                        <span class="quiz-btn" data-value="4">Поеду в путешествие</span>
+                        <span class="quiz-btn" data-value="2">Продолжу работать</span>
+                    </div>
+                </div>
+                <div class="quiz-finish">
+                    <p>Результат:</p>
+                    <div class="quiz-res" data-s-value="0" data-f-value="18">
+                        <h3>Ты настоящий работяга, и на карантине у тебя появилось еще больше дел!</h3>
+                        <p>Чтобы сэкономить твое время и деньги, дарим промокод на подарочный сет или пиццу! Сделай перерыв и побалуй себя!</p>
+                    </div>
+                    <div class="quiz-res" data-s-value="18" data-f-value="24">
+                        <h3>Ты настоящий оптимист и ищешь плюсы даже в самоизоляции!</h3>
+                        <p>За стойкость и терпение дарим тебе промокод на подарочный сет или пиццу!</p>
+                    </div>
+                    <div class="quiz-res" data-s-value="24" data-f-value="99">
+                        <h3>Ты человек, который любит себя побаловать и вкусно поесть!</h3>
+                        <p>Уверены, что ты оценишь наш сюрприз – промокод на подарочный сет или пиццу!</p>
+                    </div>
+                    <hr class="quiz-hr">
+                    <img src="/images/quiz-roll.jpg?2" alt="" class="quiz-last-img"/>
+                    <img src="/images/quiz-gift.png" alt="" style="margin:25px 15px;" />
+                    <img src="/images/quiz-pizza.jpg?2" alt="" class="quiz-last-img" />
+                    @if(d()->city->id == 1):
+                    <h2 class="quiz-final-h2">Получи ПОДАРКИ на выбор!</h2>
+                    <p class="quiz-final-p">*Подпишись на один из мессенджеров и получи промокод с условиями на шеф-ролл или пиццу в Подарок.</p>
+                    <script src="//unpkg.com/@textback/notification-widget@latest/build/index.js"></script>
+                    <tb-notification-widget  widget-id="0e17f103-1251-ef8e-b0ef-016dc97212df"></tb-notification-widget>
+                    @endif;
+                    @if(d()->city->id == 2):
+                    <h2 class="quiz-final-h2">Получи ПОДАРКИ на выбор!</h2>
+                    <p class="quiz-final-p">*Подпишись на один из мессенджеров и получи промокод с условиями на шеф-ролл или пиццу в Подарок.</p>
+                    <script src="//unpkg.com/@textback/notification-widget@latest/build/index.js"></script>
+                    <tb-notification-widget  widget-id="d86798a6-75d6-6a8e-bd17-016e6a5afeee">
+                    </tb-notification-widget>
+                    @endif;
+                    @if(d()->city->id == 3):
+                    <h2 class="quiz-final-h2">Получи ПОДАРКИ на выбор!</h2>
+                    <p class="quiz-final-p">*Подпишись на один из мессенджеров и получи промокод с условиями на шеф-ролл или пиццу в Подарок.</p>
+                    <script src="//unpkg.com/@textback/notification-widget@latest/build/index.js"></script>
+                    <tb-notification-widget  widget-id="e1982030-2087-79df-b208-016e4059e7cc">
+                    </tb-notification-widget>
+                    @endif;
+                    @if(d()->city->id == 5):
+                    <h2 class="quiz-final-h2">Получи ПОДАРКИ на выбор!</h2>
+                    <p class="quiz-final-p">*Подпишись на один из мессенджеров и получи промокод с условиями на шеф-ролл или пиццу в Подарок.</p>
+                    <script src="//unpkg.com/@textback/notification-widget@latest/build/index.js"></script>
+                    <tb-notification-widget  widget-id="938df45a-464d-55af-49e1-0172662b58cd">
+                    </tb-notification-widget>
+                    @endif;
+                    @if(d()->city->id == 6):
+                    <h2 class="quiz-final-h2">Получи ПОДАРКИ на выбор!</h2>
+                    <p class="quiz-final-p">*Подпишись на один из мессенджеров и получи промокод с условиями на шеф-ролл или пиццу в Подарок.</p>
+                    <script src="//unpkg.com/@textback/notification-widget@latest/build/index.js"></script>
+                    <tb-notification-widget  widget-id="964fe921-7c8d-ac77-715c-016e97b01440">
+                    </tb-notification-widget>
+                    @endif;
+                    @if(d()->city->id == 7):
+                    <h2 class="quiz-final-h2">Получи ПОДАРКИ на выбор!</h2>
+                    <p class="quiz-final-p">*Подпишись на один из мессенджеров и получи промокод с условиями на шеф-ролл или пиццу в Подарок.</p>
+                    <script src="//unpkg.com/@textback/notification-widget@latest/build/index.js"></script>
+                    <tb-notification-widget  widget-id="a09eb4cd-a488-d76b-5249-017502ab0cdf">
+                    </tb-notification-widget>
+                    @endif;
+                    @if(d()->city->id == 8):
+                    <h2 class="quiz-final-h2">Получи ПОДАРКИ на выбор!</h2>
+                    <p class="quiz-final-p">*Подпишись на один из мессенджеров и получи промокод с условиями на шеф-ролл или пиццу в Подарок.</p>
+                    <script src="//unpkg.com/@textback/notification-widget@latest/build/index.js"></script>
+                    <tb-notification-widget  widget-id="b267f623-1e00-5394-34c6-017b390b47b8">
+                    </tb-notification-widget>
+                    @endif;
+                </div>
+                <input type="hidden" id="quiz-result" value="0" />
+            </div>
+            <hr class="quiz-hr">
+        </div>
+    </div>
+</div>

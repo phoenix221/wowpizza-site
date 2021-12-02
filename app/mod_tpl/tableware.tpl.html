@@ -1,0 +1,14 @@
+@if(!d()->this->p_list):
+<div class="tableware" title="Количество персон">
+    <span>{.number_persons}</span><i class="mdi mdi-account-outline"></i>
+</div>
+@else:
+@foreach (d()->this->p_list as $value):
+@if($value['checked'] && $value['is_stop'] != 1 && $value['number_persons'] != 0):
+@d()->np = $value['number_persons'];
+<div class="tableware" title="Количество персон">
+    <span>{np}</span><i class="mdi mdi-account-outline"></i>
+</div>
+@endif;
+@endforeach;
+@endif;

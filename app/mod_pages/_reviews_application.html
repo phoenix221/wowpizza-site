@@ -1,0 +1,69 @@
+<div class="container page-container">
+    {{nav_tpl}}
+    <div class="page-wrap">
+        <h1>Заявка на начисление баллов за отзыв</h1>
+        <div class="page-content">
+            @if($_GET['action']=='send'):
+            <div class="alert alert-success">Заявка успешно отправлена. В ближайшее время она будет обработана, пожалуйста ожидайте.</div>
+            @else:
+            <form method="post" class="ra-form" id="reviews-application-form">
+                {error}
+                <hr>
+                <label>Выберите сайт на котором Вы оставили отзыв*</label><br>
+                <small class="hint">выберите несколько если оставили на нескольких сайтах</small>
+                <div class="radio_style mt-10">
+                    <input id="flamp" type="checkbox" name="flamp" value="1" <?if($_POST['flamp'])print 'checked';?>>
+                    <label for="flamp" class="checkbox mt-0">Flamp</label>
+                </div>
+                <div class="radio_style mt-10">
+                    <input id="zoon" type="checkbox" name="zoon" value="1" <?if($_POST['zoon'])print 'checked';?>>
+                    <label for="zoon" class="checkbox mt-0">Zoon</label>
+                </div>
+                <div class="radio_style mt-10">
+                    <input id="otzovik" type="checkbox" name="otzovik" value="1" <?if($_POST['otzovik'])print 'checked';?>>
+                    <label for="otzovik" class="checkbox mt-0">Otzovik</label>
+                </div>
+                <div class="radio_style mt-10">
+                    <input id="yandex" type="checkbox" name="yandex" value="1" <?if($_POST['yandex'])print 'checked';?>>
+                    <label for="yandex" class="checkbox mt-0">Яндекс Карты</label>
+                </div>
+                <div class="radio_style mt-10">
+                    <input id="google" type="checkbox" name="google" value="1" <?if($_POST['google'])print 'checked';?>>
+                    <label for="google" class="checkbox mt-0">Гугл мой бизнес</label>
+                </div>
+                <div class="radio_style mt-10">
+                    <input id="2gis" type="checkbox" name="2gis" value="1" <?if($_POST['2gis'])print 'checked';?>>
+                    <label for="2gis" class="checkbox mt-0">2ГИС</label>
+                </div>
+                @if(d()->city->id == 2 || d()->city->id == 6):
+                <div class="radio_style mt-10">
+                    <input id="irecommend" type="checkbox" name="irecommend" value="1" <?if($_POST['irecommend'])print 'checked';?>>
+                    <label for="irecommend" class="checkbox mt-0">Irecommend</label>
+                </div>
+                @endif;
+                <hr>
+                <div class="frm">
+                    <label>Укажите номер чека</label>
+                    <input name="check_number" id="check_number" class="mb-0" value="<?=$_POST['check_number']?>" autocomplete="off">
+                </div>
+                <hr>
+                <div class="frm">
+                    <label>Укажите дату Вашего заказа*</label>
+                    <div class="ra-zebra-wrap"><input name="order_date" id="ra_order_date" class="mb-0" value="<?=$_POST['order_date']?>" autocomplete="off"></div>
+                </div>
+                <hr>
+                <div class="frm">
+                    <label>Ваш номер телефона с которого вы делали заказ. На него же мы и начислим баллы*</label>
+                    <input name="phone" id="order-phone" class="mb-0" value="{ph}" autocomplete="off">
+                </div>
+                <hr>
+                <small class="hint">нажимая кнопку "Отправить" я даю <a href="/personal/">согласие на обработку моих персональных данных</a></small>
+                <div class="frm">
+                    <br>
+                    <button class="btn btn-red-auth btn-order" onclick="$(this).prop('disabled', true);$('#reviews-application-form').submit();">Отправить</button>
+                </div>
+            </form>
+            @endif;
+        </div>
+    </div>
+</div>

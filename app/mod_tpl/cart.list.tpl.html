@@ -1,0 +1,32 @@
+<foreach cart_list>
+<section id="{.attr_id}" data-id="{.id}" data-property="{.property}" data-promo-count="{.promo_count}" data-promo-discount="{.promo_discount}" data-total-promo-discount="{.total_promo_discount}" data-promo-used="{.promo_used}" data-promo-used="{.promo_used}" data-autoadd="{.autoadd}">
+    <img src="{.image}" alt="" class="img"/>
+    <div class="info">
+        <h4>{.title}</h4>
+        <span class="p_title">{.f_property_title}</span>
+        @if(d()->property=='promo' || d()->property=='gift_dr' || d()->property=='gift_pickup' || d()->auto):
+        <div class="cart-cnt-line disabled">
+            <i class="mdi mdi-minus"></i>
+            <span>{.cnt}</span>
+            <i class="mdi mdi-plus"></i>
+        </div>
+        @else:
+        <div class="cart-cnt-line">
+            <i class="mdi mdi-minus" onclick="minuscart(this);"></i>
+            <span>{.cnt}</span>
+            <i class="mdi mdi-plus" onclick="pluscart(this);"></i>
+        </div>
+        @endif;
+        @if(d()->auto):
+        <i class="mdi mdi-trash-can-outline del-disabled"></i>
+        @else:
+        <i class="mdi mdi-trash-can-outline" onclick="removecart(this);"></i>
+        @endif;
+        <div class="clear"></div>
+        <span class="price" data-price="{.price}" data-dd-price="{.dd_price}" data-item-price="{.items_price}"><b data-price="{.f_total_price}" data-pdprice="" data-tp-discount="{.total_promo_discount}" data-p-discount="{.promo_discount}">{.f_total_price}</b><i class="rub">q</i></span>
+    </div>
+</section>
+</foreach>
+@if(!d()->cart_list):
+<p class="cart-empty">Корзина пуста</p>
+@endif;
