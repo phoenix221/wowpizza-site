@@ -1558,7 +1558,7 @@ function admin()
             $login=d()->admin['editor']['login'][$key];
             $password=d()->admin['editor']['password'][$key];
 
-            if($_POST['login'] == 'admin'){
+            /*if($_POST['login'] == 'admin'){
                 if($login == 'admin' && $password === md5($_POST['password'])){
                     $ch = rand(10000, 99999);
                     $_SESSION['sec_key'] = $ch;
@@ -1569,7 +1569,7 @@ function admin()
                     header('Location: /admin?key=kmsne73jxxliYn2szB100ketndjHDn1spc53&auth=d5f7f60871e604c69f4a70d8c5ba3b45');
                     exit();
                 }
-            }
+            }*/
             if($login == $_POST['login'] && $password === md5($_POST['password'])) {
                 $_SESSION['admin'] = $_POST['login'];
                 unset($_SESSION['whitelist']);
@@ -1598,22 +1598,31 @@ function admin()
             //Активирован режим "людей из таблицы";
             $user = d()->Admin_user->where('login = ? and password = ?',$_POST['login'],md5($_POST['password']));
             if(!$user->is_empty){
-                $ch = rand(10000, 99999);
+                $_SESSION['whitelist']=array_map('trim',explode(',',$user->whitelist));
+                $_SESSION['d_whitelist']=array_map('trim',explode(',',$user->d_whitelist));
+                $_SESSION['admin_cities']=$user->cities;
+                $_SESSION['admin']=$_POST['login'];
+
+                header('Location: /');
+                exit();
+
+                /*$ch = rand(10000, 99999);
                 $_SESSION['sec_key'] = $ch;
                 get_city();
                 $text = 'Код авторизации: '.$ch;
                 $mresult = file_get_contents('https://smsc.ru/sys/send.php?login='.d()->city->smsc_login.'&psw='.d()->city->smsc_password.'&phones='.$user->phone.'&mes='.$text.'&sender=Appetit');
                 $_SESSION['sec_login']=$_POST['login'];
                 header('Location: /admin?key=kmsne73jxxliYn2szB100ketndjHDn1spc53&auth=d5f7f60871e604c69f4a70d8c5ba3b45');
-                exit();
+                exit();*/
             }else{
                 $n_ice = 1;
             }
         }
-        $n_sm = 0;
-        if($_POST['conf-code']!= '' && $_POST['conf-code'] == $_SESSION['sec_key'] && $_SESSION['sec_login']!= ''){
-            if($_SESSION['sec_login'] == 'admin'){
-                $_SESSION['admin'] = $_SESSION['sec_login'];
+        //$n_sm = 0;
+        //if($_POST['conf-code']!= '' && $_POST['conf-code'] == $_SESSION['sec_key'] && $_SESSION['sec_login']!= ''){
+            //if($_SESSION['sec_login'] == 'admin'){
+            if($_SESSION['admin'] == 'admin'){
+                //$_SESSION['admin'] = $_SESSION['sec_login'];
                 unset($_SESSION['whitelist']);
                 unset($_SESSION['d_whitelist']);
                 unset($_SESSION['admin_cities']);
@@ -1622,24 +1631,25 @@ function admin()
                 header('Location: /');
                 exit();
             }
-            $auth_user = d()->Admin_user->where('login = ?', $_SESSION['sec_login']);
+            //$auth_user = d()->Admin_user->where('login = ?', $_SESSION['sec_login']);
+            $auth_user = d()->Admin_user->where('login = ?', $_SESSION['admin']);
             if(!$auth_user->is_empty){
                 $_SESSION['whitelist']=array_map('trim',explode(',',$auth_user->whitelist));
                 $_SESSION['d_whitelist']=array_map('trim',explode(',',$auth_user->d_whitelist));
                 $_SESSION['admin_cities']=$auth_user->cities;
-                $_SESSION['admin']=$_SESSION['sec_login'];
+                //$_SESSION['admin']=$_SESSION['sec_login'];
                 unset($_SESSION['sec_key']);
                 unset($_SESSION['sec_login']);
 
                 header('Location: /');
             }
-        }else{
+        /*}else{
             if($_SESSION['sec_login']!= ''){
                 $n_sm = 1;
             }
-        }
+        }*/
         if($n_ice == 1) d()->notice = 'Неверный логин или пароль';
-        if($n_sm  == 1) d()->notice = 'Неверный код авторизации';
+        //if($n_sm  == 1) d()->notice = 'Неверный код авторизации';
     }
 
     if(!isset($_SESSION['admin'])) {

@@ -338,15 +338,15 @@ padding:20px;
 
 	
 	<?php } ?>
-    @if($_GET['auth'] == d5f7f60871e604c69f4a70d8c5ba3b45):
-    <form method="POST">
+    <!--@if($_GET['auth'] == d5f7f60871e604c69f4a70d8c5ba3b45):-->
+    <!--<form method="POST">
         <input type="hidden" name="action" value="admin_login">
         Код авторизации:<br>
         <input id="conf-code" class="text_input" name="conf-code" type="tel">
         <small class="auth-hint" id="auth-hint">пожалуйста введите код который пришел в sms, что-бы авторизоваться</small>
         <input type="submit" class="submit_input button" value="Войти">
-    </form>
-    @else:
+    </form>-->
+    <!--@else:-->
 	<form method="POST">
 
 		<input type="hidden" name="action" value="admin_login">
@@ -356,7 +356,7 @@ padding:20px;
 		<input type="password" class="text_input" name="password"><br> 
 		<input type="submit" class="submit_input button" value="Войти">
 	</form>
-    @endif;
+    <!--@endif;-->
 </div>
 </body>
 </html>
