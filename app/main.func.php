@@ -1063,16 +1063,19 @@ function points_refresh(){
 // определение города
 function get_city(){
     $domian = explode('.', $_SERVER['HTTP_HOST']);
+    $_SESSION['dbg1'] = $domian;
     if(count($domian)==2){
-        if($_SERVER['HTTP_HOST'] == 'radugavkusaufa.ru'){
+        if($_SERVER['HTTP_HOST'] == 'wowpizza.ru'){
+            $_SESSION['dbg2'] = $_SERVER['HTTP_HOST'];
             d()->domain = $_SERVER['HTTP_HOST'];
-            d()->maindomain = 'appetitfood.ru';
+            d()->maindomain = 'wowpizza.ru';
             d()->subdomain = '';
 
             d()->site_url = $_SERVER['HTTP_HOST'];
             // d()->city = 0;
-            d()->city = d()->City(6)->limit(0,1);
+            d()->city = d()->City(1)->limit(0,1);
         }else{
+            $_SESSION['dbg3'] = $_SERVER['HTTP_HOST'];
             d()->domain = $_SERVER['HTTP_HOST'];
             d()->maindomain = $_SERVER['HTTP_HOST'];
 
@@ -1100,12 +1103,16 @@ function get_city(){
             //}
         }
     }else{
-
+        $_SESSION['dbg4'] = $domian;
         d()->domain = $domian[1].'.'.$domian[2];
         d()->maindomain = $domian[1].'.'.$domian[2];
         d()->subdomain = $domian[0];
         d()->site_url = $_SERVER['HTTP_HOST'];
         d()->city = d()->City->where('code=?', $domian[0])->limit(0,1);
+
+        if(!$domian[2]){
+            d()->city = d()->City(1)->limit(0,1);
+        }
 
         if(!count(d()->city)){
             header('Location: https://'.d()->domain);

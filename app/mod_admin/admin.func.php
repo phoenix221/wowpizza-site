@@ -1582,7 +1582,7 @@ function admin()
             }
         }
 
-        if($_POST['login'] == 'grand_oper' || $_POST['login'] == 'oper'){
+        /*if($_POST['login'] == 'grand_oper' || $_POST['login'] == 'oper'){
             $oper_user = d()->Admin_user->where('login = ? and password = ?',$_POST['login'],md5($_POST['password']));
             if(!$oper_user->is_empty){
                 $_SESSION['whitelist']=array_map('trim',explode(',',$oper_user->whitelist));
@@ -1593,7 +1593,7 @@ function admin()
                 header('Location: /');
                 exit();
             }
-        }
+        }*/
         if($_POST['login']!='admin' && $_POST['login']!='developer' && $_POST['login']!='' && $_POST['login']!='developer' && isset(d()->admin['users']) && isset(d()->admin['users']['enabled']) && d()->admin['users']['enabled']=='yes'){
             //Активирован режим "людей из таблицы";
             $user = d()->Admin_user->where('login = ? and password = ?',$_POST['login'],md5($_POST['password']));
@@ -1618,8 +1618,8 @@ function admin()
                 $n_ice = 1;
             }
         }
-        //$n_sm = 0;
-        //if($_POST['conf-code']!= '' && $_POST['conf-code'] == $_SESSION['sec_key'] && $_SESSION['sec_login']!= ''){
+        /*$n_sm = 0;
+        if($_POST['conf-code']!= '' && $_POST['conf-code'] == $_SESSION['sec_key'] && $_SESSION['sec_login']!= ''){
             //if($_SESSION['sec_login'] == 'admin'){
             if($_SESSION['admin'] == 'admin'){
                 //$_SESSION['admin'] = $_SESSION['sec_login'];
@@ -1643,7 +1643,7 @@ function admin()
 
                 header('Location: /');
             }
-        /*}else{
+        }else{
             if($_SESSION['sec_login']!= ''){
                 $n_sm = 1;
             }
