@@ -278,7 +278,7 @@ function ajax_change_cart($type='', $_id='', $_property='', $_items='')
             $pid = $_id.'_'.$_property.'_'.str_replace('_', '', $_items);
 
             if(!$cart[$pid]['id']){
-                if($_property!='promo' && $_property!='gift_dr' && $_property!='gift_pickup' && $_property!='gift_cash'){
+                if($_property!='promo' && $_property!='gift_dr' && $_property!='gift_pickup'){
                     // существует ли такое блюдо
                     $p = d()->Product($_id);
                     if(!$p->count()){
@@ -547,9 +547,6 @@ function ajax_change_cart($type='', $_id='', $_property='', $_items='')
                     if($_property=='gift_pickup'){
                         $mpt = 'подарок за самовывоз';
                     }
-                    if($_property=='gift_cash'){
-                        $mpt = '<i class="free-to-order">подарок за оплату наличными (при заказе от '.d()->city->min_gift_cash.' руб.)</i>';
-                    }
                     $cart[$pid] = Array(
                         'id' => $g->id,
                         'id_1c' => $g->id_1c,
@@ -578,7 +575,7 @@ function ajax_change_cart($type='', $_id='', $_property='', $_items='')
 
             }else{
                 // TODO: костылек с ошибкой при количестве подарков больше 1 (не смог найти причину, поставил эту проверку, пример заказ 353659)
-                if($cart[$pid]['auto'] || $_property=='gift_dr' || $_property=='gift_pickup' || $_property=='gift_cash' || $_property=='promo' && !$cart[$pid]['price']) {
+                if($cart[$pid]['auto'] || $_property=='gift_dr' || $_property=='gift_pickup' || $_property=='promo' && !$cart[$pid]['price']) {
                     $l = d()->Log->new;
                     $l->text = $_property.'|'.$pid;
                     $l->title = 'gift_count|double_add';
@@ -707,7 +704,6 @@ function ajax_change_cart($type='', $_id='', $_property='', $_items='')
 
                 }
             }
-
             $cart = autoadd_gift_cash($cart, 'add_change');
 
             $_SESSION['cart'] = $cart;
@@ -1063,10 +1059,8 @@ function points_refresh(){
 // определение города
 function get_city(){
     $domian = explode('.', $_SERVER['HTTP_HOST']);
-    $_SESSION['dbg1'] = $domian;
     if(count($domian)==2){
         if($_SERVER['HTTP_HOST'] == 'wowpizza.ru'){
-            $_SESSION['dbg2'] = $_SERVER['HTTP_HOST'];
             d()->domain = $_SERVER['HTTP_HOST'];
             d()->maindomain = 'wowpizza.ru';
             d()->subdomain = '';
@@ -1075,7 +1069,6 @@ function get_city(){
             // d()->city = 0;
             d()->city = d()->City(1)->limit(0,1);
         }else{
-            $_SESSION['dbg3'] = $_SERVER['HTTP_HOST'];
             d()->domain = $_SERVER['HTTP_HOST'];
             d()->maindomain = $_SERVER['HTTP_HOST'];
 
@@ -1103,17 +1096,11 @@ function get_city(){
             //}
         }
     }else{
-        $_SESSION['dbg4'] = $domian;
         d()->domain = $domian[1].'.'.$domian[2];
         d()->maindomain = $domian[1].'.'.$domian[2];
         d()->subdomain = $domian[0];
         d()->site_url = $_SERVER['HTTP_HOST'];
         d()->city = d()->City->where('code=?', $domian[0])->limit(0,1);
-
-        if(!$domian[2]){
-            d()->city = d()->City(1)->limit(0,1);
-        }
-
         if(!count(d()->city)){
             header('Location: https://'.d()->domain);
             exit;
@@ -1269,10 +1256,6 @@ function recaptcha()
                 if($captcha_action=='phone_reconfirmation'){
                     $success->text = 'код отправлен повторно';
                     if(d()->city->send_code_type != 1)$success->text = 'авто-звонок отправлен повторно';
-                    if($_SESSION['smsc']['sms']){
-                        $success->sms = 1;
-                        $success->text = '';
-                    }
                 }
             }
 
@@ -1520,17 +1503,6 @@ function ajax_registration(){
             $binfo->delete();
         }
         $user = $u->save_and_load();
-
-        // проверяем, делал ли пользователь заказы с этого номера раньше
-        $olist = d()->Order->where('phone = ? AND city_id = ? AND user_id = 0 OR phone = ? AND city_id = ? AND user_id IS NULL', $phone, d()->city->id, $phone, d()->city->id);
-        $_SESSION['dbg2'] = $olist;
-        if(!$olist->is_empty){
-            foreach($olist as $v){
-                $o = d()->Order($olist->id);
-                $o->user_id = $user->id;
-                $o->save;
-            }
-        }
 
         // создаем историю начисления баллов
         create_ph($user->id, d()->city->code, 1, d()->city->points);
@@ -1994,7 +1966,7 @@ function g_loadmore($table='', $limit='', $total='', $user_id=''){
 
     if($table=='orders'){
         $cnt = d()->Order->where('user_id=? AND city_id=?', d()->this->id, d()->city->id)->count;
-        for($i = 2020; $i <= date('Y'); $i++){
+        for($i = 2020; $i < date('Y'); $i++){
             $t = 'orders_'.$i;
             $cnt += d()->$t->sql('SELECT * FROM '.$t.' WHERE city_id="'.d()->city->id.'" AND user_id="'.d()->this->id.'" ORDER BY id DESC')->count;
         }
@@ -2057,7 +2029,7 @@ function ajax_get_more(){
     if($_POST['table']=='orders'){
         get_city();
         $orders_new = d()->Order->where('user_id=? AND city_id=?', d()->Auth->id, d()->city->id)->order_by('id desc')->to_array();
-        for($i = 2020; $i <= date('Y'); $i++){
+        for($i = 2020; $i <= date('Y')-1; $i++){
             $t = 'orders_'.$i;
             $orders_old = d()->Order->sql('select * from '.$t.' where city_id="'.d()->city->id.'" and user_id="'.d()->Auth->id.'" order by id desc')->to_array();
             foreach ($orders_old as $kor_old=>$vor_old){
@@ -2122,7 +2094,7 @@ function ajax_check_zone(){
     $adr = $_POST['adr'];
     $_SESSION['zone']['address_id'] = '';
     $mass['post'] = $_POST;
-    //$_SESSION['address_logs'][] = $small_adr;
+    $_SESSION['address_logs'][] = $small_adr;
 
     get_city();
     if($_POST['address_id']){
@@ -2535,10 +2507,6 @@ function ajax_delivery_change() {
             unset($_SESSION['cart']);
             if($_SESSION['promocode']['products_used'])$_SESSION['promocode']['products_used']=0;
             foreach($c as $k=>$v){
-                if($v['property'] == ''){
-                    $v['property'] = 0;
-                }
-                if($v['property'] == 'gift_cash') $v['id'] = $v['id'].'_'.$v['gift_property'];
                 ajax_change_cart('add', $v['id'], $v['property']);
                 $pid = $v['id'].'_'.$v['property'];
 
@@ -3097,7 +3065,7 @@ function ajax_run_promo(){
             $orders = d()->Order->where('phone = ?', $new_u->phone)->count;
             $str_order = 0;
             if($orders == 0){
-                for ($i = 2020; $i <= date('Y'); $i++) {
+                for ($i = 2020; $i <= date('Y') - 1; $i++) {
                     $t = 'orders_' . $i;
                     $orders_old = d()->Order->sql('select * from ' . $t . ' where `phone` ='.$new_u->phone)->count;
                     $str_order = $orders_old;
@@ -4242,18 +4210,6 @@ function ajax_check_order(){
             exit;
         }
 
-        // проверка на черный список
-        if($info['phone']){
-            $phone = d()->convert_phone($info['phone']);
-            $bl = d()->Blacklist->where('phone = ?', $phone)->limit(0,1);
-            if(!$bl->is_empty){
-                $r['result'] = 'error';
-                $r['text'] = 'К сожалению, по техническим причинам оформление заказа c помощью приложения невозможно. Для оформления заказа Вы можете позвонить в колл-центр.';
-                return json_encode($r);
-                exit;
-            }
-        }
-
         // проверяем способ доставки
         if($info['delivery_type']==1){
             // samovivoz
@@ -4314,44 +4270,6 @@ function ajax_check_order(){
                 $info['entrance'] = $adr->entrance;
                 $info['room_number'] = $adr->apartment;
                 $info['is_private'] = $adr->is_private;
-
-                // log
-                $log_street = d()->Address_log->new;
-                $log_street->text = $adr->street;
-                $log_street->title = d()->convert_phone($info['phone']);
-                $log_street->user_id = $_SESSION['auth'];
-                $log_street->type = 1;
-                $log_street->save;
-            }
-
-            // TODO: кастыл, пока не нашел проблему почему не выбирается улица (пример заказов без улицы: 1124786, 1117213)
-            if(!$_SESSION['zone']['address_id'] && !$_SESSION['zone']['address']){
-                $adr = d()->Address->where('user_id =?', $_SESSION['auth'])->limit(0,1);
-
-                // если не заполнены КВ, ПОД или ЭТ
-                if(!$adr->is_private){
-                    if(!$adr->floor || !$adr->entrance || !$adr->apartment){
-                        $r['result'] = 'error';
-                        $r['t'] = 'room';
-                        $r['error_text'] = 'Необходимо заполнить в адресе квартиру, подъезд и этаж. Это можно сделать в Личном кабинете, в разделе "<a href="/cabinet" target="_blank">Адреса доставки</a>"';
-                        return json_encode($r);
-                        exit;
-                    }
-                }
-
-                $info['zone']['address'] = $adr->street;
-                $info['floor'] = $adr->floor;
-                $info['entrance'] = $adr->entrance;
-                $info['room_number'] = $adr->apartment;
-                $info['is_private'] = $adr->is_private;
-
-                // log
-                $log_street = d()->Address_log->new;
-                $log_street->text = $adr->street;
-                $log_street->title = d()->convert_phone($info['phone']);
-                $log_street->user_id = $_SESSION['auth'];
-                $log_street->type = 2;
-                $log_street->save;
             }
 
             // proverka na min summu zoni
@@ -4372,7 +4290,7 @@ function ajax_check_order(){
             }
             // если не заполнены КВ, ПОД, ЭТ
             if(!$info['is_private'] && !$_SESSION['zone']['address_id']){
-                if(!isset($info['room_number']) || !isset($info['floor']) || !isset($info['entrance'])){
+                if(!$info['room_number'] || !$info['floor'] || !$info['entrance']){
                     $r['result'] = 'error';
                     $r['t'] = 'room';
                     $r['error_text'] = 'Необходимо указать квартиру, подъезд и этаж';
@@ -5024,21 +4942,10 @@ function ajax_check_order(){
             $office = d()->Office->where('city_id = ?', d()->city->id)->order_by('id '.$srt)->limit(0,1)->id;
         }
 
-        // определяем по номеру телефона есть ли такой пользователь в базе
-        $uid = '';
-        if($_POST['user']){
-            $uid = $u->id;
-        }else{
-            $checkuser = d()->User->where('phone = ? AND city = ?', $phone, d()->city->code)->limit(0,1);
-            if(!$checkuser->is_empty){
-                $uid = $checkuser->id;
-            }
-        }
-
         // sozdaem zakaz v baze
         $o = d()->Order->new;
         $o->city_id = d()->city->id;
-        if($uid)$o->user_id = $uid;
+        $o->user_id = $u->id;
         $o->created_at = date('Y-m-d H:i:s', date('U')+d()->city->timezone*3600);
         $o->updated_at = date('Y-m-d H:i:s', date('U')+d()->city->timezone*3600);
         $o->phone = d()->convert_phone($info['phone']);
@@ -5238,7 +5145,7 @@ function ajax_check_order(){
         $exp_analytics->save;
 
         // логируем адресс
-        /*if($_SESSION['delivery'] == 2){
+        if($_SESSION['delivery'] == 2){
             $al = d()->Address_log->new;
             $al->title = d()->convert_phone($info['phone']);
             $al->text = json_encode($_SESSION['address_logs']);
@@ -5246,7 +5153,7 @@ function ajax_check_order(){
             $al->order_id = $order->id;
             $al->save;
             unset($_SESSION['address_logs']);
-        }*/
+        }
 
         // чистим сессию
         foreach($_SESSION as $k=>$v){
@@ -5571,26 +5478,14 @@ function send_code($phone='', $first=0){
             }
             // если выбран smsc.ru
             if(d()->city->send_code_type == 2){
-                $check = d()->Code->where('phone = ? AND is_tg != 1', $phone)->order_by('id desc')->limit(0,1);
-                $c = date('U') - strtotime($check->created_at);
-                if(!$check->is_empty && $c <= 600) {
-                    // отправляем код подтверждения по смс
-                    $text = $code.' код подтверждения на сайте '.d()->site_url;
-                    $mresult = file_get_contents('https://smsc.ru/sys/send.php?login='.d()->city->smsc_login.'&psw='.d()->city->smsc_password.'&phones='.$phone.'&mes='.$text);
-                    $_SESSION['smsc']['result'] = $mresult;
-                    $_SESSION['smsc']['code'] = $code;
-                    $_SESSION['smsc']['sms'] = 1;
-                    //$rtext = 'на указанный номер отправлено смс с кодом подтверждения';
-                }else{
-                    $mresult = file_get_contents('https://smsc.ru/sys/send.php?login='.d()->city->smsc_login.'&psw='.d()->city->smsc_password.'&phones='.$phone.'&mes=code&call=1');
-                    $temp = explode(',', $mresult);
-                    $tmp = explode('-', $temp[2]);
-                    $tm = trim($tmp[1]);
-                    $code = substr($tm, 2);
-                    if(!$code)$code = rand(1000,9999);
-                    $_SESSION['smsc']['result'] = $mresult;
-                    $_SESSION['smsc']['code'] = $code;
-                }
+                $mresult = file_get_contents('https://smsc.ru/sys/send.php?login='.d()->city->smsc_login.'&psw='.d()->city->smsc_password.'&phones='.$phone.'&mes=code&call=1');
+                $temp = explode(',', $mresult);
+                $tmp = explode('-', $temp[2]);
+                $tm = trim($tmp[1]);
+                $code = substr($tm, 2);
+                if(!$code)$code = rand(1000,9999);
+                $_SESSION['smsc']['result'] = $mresult;
+                $_SESSION['smsc']['code'] = $code;
             }
         }else{
             // отправляем код подтверждения по смс
@@ -7014,10 +6909,6 @@ function ajax_resend_order_conf(){
             if(d()->city->send_code_type != 1)$r['text'] = 'авто-звонок отправлен повторно';
 
             $code = d()->send_code($ph);
-            if($_SESSION['smsc']['sms']){
-                $r['sms'] = 1;
-                $r['text'] = '';
-            }
             $_SESSION['order_conf'][$ph]['code'] = $code;
             $_SESSION['order_conf']['time'] = date('U');
         }
@@ -7943,24 +7834,6 @@ function cron_clear_codes(){
     $date = date('Y-m-d H:i:s', $d);
     print $date;
     d()->Code->sql('DELETE FROM `codes` WHERE `created_at` <= "'.$date.'"');
-
-    // очищаем логи возрат записи которой более 5 дней
-    //$time = date('d.m.Y');
-    $clear_days = date('Y-m-d', strtotime("- 5 days"));
-    d()->Check->sql('DELETE FROM `content_logs` WHERE `created_at` <= "'.$clear_days.'"');
-    d()->Check->sql('DELETE FROM `logs` WHERE `created_at` <= "'.$clear_days.'"');
-    d()->Check->sql('DELETE FROM `address_logs` WHERE `created_at` <= "'.$clear_days.'"');
-
-    // очищаем записи созданы более месяца
-    $month = date('Y-m-d', strtotime("- 1 month"));
-    d()->Check->sql('DELETE FROM `cashback_tasks` WHERE `created_at` <= "'.$month.'"');
-    d()->Check->sql('DELETE FROM `export_orders` WHERE `created_at` <= "'.$month.'"');
-
-    /*$month2 = date('Y-m-d', strtotime("- 2 month"));
-    $name_db = 'orders_' . date('Y');
-    d()->Check->sql('INSERT INTO `'.$name_db.'` SELECT * FROM `orders` WHERE `created_at` <= "'.$month2.'"');
-    d()->Check->sql('DELETE FROM `orders` WHERE `created_at` <= "'.$month2.'"');*/
-    print 'ok';
 }
 
 function check_wt_pickup($order_save = ''){
@@ -8748,16 +8621,6 @@ function ajax_find_orders() {
     if($_POST['id']){
         $phone = d()->convert_phone($_POST['id']);
         $orders_id = d()->Order->where('id = ? OR phone = ?', $_POST['id'], $phone)->limit(0,1)->order_by('id DESC');
-        /*if($orders_id->is_empty){
-            for ($i = date('Y'); $i >= 2020; $i--) {
-                $t = 'orders_'.$i;
-                $orders_id_l = d()->Order->sql('SELECT * FROM '.$t.' WHERE `id`= "'.$_POST['id'].'" OR `phone`= "'.$phone.'" ORDER BY id desc')->limit(0,1)->to_array();
-                //$orders_id = d()->Model($orders_id_l);
-                //$orders_id = d()->Order_c($orders_id_l);
-                //if(!$orders_id->is_empty) break;
-                if($orders_id_l) break;
-            }
-        }*/
         $str = Array();
         $time = date('Y-m-d');
         $d = strtotime("+1 day");
@@ -9178,18 +9041,7 @@ function ajax_get_gift_cash_products_admin(){
 }
 
 function autoadd_gift_cash($cart = Array(), $type = ''){
-    $in_cart = 0;
-    foreach ($_SESSION['cart'] as $k=>$v){
-        if($_SESSION['cart'][$k]['property'] == 'gift_cash') $in_cart = 1;
-    }
-    if($in_cart == 1 && $type == 'add_change'){
-        return $cart;
-    }
-    if($in_cart == 1 && $_POST['type'] == 'add'){
-        return;
-    }
-
-    /*if(d()->city->is_empty)*/ get_city();
+    get_city();
     if(d()->city->is_cash == 1){
         $gift_cash = d()->city->g_cash;
 
@@ -9246,7 +9098,8 @@ function autoadd_gift_cash($cart = Array(), $type = ''){
         $all_total_price = $t2_price-$t2_promo;
         if($t2_promo == 0 && $_SESSION['promocode']) $all_total_price = $t2_price-$_SESSION['promocode']['value'];
         if($_SESSION['points']) $all_total_price -= $_SESSION['points'];
-        if($_POST['type'] == 'add' && $all_total_price >= d()->city->min_gift_cash && $_POST['flag_gift'] == 1 && $_POST['pay'] == 'pay_1' || $_POST['type'] == 'add' && $all_total_price >= d()->city->min_gift_cash && $_POST['flag_gift'] == 1 && !$_SESSION['order_info']['pay'] || $_POST['type'] == 'add' && $all_total_price >= d()->city->min_gift_cash && $_POST['flag_gift'] == 1 && $_SESSION['order_info']['pay'] == 'pay_1'){
+
+        if($_POST['type'] == 'add' && $all_total_price >= d()->city->min_gift_cash && $_POST['flag'] == 1 && $_POST['pay'] == 'pay_1' || $_POST['type'] == 'add' && $all_total_price >= d()->city->min_gift_cash && $_POST['flag'] == 1 && !$_SESSION['order_info']['pay'] || $_POST['type'] == 'add' && $all_total_price >= d()->city->min_gift_cash && $_POST['flag'] == 1 && $_SESSION['order_info']['pay'] == 'pay_1'){
             // добавляем новый
             $_SESSION['cart'][$pid] = Array(
                 'id' => $p->id,
@@ -9268,9 +9121,11 @@ function autoadd_gift_cash($cart = Array(), $type = ''){
             );
             return json_encode($_SESSION['cart'][$pid]);
         }
+
         if($type == 'minus_change' && $total_price < d()->city->min_gift_cash){
             unset($cart[$pid]);
         }
+
         if($type == 'delete_change'){
             $cnt = 0;
             foreach ($cart as $k2=>$v2){
@@ -9280,7 +9135,8 @@ function autoadd_gift_cash($cart = Array(), $type = ''){
                 unset($cart[$pid]);
             }
         }
-        if($_POST['type'] == 'delete' && $_POST['flag_gift'] == 1 && $all_total_price < d()->city->min_gift_cash || $_POST['type'] == 'delete' && $_POST['flag_gift'] == 2){
+
+        if($_POST['type'] == 'delete' && $_POST['flag'] == 1 && $all_total_price < d()->city->min_gift_cash || $_POST['type'] == 'delete' && $_POST['flag'] == 2){
             unset($_SESSION['cart'][$pid]);
             return $pid;
         }
