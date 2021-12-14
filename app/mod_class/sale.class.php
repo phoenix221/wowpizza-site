@@ -32,6 +32,9 @@ class Sale extends ActiveRecord
         if($_SERVER['HTTP_HOST']=='apfd.ru'){
             return '<a href="https://apfd.ru/sales/'.$this->get('url').'/" class="btn btn-mini" target="_blank">Просмотр</a>';
         }
+        if($_SERVER['HTTP_HOST']=='wowpizza.ru'){
+            return '<a href="https://wowpizza.ru/sales/'.$this->get('url').'/" class="btn btn-mini" target="_blank">Просмотр</a>';
+        }
         return '<a href="https://'.$code.$maindomain.'.'.$zone.'/sales/'.$this->get('url').'/" class="btn btn-mini" target="_blank">Просмотр</a>';
     }
 
