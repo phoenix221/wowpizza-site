@@ -432,7 +432,8 @@
     </div>
 </div>
 @endif;
-@if(d()->city->id == 3 && url(1)=='sales' && $_GET['categoria'] == 77 || d()->city->id == 3 && url(2)=='pizza' || d()->city->id == 1 && url(1)=='sales' && $_GET['categoria'] == 11 || d()->city->id == 1 && url(2)=='pitstsy'):
+<!--@if(d()->city->id == 3 && url(1)=='sales' && $_GET['categoria'] == 77 || d()->city->id == 3 && url(2)=='pizza' || d()->city->id == 1 && url(1)=='sales' && $_GET['categoria'] == 11 || d()->city->id == 1 && url(2)=='pitstsy'):-->
+@if(d()->show_m == 0):
 <!--noindex-->
 <div class="tbm-wrap none">
     <div class="tbm-modal">
@@ -456,8 +457,7 @@
 </div>
 <!--/noindex-->
 @else:
-@$_SESSION['dbg1'] = url();
-@if(url(1) != 'pizza' || url() != 'tm/index' || url() != 'tm2/index' || url() != 'messengers/index' || url() != 'quiz/index' || url(1) != 'history_rolls' || url(1) != 'quarantine' || url(1) != 'city_history' || url(1) != 'erudition'):
+<!--@if(url(1) != 'pizza' || url() != 'tm/index' || url() != 'tm2/index' || url() != 'messengers/index' || url() != 'quiz/index' || url(1) != 'history_rolls' || url(1) != 'quarantine' || url(1) != 'city_history' || url(1) != 'erudition'):-->
 <!--noindex-->
 <div class="tbm-wrap none">
     <div class="tbm-modal">
@@ -480,7 +480,7 @@
     </div>
 </div>
 <!--/noindex-->
-@endif;
+<!--@endif;-->
 @endif;
 <div id="other-modal" class="modal" tabindex="-1" data-easein="fadeIn" role="dialog" aria-hidden="false" data-backdrop="static">
     <div class="modal-dialog">

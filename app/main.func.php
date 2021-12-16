@@ -119,7 +119,7 @@ function main()
     //    d()->close_were = 'а';
     //    d()->close_style = 'background: #f2780b;';
     //}else{
-        d()->close_img = 'logo_red.svg';
+        d()->close_img = 'wowpizza.svg';
         d()->close_were = '';
         d()->close_style = '';
     //}
@@ -148,6 +148,7 @@ function main()
         $_SESSION['wt_pickup_modal'] = 1;
         d()->wt_pickup_modal = 1;
     }
+    d()->show_m = 0;
 
 	if($_SESSION['admin']=='developer'){
         //d()->wt_pickup_modal = 1;
