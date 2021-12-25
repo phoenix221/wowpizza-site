@@ -1395,7 +1395,7 @@ function redirect_module()
             $getline = '?action=login&user='.$_SESSION['admin'].'&hash='.md5('435gfghngf298sdfjdvkksd2'.$_SESSION['admin'].'!345vbvc3t6YEJDV8dv234');
         }
         //header('Location: https://crm.'.d()->domain.'/'.$getline);
-        header('Location: https://crm.appetitfood.ru/'.$getline);
+        header('Location: https://crm.wowpizza.ru/'.$getline);
         exit;
     }
 }

@@ -34,6 +34,11 @@
                 <div class="p-title">
                     <a href="{.link}" onclick="ec_click('{.title|nq}','{.id}','{.price}','{ec_list}','{.category_word}'); product_cart(this, '{.id}');"><span itemprop="name">{.title}</span> {{edit}}{{delete}}</a>
                 </div>
+                @if(d()->text):
+                <div class="short-text">
+                    {.short_text}
+                </div>
+                @endif;
             </div>
             <div class="p-info" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
                 <ul class="p-options">

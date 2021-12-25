@@ -30,8 +30,10 @@ class Product extends ActiveRecord
 
     function text()
     {
-        $text = str_replace(' ', '', $this->get('text'));
+        /*$text = str_replace(' ', '', $this->get('text'));
         $text = replece_fileds($text);
+        if(!$text)$text = replece_fileds($this->get('sostav'));*/
+        $text = replece_fileds($this->get('text'));
         if(!$text)$text = replece_fileds($this->get('sostav'));
         return $text;
     }
@@ -385,6 +387,13 @@ class Product extends ActiveRecord
             }
         }
         return false;
+    }
+
+    function short_text()
+    {
+        $text = substr($this->get('text'), 0, 200);
+        $text = replece_fileds($text);
+        return $text;
     }
 
 }
