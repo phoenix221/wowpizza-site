@@ -88,7 +88,7 @@ class ProductsController
                     d()->Seo->description = $seo->description;
                     d()->Seo->keywords = $seo->keywords;
                 }else{
-                    d()->Seo->title = d()->category->title.' | «Аппетит»';
+                    d()->Seo->title = d()->category->title.' | «WOW! Pizza»';
                 }
 
             }
@@ -110,7 +110,7 @@ class ProductsController
                 }
             }
             d()->f_ids = array_unique(d()->f_ids);
-            d()->f_list = d()->Filter(d()->f_ids);
+            if(count(d()->f_ids)) d()->f_list = d()->Filter(d()->f_ids);
 
             // активность фильтра
             d()->factive = '';
@@ -265,7 +265,7 @@ class ProductsController
                             d()->Seo->description = $seo->description;
                             d()->Seo->keywords = $seo->keywords;
                         }else{
-                            d()->Seo->title = d()->subcategory_title.' | «Аппетит»';
+                            d()->Seo->title = d()->subcategory_title.' | «WOW! Pizza»';
                         }
 
                     }

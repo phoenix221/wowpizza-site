@@ -8,9 +8,9 @@
         </div>
         <span class="other-ttl">{.title}</span>
         @d()->main_price = d()->product_price;
-        @if(d()->this->text):
+        @if(d()->this->sostav):
         <div class="other-text-div">
-        <p class="other-text">{.text}</p>
+            {.sostav_original}
         </div>
         @endif;
     </div>

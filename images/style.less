@@ -1128,7 +1128,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .hl-prices li.active:last-child:before {
-  display: inline-block;
+  /*display: inline-block;*/
+  display: none;
   top: 0;
   left: -2px;
   transform: skew(8deg);
@@ -1778,7 +1779,7 @@ div.nav-mobile {
 .xs-cart-btn {
   display: none;
   border-radius: 10px;
-  background: #ed1c24;
+  background: @color1;
   padding: 6.5px 8px 6.5px 8px;
   position: fixed;
   bottom: 25px;
@@ -7601,7 +7602,7 @@ input.size-input-file{
   }
   .tbm-img{
     max-width:100%;
-    height: 480px;
+    height: auto;
   }
   .cookies-banner{
     position: fixed;

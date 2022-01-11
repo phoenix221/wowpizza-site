@@ -39,10 +39,10 @@ class Vacancy extends ActiveRecord
     function adm_link()
     {
         d()->city = d()->City($this->get('city_id'));
-        if(d()->city->id == 6){
-            $d = 'radugavkusaufa.ru';
+        if(d()->city->id == 1){
+            $d = 'wowpizza.ru';
         }else{
-            $d = d()->city->code.'.appetitfood.ru';
+            $d = d()->city->code.'.wowpizza.ru';
         }
         if($this->get('is_main')){
             return '<a target="_blank" href="https://'.$d.'/vakansii/">https://'.$d.'/vakansii/</a>';

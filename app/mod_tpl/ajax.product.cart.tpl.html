@@ -8,9 +8,9 @@
     <div class="col-md-6 col-sm-6 fnmt">
         <span class="other-ttl">{.title}</span>
         @d()->main_price = d()->product_price;
-        @if(d()->this->text):
+        @if(d()->this->sostav):
         <div class="other-text-div">
-            <p class="other-text">{.text}</p>
+            {.sostav_original}
         </div>
         @endif;
         @if(d()->auto_products_list != 0):

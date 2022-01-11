@@ -50,6 +50,7 @@
             @else:
             <h1><span>{category.title} {{edit 'categories/'.d()->category->id}}{{add 'products', 'category_id'=>d()->category->id, 'city_id'=>d()->city->id}}</span></h1>
             @endif;
+            @if(d()->f_list):
             <div class="filtr">
                 <img src="/images/loading.gif" class="filter-load" id="filter-load" alt="">
                 <span class="ttl {factive}"><i class="mdi mdi-heart"></i><em>Фильтр по ингредиентам</em></span>
@@ -65,6 +66,7 @@
                     </div>
                 </div>
             </div>
+            @endif;
             {{delivery_btn_tpl}}
         </div>
         @if(d()->subflag != 1 && d()->category->text):

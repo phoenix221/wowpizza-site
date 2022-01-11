@@ -385,6 +385,7 @@ class PagesController
     }
 
     function quiz_quarantine(){
+        d()->page_not_found();
         if(substr(url(), -6)!='/index'){
             header("HTTP/1.1 301 Moved Permanently");
             header('Location: /'.url().'/');
@@ -402,6 +403,7 @@ class PagesController
     }
 
     function quiz_history_rolls(){
+        d()->page_not_found();
         if(substr(url(), -6)!='/index'){
             header("HTTP/1.1 301 Moved Permanently");
             header('Location: /'.url().'/');
@@ -418,6 +420,7 @@ class PagesController
     }
 
     function quiz(){
+        d()->page_not_found();
         if(substr(url(), -6)!='/index'){
             header("HTTP/1.1 301 Moved Permanently");
             header('Location: /'.url().'/');
@@ -434,6 +437,7 @@ class PagesController
     }
 
     function quiz_city_history(){
+        d()->page_not_found();
         if(substr(url(), -6)!='/index'){
             header("HTTP/1.1 301 Moved Permanently");
             header('Location: /'.url().'/');
@@ -450,6 +454,7 @@ class PagesController
     }
 
     function quiz_erudition(){
+        d()->page_not_found();
         if(substr(url(), -6)!='/index'){
             header("HTTP/1.1 301 Moved Permanently");
             header('Location: /'.url().'/');
@@ -650,6 +655,7 @@ class PagesController
     }
 
     function partners(){
+        d()->page_not_found();
         if(substr(url(), -6)!='/index'){
             header("HTTP/1.1 301 Moved Permanently");
             header('Location: /'.url().'/');
@@ -665,7 +671,7 @@ class PagesController
         // навигация
         if(!d()->Seo->title)d()->Seo->title = 'Реклама и партнерство - доствка еды '.d()->city->name;
 
-        d()->ttl = 'Аппетит';
+        d()->ttl = 'WOW! Pizza';
         if(d()->city->title == 'Уфа'){
             d()->ttl = 'Радуга Вкуса Уфа';
         }
@@ -774,7 +780,7 @@ class PagesController
             foreach ($_POST['city'] as $k_city=>$v_city){
 
 
-                /*d()->ts_site = 'Аппетит';
+                /*d()->ts_site = 'WOW! Pizza';
                 if(d()->domain == 'radugavkusaufa.ru'){
                     d()->ts_site = 'Радуга Вкуса';
                 }*/
@@ -978,6 +984,7 @@ class PagesController
     }
 
     function about(){
+        d()->page_not_found();
         if(substr(url(), -6)!='/index'){
             header("HTTP/1.1 301 Moved Permanently");
             header('Location: /'.url().'/');
@@ -994,6 +1001,7 @@ class PagesController
     }
 
     function franchise(){
+        d()->page_not_found();
         if(substr(url(), -6)!='/index'){
             header("HTTP/1.1 301 Moved Permanently");
             header('Location: /'.url().'/');
@@ -1009,7 +1017,7 @@ class PagesController
         // навигация
         if(!d()->Seo->title)d()->Seo->title = 'Инвестируй в кафе доставки '.d()->city->name;
 
-        d()->ttl = 'Аппетит';
+        d()->ttl = 'WOW! Pizza';
         if(d()->city->title == 'Уфа'){
             d()->ttl = 'Радуга Вкуса Уфа';
         }

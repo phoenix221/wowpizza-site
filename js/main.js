@@ -1615,7 +1615,8 @@ function run_order(elem, first=0) {
         }
     }
     // доставка и соответствующие поля
-    $info['delivery_type'] = $('#change-delivery-btns li.active').data('type');
+    //$info['delivery_type'] = $('#change-delivery-btns li.active').data('type');
+    $info['delivery_type'] = 2;
     if($info['delivery_type']==1){
         // самовывоз
         $info['office'] = $(".offices-list input[name=office]:checked").closest('h4').find('label').html();
@@ -3801,7 +3802,7 @@ function run_recaptcha(action, first){
                                 $('#confirm-phone-block').show();
                                 var sc_type = $('body').data('sc-type');
                                 if(first == 1){
-                                    $('#auth-hint').show().html('Что-бы получить "Код подтверждения" пожалуйста запустите нашего бота в Telegram и следуйте дальнейшим инструкциям<br><br><a href="https://t.me/appetitfood_bot" target="_blank" class="btn btn-tg">Telegram-бот "Аппетит"</a>');
+                                    $('#auth-hint').show().html('Что-бы получить "Код подтверждения" пожалуйста запустите нашего бота в Telegram и следуйте дальнейшим инструкциям<br><br><a href="https://t.me/wowpizzaru_bot" target="_blank" class="btn btn-tg">Telegram-бот "WOW! Pizza"</a>');
                                 }else{
                                     if(sc_type==1){
                                         $('#auth-hint').show().html('на указанный номер отправлено смс с кодом подтверждения');
@@ -4156,9 +4157,11 @@ function order_phone_complete(){
     var hint = $('#ofi-hint');
     $.post('/ajax/check_user', {phone:input.val()}, function(data) {
         if(data=='auth'){
-            hint.html('<a href="#auth-modal" data-toggle="modal">авторизуйтесь</a> для получения/списания баллов').show();
+            //hint.html('<a href="#auth-modal" data-toggle="modal">авторизуйтесь</a> для получения/списания баллов').show();
+            hint.html('<a href="#auth-modal" data-toggle="modal">авторизуйтесь</a>').show();
         }else{
-            hint.html('<a href="#auth-modal" data-toggle="modal">зарегистрируйтесь</a> для получения/списания баллов').show();
+            //hint.html('<a href="#auth-modal" data-toggle="modal">зарегистрируйтесь</a> для получения/списания баллов').show();
+            hint.html('<a href="#auth-modal" data-toggle="modal">зарегистрируйтесь</a>').show();
         }
         load.hide();
     });

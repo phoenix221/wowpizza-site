@@ -26,9 +26,9 @@ class CabinetController
         $cnt = 10;
 	    //d()->orders_list = d()->Order->where('city_id=? AND user_id=?', d()->city->id, d()->this->id)->order_by('id desc')->limit(0, $cnt);
 	    $or_list = d()->Order->where('city_id=? AND user_id=?', d()->city->id, d()->this->id)->order_by('id desc')->to_array();
-	    for($i = 2020; $i <= date('Y'); $i++){
+	    for($i = 2021; $i <= date('Y'); $i++){
 	        $t = 'orders_'.$i;
-	        $or_old_list = d()->$t->sql('select * from '.$t.' where city_id="'.d()->city->id.'" and user_id="'.d()->this->id.'" order by id desc')->to_array();
+	        $or_old_list = d()->Check->sql('select * from '.$t.' where city_id="'.d()->city->id.'" and user_id="'.d()->this->id.'" order by id desc')->to_array();
             foreach ($or_old_list as $kor_old=>$vor_old){
                 $or_list[] = $vor_old;
             }
@@ -70,13 +70,13 @@ class CabinetController
         $cnt = 8;
         $points_new = d()->Point->where('user_id=?', d()->this->id)->order_by('id desc')->to_array();
 
-        for($i = 2020; $i <= date('Y')-1; $i++){
+        /*for($i = 2021; $i <= date('Y')-1; $i++){
             $t = 'points_'.$i;
             $points_old = d()->Point->sql('select * from '.$t.' where user_id="'.d()->this->id.'" order by id desc')->to_array();
             foreach ($points_old as $kpold=>$vpold){
                 $points_new[] = $vpold;
             }
-        }
+        }*/
         $new_arr_points = array_slice($points_new, 0, $cnt);
         d()->points_list = d()->Model($new_arr_points);
         d()->points_list = d()->Point_m($new_arr_points);

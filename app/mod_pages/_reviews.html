@@ -9,14 +9,14 @@
 <!--                <div class="col-sm-6 col-xs-12 review-col"><a href="#" data-block-id="write_guide" class="review-but {g_active}">Мы допустили ошибку? Сообщи руководству</a></div>-->
             </div>
             <div class="review_block {r_none}" id="reviews">
-                <!--<div class="reviews_warning">Для оперативной связи, пожалуйста, оставьте Вашу страничку Vk открытой или укажите контактный номер телефона.</div>-->
+                <div class="reviews_warning">Для оперативной связи, пожалуйста, оставьте Вашу страничку Vk открытой или укажите контактный номер телефона.</div>
                 <!-- Put this script tag to the <head> of your page -->
-                <!--<script type="text/javascript" src="https://vk.com/js/api/openapi.js?156"></script>
+                <script type="text/javascript" src="https://vk.com/js/api/openapi.js?156"></script>
                 <script type="text/javascript">
                     VK.init({apiId: {city.vk_w_id}});
-                </script>-->
+                </script>
                 <!-- Put this div tag to the place, where the Comments block will be -->
-                <!--<div id="vk_comments"></div>
+                <div id="vk_comments"></div>
                 <script type="text/javascript">
                     VK.Widgets.Comments("vk_comments", {limit: 10, attach: "*", pageUrl: "{city.vk_w_url}"});
                     VK.Observer.subscribe("widgets.comments.new_comment", function(num,last_comment,date,sign)
@@ -25,8 +25,8 @@
                             console.log(data);
                         });
                     });
-                </script>-->
-                <div class="reviews-lnk">
+                </script>
+                <!--<div class="reviews-lnk">
                     @if(d()->options->is_flamp == 1):
                     <a class="reviews-items {flamp_active}" href="#" data-block-id="reviewsflamp">Flamp</a>
                     @endif;
@@ -44,13 +44,14 @@
                     {rewiews_ya_map}
                 </div>
                 @endif;
+                -->
             </div>
             <div class="review_block {g_none}" id="write_guide">
                 <h3>Допустили ошибку? Написать в службу заботы</h3>
                 <small>Чтобы направить сообщение / обратную связь и получить максимально быстрый ответ, воспользуйтесь следующими мессенджерами:</small>
 
                 @if(d()->city->id == 3 && d()->reviews_vk):
-                <p>VK: <a href="https://{reviews_vk}">vk.me/appetit_kzn_help</a></p>
+                <p>VK: <a href="https://{reviews_vk}">vk.me/wowpizza_help</a></p>
                 @elseif(d()->reviews_vk):
                 <p>VK: <a href="https://{reviews_vk}">{reviews_vk}</a></p>
                 @endif;

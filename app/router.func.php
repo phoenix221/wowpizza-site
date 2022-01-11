@@ -19,7 +19,7 @@ route('/reviews-application-form/index', 'pages#reviews_application');
 route('/vakansii/', 'vacancies#index');
 route('/photo-reviews-application-form/index', 'pages#photo_reviews_application');
 route('/favorites/index', 'pages#favorites');
-route('/about/index', 'pages#about');
+//route('/about/index', 'pages#about');
 route('/delivery-terms/index', 'pages#delivery_terms');
 route('/faq/index', 'pages#faqs');
 route('/orders_status/index', 'pages#orders_status');

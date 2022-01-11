@@ -1084,8 +1084,8 @@ function get_city(){
                 }
                 if($_GET)d()->url .= '?'.$_SERVER['QUERY_STRING'];
 
-                d()->Seo->title = '«Аппетит» - служба доставки еды, заказать на дом и в офис';
-                d()->Seo->description = 'Бесплатная доставка от 500руб. Быстрая и не дорогая доставка еды - служба доставки «АППЕТИТ». Пицца, роллы, суши,  бургеры, шаурма и другие блюда с доставкой. ';
+                d()->Seo->title = '«WOW! Pizza» - служба доставки еды, заказать на дом и в офис';
+                d()->Seo->description = 'Бесплатная доставка от 500руб. Быстрая и не дорогая доставка еды - служба доставки «WOW! Pizza». Пицца, роллы, суши,  бургеры, шаурма и другие блюда с доставкой. ';
 
                 print d()->domain_choose_tpl();
                 exit;
@@ -1954,9 +1954,9 @@ function g_loadmore($table='', $limit='', $total='', $user_id=''){
     if($table=='points'){
         $cnt = d()->Point->where('user_id=?',d()->this->id)->count;
 
-        for($i = 2020; $i <= date('Y')-1; $i++){
+        for($i = 2021; $i <= date('Y')-1; $i++){
             $t = 'points_'.$i;
-            $cnt += d()->$t->sql('select * from '.$t.' where user_id="'.d()->this->id.'" order by id desc')->count;
+            $cnt += d()->Check->sql('select * from '.$t.' where user_id="'.d()->this->id.'" order by id desc')->count;
         }
         // проверяем, нужна ли кнопка Показать еще
         if($cnt <= $total){
@@ -1967,9 +1967,9 @@ function g_loadmore($table='', $limit='', $total='', $user_id=''){
 
     if($table=='orders'){
         $cnt = d()->Order->where('user_id=? AND city_id=?', d()->this->id, d()->city->id)->count;
-        for($i = 2020; $i < date('Y'); $i++){
+        for($i = 2021; $i < date('Y'); $i++){
             $t = 'orders_'.$i;
-            $cnt += d()->$t->sql('SELECT * FROM '.$t.' WHERE city_id="'.d()->city->id.'" AND user_id="'.d()->this->id.'" ORDER BY id DESC')->count;
+            $cnt += d()->Check->sql('SELECT * FROM '.$t.' WHERE city_id="'.d()->city->id.'" AND user_id="'.d()->this->id.'" ORDER BY id DESC')->count;
         }
         // проверяем, нужна ли кнопка Показать еще
         if($cnt <= $total){
@@ -1998,7 +1998,7 @@ function ajax_get_more(){
     }
     if($_POST['table']=='points'){
         $points_new = d()->Point->where('user_id=?', d()->Auth->id)->order_by('id desc')->to_array();
-        for($i = 2020; $i <= date('Y')-1; $i++){
+        for($i = 2021; $i <= date('Y')-1; $i++){
             $t = 'points_'.$i;
             $points_old = d()->Point->sql('select * from '.$t.' where user_id="'.d()->Auth->id.'" order by id desc')->to_array();
             foreach ($points_old as $kpold=>$vpold){
@@ -2030,7 +2030,7 @@ function ajax_get_more(){
     if($_POST['table']=='orders'){
         get_city();
         $orders_new = d()->Order->where('user_id=? AND city_id=?', d()->Auth->id, d()->city->id)->order_by('id desc')->to_array();
-        for($i = 2020; $i <= date('Y')-1; $i++){
+        for($i = 2021; $i <= date('Y')-1; $i++){
             $t = 'orders_'.$i;
             $orders_old = d()->Order->sql('select * from '.$t.' where city_id="'.d()->city->id.'" and user_id="'.d()->Auth->id.'" order by id desc')->to_array();
             foreach ($orders_old as $kor_old=>$vor_old){
@@ -3066,7 +3066,7 @@ function ajax_run_promo(){
             $orders = d()->Order->where('phone = ?', $new_u->phone)->count;
             $str_order = 0;
             if($orders == 0){
-                for ($i = 2020; $i <= date('Y') - 1; $i++) {
+                for ($i = 2021; $i <= date('Y') - 1; $i++) {
                     $t = 'orders_' . $i;
                     $orders_old = d()->Order->sql('select * from ' . $t . ' where `phone` ='.$new_u->phone)->count;
                     $str_order = $orders_old;
@@ -5491,7 +5491,7 @@ function send_code($phone='', $first=0){
         }else{
             // отправляем код подтверждения по смс
             $text = $code.' код подтверждения на сайте '.d()->site_url;
-            $mresult = file_get_contents('https://smsc.ru/sys/send.php?login='.d()->city->smsc_login.'&psw='.d()->city->smsc_password.'&phones='.$phone.'&mes='.$text);
+            $mresult = file_get_contents('https://smsc.ru/sys/send.php?login='.d()->city->smsc_login.'&psw='.d()->city->smsc_password.'&phones='.$phone.'&mes='.$text.'&sender=SMSC.RU');
         }
         //$mresult .= json_encode($_SESSION);
         // логируем звонки
@@ -6982,10 +6982,10 @@ function cron_send_ankets(){
     foreach($sp as $k=>$v){
         $code = $c[$k]['code'];
         $vkname = $c[$k]['sigma_vk_sender'];
-        if(d()->city->id == 6){
-            $l = 'https://radugavkusaufa.ru/anketa/';
+        if(d()->city->id == 1){
+            $l = 'https://wowpizza.ru/anketa/';
         }else{
-            $l = 'https://'.$code.'.appetitfood.ru/anketa/';
+            $l = 'https://'.$code.'.wowpizza.ru/anketa/';
         }
 
         foreach($v as $key=>$value){
@@ -7038,7 +7038,7 @@ function cron_send_ankets(){
 
 function sendMessageTG($text = '', $users = Array()){
     $site = 2;
-    $url = 'https://tgbot.appetitfood.ru/api.php?method=send_message&text=tst&site='.$site;
+    $url = 'https://tgbot.wowpizza.ru/api.php?method=send_message&text=tst&site='.$site;
 
     $data = array(
         'text' => $text,
@@ -7064,12 +7064,12 @@ function sigma_test(){
     $k = '79061248503';
     //$k = '79050383338';
     $vkname = d()->city->sigma_vk_sender;
-    $link = 'https://'.d()->city->code.'.appetitfood.ru/anketa/';
+    $link = 'https://'.d()->city->code.'.wowpizza.ru/anketa/';
     //$link = 'https://kzn.appetitfood.ru/anketa/';
     $name = 'Вахтанг';
     //$name = 'Кирилл';
     $text = $name.', Здравствуйте.
-    Вчера Вы делали заказ в «Аппетит».
+    Вчера Вы делали заказ в «WOW! Pizza».
     Оставьте, пожалуйста, обратную связь, уделив не более 1 минуты.
     Это поможет нам стать лучше.
     '.$link.'
@@ -7206,8 +7206,8 @@ function export_products()
         }
         $cat_title = substr(trim($cat_title),0,-1);
         // url
-        $url = 'https://'.$city_codes[$v->city_id].'.appetitfood.ru';
-        if($v->city_id == 6)$url = 'https://radugavkusaufa.ru';
+        $url = 'https://'.$city_codes[$v->city_id].'.wowpizza.ru';
+        if($v->city_id == 1)$url = 'https://wowpizza.ru';
         // вес / объем
         $w = '';
         if($v->weight)$w = $v->weight.' '.$v->weight_type.'.';
@@ -7259,7 +7259,7 @@ function export_products()
     header ("Cache-Control: no-cache, must-revalidate");
     header ("Pragma: no-cache");
     header ("Content-type: application/vnd.ms-excel");
-    header ("Content-Disposition: attachment; filename=Блюда Аппетит ".date('d-m-Y').".xls");
+    header ("Content-Disposition: attachment; filename=Блюда WOW! Pizza ".date('d-m-Y').".xls");
 
     // Вывод файла
     $objWriter = new PHPExcel_Writer_Excel5($myXls);

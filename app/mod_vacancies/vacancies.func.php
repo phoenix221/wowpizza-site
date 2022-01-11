@@ -37,7 +37,7 @@ class VacanciesController
         }
         // навигация
         d()->nav = '<li itemscope itemprop="itemListElement" itemtype="http://schema.org/ListItem"><span class="mdi mdi-chevron-right"></span><span itemprop="name">Вакансии<meta itemprop="position" content="2"></span></li><li itemscope itemprop="itemListElement" itemtype="http://schema.org/ListItem"><span class="mdi mdi-chevron-right"></span><span itemprop="name">'.d()->this->title.'<meta itemprop="position" content="2"></span></li>';
-        if(!d()->Seo->title)d()->Seo->title = d()->this->title.' - вакансия «Аппетит» '.d()->city->title;
+        if(!d()->Seo->title)d()->Seo->title = d()->this->title.' - вакансия «WOW! Pizza» '.d()->city->title;
 
 		d()->vacancies_list = d()->Vacancy->where('city_id=? AND is_active=1 AND id != ?', d()->city->id, d()->this->id);
 		print d()->view();
