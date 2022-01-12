@@ -971,13 +971,13 @@ class PagesController
             $u = d()->User($_SESSION['auth']);
             $str = trim($u->likes, ',');
             $likes = explode(',', $str);
-            d()->likes_list = d()->Product($likes);
+            if(count($likes)) d()->likes_list = d()->Product($likes);
             get_products_options(d()->likes_list->category_id);
         }else{
             if($_COOKIE['likes']){
                 $str = trim($_COOKIE['likes'], ',');
                 $likes = explode(',', $str);
-                d()->likes_list = d()->Product($likes);
+                if(count($likes)) d()->likes_list = d()->Product($likes);
                 get_products_options(d()->likes_list->category_id);
             }
         }

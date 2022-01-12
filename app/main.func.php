@@ -1505,6 +1505,16 @@ function ajax_registration(){
         }
         $user = $u->save_and_load();
 
+        // проверяем, делал ли пользователь заказы с этого номера раньше
+        $olist = d()->Order->where('phone = ? AND city_id = ? AND user_id = 0 OR phone = ? AND city_id = ? AND user_id IS NULL', $phone, d()->city->id, $phone, d()->city->id);
+        if(!$olist->is_empty){
+            foreach($olist as $v){
+                $o = d()->Order($olist->id);
+                $o->user_id = $user->id;
+                $o->save;
+            }
+        }
+
         // создаем историю начисления баллов
         create_ph($user->id, d()->city->code, 1, d()->city->points);
 
@@ -2995,6 +3005,11 @@ function ajax_run_promo(){
             $r['text'] = 'промокод не найден';
             return json_encode($r);
         }
+        if($_SESSION['promocode']['id']){
+            $r['result'] = 'error';
+            $r['text'] = 'промокод уже активирован, пожалуйста обновите страницу';
+            return json_encode($r);
+        }
 
         $check = 1;
         // проверка на период действия
@@ -4211,6 +4226,18 @@ function ajax_check_order(){
             exit;
         }
 
+        // проверка на черный список
+        /*if($info['phone']){
+            $phone = d()->convert_phone($info['phone']);
+            $bl = d()->Blacklist->where('phone = ?', $phone)->limit(0,1);
+            if(!$bl->is_empty){
+                $r['result'] = 'error';
+                $r['text'] = 'К сожалению, по техническим причинам оформление заказа c помощью приложения невозможно. Для оформления заказа Вы можете позвонить в колл-центр.';
+                return json_encode($r);
+                exit;
+            }
+        }*/
+
         // проверяем способ доставки
         if($info['delivery_type']==1){
             // samovivoz
@@ -4943,10 +4970,22 @@ function ajax_check_order(){
             $office = d()->Office->where('city_id = ?', d()->city->id)->order_by('id '.$srt)->limit(0,1)->id;
         }
 
+        // определяем по номеру телефона есть ли такой пользователь в базе
+        $uid = '';
+        $phone = d()->convert_phone($info['phone']);
+        if($_POST['user']){
+            $uid = $u->id;
+        }else{
+            $checkuser = d()->User->where('phone = ? AND city = ?', $phone, d()->city->code)->limit(0,1);
+            if(!$checkuser->is_empty){
+                $uid = $checkuser->id;
+            }
+        }
+
         // sozdaem zakaz v baze
         $o = d()->Order->new;
         $o->city_id = d()->city->id;
-        $o->user_id = $u->id;
+        if($uid)$o->user_id = $uid;
         $o->created_at = date('Y-m-d H:i:s', date('U')+d()->city->timezone*3600);
         $o->updated_at = date('Y-m-d H:i:s', date('U')+d()->city->timezone*3600);
         $o->phone = d()->convert_phone($info['phone']);
@@ -8641,7 +8680,7 @@ function ajax_find_orders() {
                     $str['price'] = $orders_id->finish_price;
                     $str['str_f'] = 0;
                     if($orders_id->status == 0 || $orders_id->status == 9 || $orders_id->status == 6){
-                        $str['status'] = 'Заказ готовиться';
+                        $str['status'] = 'Заказ готовится';
                         if($orders_id->delivery == 2){
                             $str['str'] = '<strong>Ваш заказ принят и мы начали готовить</strong><br>Доставим Ваш заказ к '.$orders_id->running_order_time;
                             $str['str_f'] = 1;
@@ -8710,7 +8749,7 @@ function ajax_find_orders() {
                     $str['price'] = $orders_id->finish_price;
                     $str['str_f'] = 0;
                     if($orders_id->status == 0 || $orders_id->status == 9 || $orders_id->status == 6){
-                        $str['status'] = 'Заказ готовиться';
+                        $str['status'] = 'Заказ готовится';
                         if($orders_id->delivery == 2){
                             $str['str'] = '<strong>Ваш заказ принят, мы начнем готовить заказ к '.$orders_id->cook_time.'</strong><br>Доставим Ваш заказ к '.$orders_id->running_order_time;
                             $str['str_f'] = 1;
